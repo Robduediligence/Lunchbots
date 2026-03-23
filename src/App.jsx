@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase, getSession, ensureSubscriber, getBotByOwner } from './lib/supabase.js'
+import { supabase, getSession, ensureSubscriber, getBotByOwner, getBotsByOwner } from './lib/supabase.js'
 import AuthView      from './views/AuthView.jsx'
 import WizardView    from './views/WizardView.jsx'
 import DashboardView from './views/DashboardView.jsx'
@@ -53,13 +53,18 @@ export default function App() {
     setRoute('dashboard')
   }
 
+  async function refreshBots() {
+    const b = await getBotByOwner(user.id)
+    setBot(b)
+  }
+
   async function handleLogout() {
     const { signOut } = await import('./lib/supabase.js')
     await signOut()
     setUser(null); setSub(null); setBot(null); setRoute('auth')
   }
 
-  function handleEditBot() { setEditing(true); setRoute('wizard') }
+  function handleEditBot(botToEdit) { setEditing(true); setBot(botToEdit); setRoute('wizard') }
 
   async function handleWizardDone(savedBot) {
     setBot(savedBot)

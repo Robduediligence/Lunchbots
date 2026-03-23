@@ -89,22 +89,57 @@ export async function getBotByOwner(ownerId) {
   return data
 }
 
+export async function getBotsByOwner(ownerId) {
+  const { data, error } = await supabase
+    .from('bots')
+    .select('*')
+    .eq('owner_id', ownerId)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data || []
+}
+
 export async function saveBot(botData) {
-  const { id, ...rest } = botData
-  rest.updated_at = new Date().toISOString()
+  const { id } = botData
+  const clean = {
+    owner_id: botData.owner_id, name: botData.name, descriptor: botData.descriptor,
+    greeting: botData.greeting, welcome_message: botData.welcome_message,
+    published: botData.published, published_at: botData.published_at,
+    knowledge_text: botData.knowledge_text, knowledge_entries: botData.knowledge_entries,
+    allow_web: botData.allow_web, allow_broad_ai: botData.allow_broad_ai,
+    strict_kb_only: botData.strict_kb_only, fallback_message: botData.fallback_message,
+    tone: botData.tone, response_length: botData.response_length,
+    initiative: botData.initiative, writing_style: botData.writing_style,
+    emoji_use: botData.emoji_use, primary_color: botData.primary_color,
+    title_font: botData.title_font, body_font: botData.body_font,
+    resource_font: botData.resource_font, font_size: botData.font_size,
+    border_radius: botData.border_radius, bubble_style: botData.bubble_style,
+    bg_color: botData.bg_color, bg_overlay: botData.bg_overlay,
+    bg_image_url: botData.bg_image_url, texture_overlay: botData.texture_overlay,
+    header_height: botData.header_height, spacing: botData.spacing,
+    text_opacity: botData.text_opacity, panel_opacity: botData.panel_opacity,
+    logo_size: botData.logo_size, button_style: botData.button_style,
+    avatar_letter: botData.avatar_letter, logo_url: botData.logo_url,
+    avatar_url: botData.avatar_url, suggested_prompts: botData.suggested_prompts,
+    categories: botData.categories, cta_text: botData.cta_text,
+    cta_url: botData.cta_url, support_email: botData.support_email,
+    use_case: botData.use_case, bot_type: botData.bot_type,
+    access_password: botData.access_password, chat_width: botData.chat_width,
+    updated_at: new Date().toISOString(),
+  }
   if (id) {
     const { data, error } = await supabase
       .from('bots')
-      .update(rest)
+      .update(clean)
       .eq('id', id)
       .select()
       .single()
     if (error) throw error
     return data
-  } else {
+ } else {
     const { data, error } = await supabase
       .from('bots')
-      .insert(rest)
+      .insert(clean)
       .select()
       .single()
     if (error) throw error
@@ -178,22 +213,82 @@ export async function getKnowledgeGaps(botId) {
 
 // ── Stats helpers ─────────────────────────────────────────────────────────────
 export async function getBotStats(botId) {
-  const [convRes, gapRes, feedRes] = await Promise.all([
-    supabase.from('conversations').select('id, created_at, session_id').eq('bot_id', botId),
+  const [convRes, gapRes, feedRes, msgRes] = await Promise.all([
+    supabase.from('conversations').select('id, created_at, session_id, type').eq('bot_id', botId),
     supabase.from('knowledge_gaps').select('id').eq('bot_id', botId).eq('resolved', false),
     supabase.from('feedback').select('id').eq('bot_id', botId).eq('resolved', false),
+    supabase.from('messages').select('id, created_at, role').in('conversation_id',
+      (await supabase.from('conversations').select('id').eq('bot_id', botId)).data?.map(c => c.id) || []
+    ),
   ])
   const conversations = convRes.data || []
+  const messages      = msgRes.data  || []
   const uniqueUsers   = new Set(conversations.map(c => c.session_id)).size
   const now           = Date.now()
-  const week          = conversations.filter(c => now - new Date(c.created_at).getTime() < 7 * 86400000).length
+  const weekMs        = 7 * 86400000
+
+  // 7-day history — conversations per day
+  const sevenDays = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now - (6 - i) * 86400000)
+    const label = d.toLocaleDateString('en-NZ', { weekday: 'short' })
+    const count = conversations.filter(c => {
+      const cd = new Date(c.created_at)
+      return cd.toDateString() === d.toDateString()
+    }).length
+    return { label, count }
+  })
+
   return {
-    totalConversations: conversations.length,
+    totalConversations:   conversations.length,
     uniqueUsers,
-    conversationsThisWeek: week,
-    unresolvedGaps: gapRes.data?.length || 0,
-    unresolvedFeedback: feedRes.data?.length || 0,
+    conversationsThisWeek: conversations.filter(c => now - new Date(c.created_at).getTime() < weekMs).length,
+    totalMessages:        messages.filter(m => m.role === 'user').length,
+    unresolvedGaps:       gapRes.data?.length || 0,
+    unresolvedFeedback:   feedRes.data?.length || 0,
+    feedbackCount:        conversations.filter(c => c.type === 'feedback').length,
+    sevenDays,
   }
+}
+// ── Feedback helpers ──────────────────────────────────────────────────────────
+export async function getFeedback(botId) {
+  const { data, error } = await supabase
+    .from('feedback')
+    .select('*')
+    .eq('bot_id', botId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
+}
+
+export async function getFeedbackReplies(feedbackId) {
+  const { data, error } = await supabase
+    .from('feedback_replies')
+    .select('*')
+    .eq('feedback_id', feedbackId)
+    .order('created_at', { ascending: true })
+  if (error) throw error
+  return data || []
+}
+
+export async function addFeedbackReply(feedbackId, role, content) {
+  const { data, error } = await supabase
+    .from('feedback_replies')
+    .insert({ feedback_id: feedbackId, role, content })
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export async function getFeedbackBySession(botId, sessionId) {
+  const { data, error } = await supabase
+    .from('feedback')
+    .select('*')
+    .eq('bot_id', botId)
+    .eq('session_id', sessionId)
+    .order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
 }
 
 // ── Claude AI ─────────────────────────────────────────────────────────────────
@@ -238,9 +333,18 @@ export function buildBotSystem(bot) {
     balanced: 'Aim for balanced responses — thorough but not excessive.',
     detailed: 'Give detailed, comprehensive responses.',
   }
-  return `You are ${bot.name}${bot.descriptor ? `, ${bot.descriptor}` : ''}.
+  // Compile knowledge entries + legacy text into one KB string
+  const entries = Array.isArray(bot.knowledge_entries) ? bot.knowledge_entries.filter(e => e.enabled !== false) : []
+  const entriesText = entries.map(e => `### ${e.title}\n${e.content}`).join('\n\n---\n\n')
+  const fullKb = [entriesText, bot.knowledge_text].filter(Boolean).join('\n\n---\n\n')
 
-${bot.knowledge_text?.trim() ? `## Your Knowledge Base\nYour primary source of truth. Always prioritise this:\n\n---\n${bot.knowledge_text}\n---\n` : ''}
+  const botContext = bot.bot_type === 'internal'
+    ? 'You are an internal assistant for a business team. Users are employees or team members.'
+    : 'You are a customer-facing assistant. Users are customers or members of the public.'
+
+  return `You are ${bot.name}${bot.descriptor ? `, ${bot.descriptor}` : ''}. ${botContext}
+
+${fullKb.trim() ? `## Your Knowledge Base\nThis is your ONLY source of truth. Always check here first before responding. If the answer is here, use it — even if the question is phrased differently:\n\n---\n${fullKb}\n---\n` : ''}
 
 ## Behaviour
 - Tone: Be ${toneMap[bot.tone] || 'professional and helpful'}.
