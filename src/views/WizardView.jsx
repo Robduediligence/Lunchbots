@@ -1,0 +1,1072 @@
+import { useState, useRef, useEffect } from 'react'
+import { saveBot, callClaude, buildBotSystem, renderMarkdown } from '../lib/supabase.js'
+import { I, Spinner } from '../components/UI.jsx'
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const STEPS = [
+  { id: 'usecase',      label: 'Use Case' },
+  { id: 'identity',     label: 'Identity' },
+  { id: 'knowledge',    label: 'Knowledge' },
+  { id: 'capabilities', label: 'Capabilities' },
+  { id: 'branding',     label: 'Branding' },
+  { id: 'personality',  label: 'Personality' },
+  { id: 'test',         label: 'Test' },
+  { id: 'publish',      label: 'Publish' },
+]
+
+const USE_CASES = [
+  { id: 'support',    label: 'Support Bot',           icon: '🎧', desc: 'Answer customer questions, resolve issues, reduce support load.' },
+  { id: 'sales',      label: 'Sales Bot',             icon: '💼', desc: 'Qualify leads, explain offerings, guide towards a conversation.' },
+  { id: 'onboarding', label: 'Onboarding Bot',        icon: '🚀', desc: 'Guide new customers or team members through getting started.' },
+  { id: 'knowledge',  label: 'Internal Knowledge Bot',icon: '📚', desc: 'Give your team instant access to SOPs, policies, and processes.' },
+  { id: 'training',   label: 'Training & Education',  icon: '🎓', desc: 'Deliver course material, answer student questions, reinforce learning.' },
+  { id: 'intake',     label: 'Intake & Triage Bot',   icon: '📋', desc: 'Collect information, qualify requests, route to the right person.' },
+]
+
+const KB_TYPES = [
+  { id: 'faq',        label: 'FAQ',              color: '#7C3AED' },
+  { id: 'service',    label: 'Service Info',     color: '#2563EB' },
+  { id: 'onboarding', label: 'Onboarding',       color: '#059669' },
+  { id: 'sop',        label: 'SOP / Process',    color: '#D97706' },
+  { id: 'training',   label: 'Training',         color: '#DC2626' },
+  { id: 'product',    label: 'Product Details',  color: '#0891B2' },
+  { id: 'policy',     label: 'Policy',           color: '#4B5563' },
+  { id: 'resource',   label: 'Resource',         color: '#7C3AED' },
+]
+
+const PRIORITY_LEVELS = [
+  { id: 'primary',    label: 'Primary',    desc: 'Always check first' },
+  { id: 'secondary',  label: 'Secondary',  desc: 'Use if primary has no answer' },
+  { id: 'background', label: 'Background', desc: 'Context only' },
+]
+
+// 50 Google Fonts
+const FONTS = [
+  { label: 'Inter',             value: "'Inter', sans-serif" },
+  { label: 'Roboto',            value: "'Roboto', sans-serif" },
+  { label: 'Open Sans',         value: "'Open Sans', sans-serif" },
+  { label: 'Lato',              value: "'Lato', sans-serif" },
+  { label: 'Poppins',           value: "'Poppins', sans-serif" },
+  { label: 'Montserrat',        value: "'Montserrat', sans-serif" },
+  { label: 'Raleway',           value: "'Raleway', sans-serif" },
+  { label: 'Nunito',            value: "'Nunito', sans-serif" },
+  { label: 'DM Sans',           value: "'DM Sans', sans-serif" },
+  { label: 'Outfit',            value: "'Outfit', sans-serif" },
+  { label: 'Plus Jakarta Sans', value: "'Plus Jakarta Sans', sans-serif" },
+  { label: 'Figtree',           value: "'Figtree', sans-serif" },
+  { label: 'Manrope',           value: "'Manrope', sans-serif" },
+  { label: 'Sora',              value: "'Sora', sans-serif" },
+  { label: 'Work Sans',         value: "'Work Sans', sans-serif" },
+  { label: 'Karla',             value: "'Karla', sans-serif" },
+  { label: 'Mulish',            value: "'Mulish', sans-serif" },
+  { label: 'Jost',              value: "'Jost', sans-serif" },
+  { label: 'Urbanist',          value: "'Urbanist', sans-serif" },
+  { label: 'Cabin',             value: "'Cabin', sans-serif" },
+  { label: 'Source Sans 3',     value: "'Source Sans 3', sans-serif" },
+  { label: 'Noto Sans',         value: "'Noto Sans', sans-serif" },
+  { label: 'Rubik',             value: "'Rubik', sans-serif" },
+  { label: 'IBM Plex Sans',     value: "'IBM Plex Sans', sans-serif" },
+  { label: 'Lexend',            value: "'Lexend', sans-serif" },
+  { label: 'Playfair Display',  value: "'Playfair Display', serif" },
+  { label: 'Lora',              value: "'Lora', serif" },
+  { label: 'Merriweather',      value: "'Merriweather', serif" },
+  { label: 'Georgia',           value: "Georgia, serif" },
+  { label: 'Cormorant',         value: "'Cormorant', serif" },
+  { label: 'EB Garamond',       value: "'EB Garamond', serif" },
+  { label: 'Libre Baskerville', value: "'Libre Baskerville', serif" },
+  { label: 'Crimson Pro',       value: "'Crimson Pro', serif" },
+  { label: 'Source Serif 4',    value: "'Source Serif 4', serif" },
+  { label: 'Spectral',          value: "'Spectral', serif" },
+  { label: 'DM Serif Display',  value: "'DM Serif Display', serif" },
+  { label: 'Fraunces',          value: "'Fraunces', serif" },
+  { label: 'Abril Fatface',     value: "'Abril Fatface', serif" },
+  { label: 'Space Grotesk',     value: "'Space Grotesk', sans-serif" },
+  { label: 'Josefin Sans',      value: "'Josefin Sans', sans-serif" },
+  { label: 'Quicksand',         value: "'Quicksand', sans-serif" },
+  { label: 'Nunito Sans',       value: "'Nunito Sans', sans-serif" },
+  { label: 'Hind',              value: "'Hind', sans-serif" },
+  { label: 'Barlow',            value: "'Barlow', sans-serif" },
+  { label: 'Exo 2',             value: "'Exo 2', sans-serif" },
+  { label: 'Oxanium',           value: "'Oxanium', sans-serif" },
+  { label: 'Unbounded',         value: "'Unbounded', sans-serif" },
+  { label: 'Bebas Neue',        value: "'Bebas Neue', sans-serif" },
+  { label: 'IBM Plex Mono',     value: "'IBM Plex Mono', monospace" },
+  { label: 'Space Mono',        value: "'Space Mono', monospace" },
+]
+
+const OVERLAYS = [
+  { id: 'none',    label: 'None',          css: 'none' },
+  { id: 'grain',   label: 'Film Grain',    css: 'grain' },
+  { id: 'flare',   label: 'Light Flare',   css: 'flare' },
+  { id: 'sand',    label: 'Sand',          css: 'sand' },
+  { id: 'rock',    label: 'Rock',          css: 'rock' },
+  { id: 'vintage', label: 'Vintage',       css: 'vintage' },
+  { id: 'linen',   label: 'Linen',         css: 'linen' },
+]
+
+const BOT_DEFAULTS = {
+  use_case: '',
+  name: '', descriptor: '', greeting: '', welcome_message: '',
+  knowledge_entries: [],
+  knowledge_text: '',
+  allow_web: false, allow_broad_ai: false, strict_kb_only: true,
+  fallback_message: "I don't have that information yet. I've flagged your question for the team.",
+  tone: 'professional', response_length: 'balanced', initiative: 'reactive',
+  writing_style: 'conversational', emoji_use: 'none',
+  // Branding
+  primary_color: '#2C1810', secondary_color: '#F5F0E8',
+  title_font: "'Playfair Display', serif",
+  body_font: "'Inter', sans-serif",
+  resource_font: "'Lora', serif",
+  font_size: 14,
+  border_radius: 12,
+  bubble_style: 'filled',
+  bg_color: '#F5F0E8',
+  bg_overlay: 40,
+  bg_image_url: null,
+  texture_overlay: 'none',
+  // Layout controls
+  header_height: 60,
+  chat_width: 100,
+  spacing: 14,
+  text_opacity: 100,
+  panel_opacity: 100,
+  logo_size: 28,
+  button_style: 'filled',
+  avatar_letter: '',
+  logo_url: null,
+  avatar_url: null,
+  suggested_prompts: ['', '', '', ''],
+  categories: [],
+}
+
+// ── Use-case personality presets ──────────────────────────────────────────────
+const USE_CASE_PRESETS = {
+  support:    { tone: 'warm',         writing_style: 'support',       initiative: 'followup',  response_length: 'balanced' },
+  sales:      { tone: 'consultative', writing_style: 'conversational',initiative: 'proactive', response_length: 'balanced' },
+  onboarding: { tone: 'warm',         writing_style: 'educational',   initiative: 'proactive', response_length: 'detailed' },
+  knowledge:  { tone: 'direct',       writing_style: 'polished',      initiative: 'reactive',  response_length: 'detailed' },
+  training:   { tone: 'educational',  writing_style: 'educational',   initiative: 'proactive', response_length: 'detailed' },
+  intake:     { tone: 'professional', writing_style: 'conversational',initiative: 'proactive', response_length: 'short' },
+}
+
+// ── Google Fonts loader ───────────────────────────────────────────────────────
+function loadGoogleFont(fontValue) {
+  const name = fontValue.replace(/['"]/g,'').split(',')[0].trim()
+  const safe = ['Georgia','monospace','sans-serif','serif']
+  if (safe.includes(name)) return
+  const id = `gf-${name.replace(/\s/g,'-')}`
+  if (document.getElementById(id)) return
+  const link = document.createElement('link')
+  link.id = id; link.rel = 'stylesheet'
+  link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}:wght@300;400;500;600;700&display=swap`
+  document.head.appendChild(link)
+}
+
+// ── Overlay CSS ───────────────────────────────────────────────────────────────
+function getOverlayStyle(type) {
+  const base = { position:'absolute', inset:0, pointerEvents:'none', zIndex:1 }
+  switch(type) {
+    case 'grain':
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")`, opacity:0.6 }
+    case 'flare':
+      return { ...base, background:'radial-gradient(ellipse at 20% 20%, rgba(255,240,200,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(255,220,180,0.08) 0%, transparent 40%)' }
+    case 'sand':
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E")`, background:'rgba(210,180,140,0.05)' }
+    case 'rock':
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.4' numOctaves='5'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")` }
+    case 'vintage':
+      return { ...base, background:'radial-gradient(ellipse at center, transparent 40%, rgba(60,30,10,0.12) 100%)', backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")` }
+    case 'linen':
+      return { ...base, backgroundImage:`repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(180,150,100,0.03) 2px, rgba(180,150,100,0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(180,150,100,0.03) 2px, rgba(180,150,100,0.03) 4px)` }
+    default:
+      return null
+  }
+}
+
+// ── Main Wizard ───────────────────────────────────────────────────────────────
+export default function WizardView({ user, sub, existingBot, onDone }) {
+  const [bot,     setBot]     = useState(existingBot ? { ...BOT_DEFAULTS, ...existingBot } : { ...BOT_DEFAULTS, owner_id: sub.id })
+  const [step,    setStep]    = useState(0)
+  const [maxStep, setMaxStep] = useState(existingBot ? 7 : 0)
+  const [saving,  setSaving]  = useState(false)
+  const [error,   setError]   = useState('')
+
+  const f = (k, v) => setBot(p => ({ ...p, [k]: v }))
+
+  const canNext = step === 0 ? !!bot.use_case
+    : step === 1 ? bot.name.trim().length > 0
+    : true
+
+  function next() {
+    if (step < 7) {
+      const n = step + 1
+      setStep(n)
+      setMaxStep(p => Math.max(p, n))
+    }
+  }
+  function back() { if (step > 0) setStep(s => s - 1) }
+
+  async function handleSave() {
+    try {
+      // Flatten knowledge entries into knowledge_text for the AI
+      const kbText = buildKbText(bot.knowledge_entries || [], bot.knowledge_text || '')
+      const saved = await saveBot({ ...bot, owner_id: sub.id, knowledge_text: kbText })
+      setBot(p => ({ ...p, id: saved.id }))
+      onDone(saved)
+    } catch (e) { setError(e.message) }
+  }
+
+  async function handlePublish() {
+    setSaving(true); setError('')
+    try {
+      const kbText = buildKbText(bot.knowledge_entries || [], bot.knowledge_text || '')
+      const saved = await saveBot({
+        ...bot, owner_id: sub.id, knowledge_text: kbText,
+        published: true, published_at: new Date().toISOString()
+      })
+      onDone(saved)
+    } catch (e) { setError(e.message) }
+    setSaving(false)
+  }
+
+  const progress = ((step + 1) / STEPS.length) * 100
+
+  return (
+    <div style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden' }}>
+
+      {/* ── Left: full content area ── */}
+      <div style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
+
+        {/* Top bar */}
+        <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:'var(--surface)', flexShrink:0 }}>
+          <div className="flex ic g8">
+            <div style={{ fontSize:18 }}>🥪</div>
+            <span className="serif" style={{ fontSize:15, fontWeight:600, color:'var(--coffee-0)' }}>Lunch Bots</span>
+          </div>
+          <div className="flex ic g12">
+            {/* Step name */}
+            <span style={{ fontSize:12.5, fontWeight:500, color:'var(--ink3)' }}>
+              {STEPS[step]?.label} · {step + 1}/{STEPS.length}
+            </span>
+            <button onClick={handleSave}
+              style={{ background:'none', border:'none', cursor:'pointer', fontSize:13, color:'var(--ink3)', display:'flex', alignItems:'center', gap:5, padding:'5px 10px', borderRadius:'var(--r)', transition:'background 0.12s' }}
+              onMouseEnter={e => e.currentTarget.style.background='var(--surface2)'}
+              onMouseLeave={e => e.currentTarget.style.background='none'}>
+              <I.Check width={13} height={13} /> Save
+            </button>
+            {existingBot && (
+              <button className="btn btn-ghost btn-sm" onClick={() => onDone(existingBot)}>← Back to dashboard</button>
+            )}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div style={{ height:3, background:'var(--line)', flexShrink:0 }}>
+          <div style={{ height:'100%', background:'var(--coffee-0)', width:`${progress}%`, transition:'width 0.4s cubic-bezier(0.22,1,0.36,1)' }} />
+        </div>
+
+        {/* Step tabs */}
+        <div style={{ display:'flex', borderBottom:'1px solid var(--line)', background:'var(--surface)', flexShrink:0, overflowX:'auto' }}>
+          {STEPS.map((s, i) => (
+            <button key={s.id}
+              onClick={() => i <= maxStep && setStep(i)}
+              style={{
+                display:'flex', alignItems:'center', gap:6,
+                padding:'0 16px', height:42, border:'none',
+                background:'transparent', flexShrink:0,
+                borderBottom: i === step ? '2px solid var(--coffee-0)' : '2px solid transparent',
+                color: i === step ? 'var(--coffee-0)' : i < step ? 'var(--ink3)' : 'var(--ink4)',
+                fontFamily:'var(--font-body)', fontSize:12.5,
+                fontWeight: i === step ? 500 : 400,
+                cursor: i <= maxStep ? 'pointer' : 'default',
+                marginBottom:-1, transition:'all 0.12s',
+              }}>
+              <span style={{
+                width:17, height:17, borderRadius:'50%', flexShrink:0,
+                display:'flex', alignItems:'center', justifyContent:'center',
+                fontSize:10, fontWeight:600,
+                background: i < step ? 'var(--success)' : i === step ? 'var(--coffee-0)' : 'var(--surface3)',
+                color: i < step || i === step ? 'white' : 'var(--ink4)',
+              }}>
+                {i < step ? <I.Check width={9} height={9} /> : i + 1}
+              </span>
+              {s.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Step content — scrollable */}
+        <div style={{ flex:1, overflowY:'auto' }} key={step}>
+          <div className="fade-in" style={{ padding:'36px 60px', maxWidth:820, margin:'0 auto' }}>
+            {error && <div className="alert alert-error mb-16">{error}</div>}
+            {step === 0 && <StepUseCase      bot={bot} f={f} />}
+            {step === 1 && <StepIdentity     bot={bot} f={f} />}
+            {step === 2 && <StepKnowledge    bot={bot} f={f} />}
+            {step === 3 && <StepCapabilities bot={bot} f={f} />}
+            {step === 4 && <StepBranding     bot={bot} f={f} />}
+            {step === 5 && <StepPersonality  bot={bot} f={f} />}
+            {step === 6 && <StepTest         bot={bot} />}
+            {step === 7 && <StepPublish      bot={bot} sub={sub} />}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div style={{ height:56, borderTop:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 48px', background:'var(--surface)', flexShrink:0 }}>
+          <button onClick={back} disabled={step === 0}
+            style={{ background:'none', border:'none', cursor:step===0?'default':'pointer', opacity:step===0?0:1, color:'var(--ink3)', fontSize:13 }}>
+            ← Back
+          </button>
+          <div className="flex ic g8">
+            {step < 7 ? (
+              <button className="btn btn-primary" onClick={next} disabled={!canNext}>Continue →</button>
+            ) : (
+              <button className="btn btn-accent btn-lg" onClick={handlePublish} disabled={saving}>
+                {saving ? <><Spinner size={15} color="white" /> Publishing…</> : <><I.Rocket /> Publish my bot</>}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Right: pinned live preview ── */}
+      <div style={{ width:400, minWidth:400, borderLeft:'1px solid var(--line)', display:'flex', flexDirection:'column', background:'var(--surface2)', flexShrink:0 }}>
+        {/* Header */}
+        <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
+          <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)' }}>Live Preview</span>
+          <span style={{ fontSize:11, color:'var(--ink4)' }}>Updates as you edit</span>
+        </div>
+        {/* Floating desktop window centred in panel */}
+        <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', padding:'28px 24px' }}>
+          <div style={{
+            width:340,
+            borderRadius:10,
+            overflow:'hidden',
+            boxShadow:'0 8px 32px rgba(44,24,16,0.18), 0 0 0 1px rgba(44,24,16,0.08)',
+            background:'white',
+            flexShrink:0,
+          }}>
+            {/* Browser chrome bar */}
+            <div style={{ height:26, background:'#EDE8E0', display:'flex', alignItems:'center', gap:5, padding:'0 10px', borderBottom:'1px solid rgba(0,0,0,0.08)' }}>
+              <div style={{ display:'flex', gap:4 }}>
+                {['#FF5F57','#FEBC2E','#28C840'].map((c,i) => <div key={i} style={{ width:7, height:7, borderRadius:'50%', background:c }} />)}
+              </div>
+              <div style={{ flex:1, height:14, background:'white', borderRadius:3, marginLeft:5, display:'flex', alignItems:'center', padding:'0 7px', border:'1px solid rgba(0,0,0,0.07)' }}>
+                <span style={{ fontSize:8, color:'#9A8A7A', fontFamily:'monospace' }}>lunchbots.app/chat</span>
+              </div>
+            </div>
+            {/* Chat at natural size — 340px wide, 500px tall */}
+            <div style={{ height:500, overflow:'hidden' }}>
+              <BotPreview bot={bot} />
+            </div>
+          </div>
+        </div>
+        <div style={{ padding:'8px', fontSize:10, color:'var(--ink4)', textAlign:'center', background:'var(--surface)', borderTop:'1px solid var(--line)', flexShrink:0 }}>
+          Live preview · updates as you edit
+        </div>
+      </div>
+
+    </div>
+  )
+}
+
+// ── Build flat KB text from entries ──────────────────────────────────────────
+function buildKbText(entries, legacyText) {
+  const sorted = [...entries].sort((a,b) => {
+    const order = { primary:0, secondary:1, background:2 }
+    return (order[a.priority]||1) - (order[b.priority]||1)
+  })
+  const active = sorted.filter(e => e.enabled !== false)
+  const parts = active.map(e => {
+    const type = KB_TYPES.find(t => t.id === e.type)?.label || e.type
+    return `### ${e.title} [${type}]\n${e.content}`
+  })
+  if (legacyText?.trim()) parts.push(`### General Knowledge\n${legacyText}`)
+  return parts.join('\n\n---\n\n')
+}
+
+// ── Live preview ──────────────────────────────────────────────────────────────
+function BotPreview({ bot }) {
+  const name    = bot.name || 'Your Bot'
+  const primary = bot.primary_color || '#2C1810'
+  const bg      = bot.bg_color || '#F5F0E8'
+  const letter  = (bot.avatar_letter || name.charAt(0) || 'B').toUpperCase()
+  const r       = `${bot.border_radius ?? 12}px`
+  const sz      = (bot.font_size || 14) * 0.78
+  const bodyFont  = bot.body_font  || "'Inter', sans-serif"
+  const titleFont = bot.title_font || "'Playfair Display', serif"
+  const prompts = (bot.suggested_prompts || []).filter(Boolean).slice(0,3)
+  const overlayStyle = getOverlayStyle(bot.texture_overlay)
+  const spacing = bot.spacing || 14
+  const headerH = bot.header_height || 60
+  const textOp  = (bot.text_opacity || 100) / 100
+  const panelOp = (bot.panel_opacity || 100) / 100
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', height:'100%', width:'100%', background: bot.bg_image_url ? `url(${bot.bg_image_url}) center/cover no-repeat` : bg, fontFamily:bodyFont, fontSize:sz, position:'relative', overflow:'hidden' }}>
+      {bot.bg_image_url && <div style={{ position:'absolute', inset:0, background:`rgba(0,0,0,${(bot.bg_overlay||40)/100})`, zIndex:0 }} />}
+      {overlayStyle && <div style={overlayStyle} />}
+
+      {/* Header */}
+      <div style={{ position:'relative', zIndex:2, height:headerH, minHeight:headerH, padding:`0 ${spacing/2}px`, borderBottom:'1px solid rgba(0,0,0,0.07)', display:'flex', alignItems:'center', gap:8, background:`rgba(253,250,244,${panelOp})`, backdropFilter:'blur(8px)', flexShrink:0 }}>
+        {bot.logo_url && <img src={bot.logo_url} alt="" style={{ height: bot.logo_size || 24, maxWidth:64, objectFit:'contain', borderRadius:3 }} />}
+        <div style={{ width:Math.round(headerH*0.5), height:Math.round(headerH*0.5), borderRadius:`${Math.min(bot.border_radius??12,10)}px`, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:sz*0.9, fontWeight:700, color:'white', overflow:'hidden', flexShrink:0 }}>
+          {bot.avatar_url ? <img src={bot.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
+        </div>
+        <div style={{ minWidth:0 }}>
+          <div style={{ fontFamily:titleFont, fontWeight:600, color:'#1E1209', opacity:textOp, fontSize:sz*1.05, lineHeight:1.2 }}>{name}</div>
+          {bot.descriptor && <div style={{ fontSize:sz*0.85, color:'#7A5C3E', opacity:textOp*0.8 }}>{bot.descriptor}</div>}
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex:1, padding:spacing/1.5, display:'flex', flexDirection:'column', gap:spacing/2, overflowY:'auto', position:'relative', zIndex:2 }}>
+        {bot.welcome_message && <p style={{ fontSize:sz*0.88, color: bot.bg_image_url?'rgba(255,255,255,0.85)':'#7A5C3E', opacity:textOp, lineHeight:1.6 }}>{bot.welcome_message}</p>}
+        {prompts.length > 0 && (
+          <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
+            {prompts.map((p,i) => <div key={i} style={{ fontSize:sz*0.82, padding:'3px 8px', borderRadius:r, background:`rgba(255,255,255,${panelOp*0.9})`, border:'1px solid rgba(0,0,0,0.09)', color:'#3D2214', opacity:textOp }}>{p}</div>)}
+          </div>
+        )}
+        <div style={{ display:'flex', gap:6 }}>
+          <div style={{ width:18, height:18, borderRadius:6, background:primary, flexShrink:0, marginTop:2, display:'flex', alignItems:'center', justifyContent:'center', fontSize:7, fontWeight:700, color:'white' }}>{letter}</div>
+          <div style={{ padding:'6px 9px', borderRadius:`2px ${r} ${r} ${r}`, background:`rgba(255,255,255,${panelOp})`, border:'1px solid rgba(0,0,0,0.07)', fontSize:sz*0.9, color:'#1E1209', opacity:textOp, lineHeight:1.5 }}>
+            {bot.greeting || `Hi! I'm ${name}. How can I help?`}
+          </div>
+        </div>
+        <div style={{ display:'flex', gap:6, alignSelf:'flex-end', flexDirection:'row-reverse' }}>
+          <div style={{ width:18, height:18, borderRadius:6, background:'rgba(0,0,0,0.08)', flexShrink:0, marginTop:2 }} />
+          <div style={{ padding:'6px 9px', borderRadius:`${r} 2px ${r} ${r}`, background:primary, fontSize:sz*0.9, color:'white', opacity:textOp, lineHeight:1.5 }}>
+            {(bot.suggested_prompts||[]).filter(Boolean)[0] || 'How can you help me?'}
+          </div>
+        </div>
+      </div>
+
+      {/* Input */}
+      <div style={{ position:'relative', zIndex:2, padding:`${spacing/2}px`, borderTop:'1px solid rgba(0,0,0,0.07)', display:'flex', gap:6, background:`rgba(253,250,244,${panelOp})`, flexShrink:0 }}>
+        <div style={{ flex:1, background:'rgba(0,0,0,0.04)', borderRadius:`${Math.min(bot.border_radius??12,10)}px`, padding:'5px 9px', fontSize:sz*0.85, color:'#C9AD8E', opacity:textOp }}>Send a message…</div>
+        <div style={{ width:26, height:26, borderRadius:`${Math.min(bot.border_radius??12,9)}px`, background:primary, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <I.Send width={10} height={10} style={{ color:'white' }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Step headers ──────────────────────────────────────────────────────────────
+function SH({ n, total=8, title, sub }) {
+  return (
+    <div className="mb-28">
+      <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Step {n} of {total}</div>
+      <h2 className="serif mb-6" style={{ fontSize:'1.4rem', fontWeight:600, color:'var(--coffee-0)', letterSpacing:-0.3, lineHeight:1.2 }}>{title}</h2>
+      <p style={{ fontSize:13.5, color:'var(--ink3)', lineHeight:1.7 }}>{sub}</p>
+    </div>
+  )
+}
+
+// ── Step 1: Use Case ──────────────────────────────────────────────────────────
+function StepUseCase({ bot, f }) {
+  function select(uc) {
+    const preset = USE_CASE_PRESETS[uc] || {}
+    f('use_case', uc)
+    Object.entries(preset).forEach(([k,v]) => f(k,v))
+  }
+  return (
+    <>
+      <SH n={1} title="What kind of bot are you building?" sub="Choose the use case that best fits. This pre-configures the personality and knowledge structure — you can adjust everything afterwards." />
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        {USE_CASES.map(uc => (
+          <button key={uc.id} onClick={() => select(uc.id)}
+            style={{ padding:'14px 14px', borderRadius:'var(--r-md)', textAlign:'left', border:`1.5px solid ${bot.use_case===uc.id?'var(--coffee-0)':'var(--line)'}`, background: bot.use_case===uc.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', transition:'all 0.12s' }}>
+            <div style={{ fontSize:20, marginBottom:6 }}>{uc.icon}</div>
+            <div style={{ fontSize:13, fontWeight:600, color: bot.use_case===uc.id?'var(--parch-1)':'var(--ink)', marginBottom:4 }}>{uc.label}</div>
+            <div style={{ fontSize:11.5, color: bot.use_case===uc.id?'rgba(253,250,244,0.7)':'var(--ink4)', lineHeight:1.5 }}>{uc.desc}</div>
+          </button>
+        ))}
+      </div>
+    </>
+  )
+}
+
+// ── Step 2: Identity ──────────────────────────────────────────────────────────
+function StepIdentity({ bot, f }) {
+  return (
+    <>
+      <SH n={2} title="Give your assistant an identity" sub="Choose a name and description that feels natural for your brand." />
+      <div className="grid2 mb-16">
+        <div className="field" style={{ marginBottom:0 }}>
+          <label className="label">Bot name <span style={{ color:'var(--danger)' }}>*</span></label>
+          <input className="input" placeholder="e.g. Aria, Max, Scout…" value={bot.name} onChange={e => f('name', e.target.value)} autoFocus />
+        </div>
+        <div className="field" style={{ marginBottom:0 }}>
+          <label className="label">Descriptor</label>
+          <input className="input" placeholder="Your support specialist" value={bot.descriptor} onChange={e => f('descriptor', e.target.value)} />
+        </div>
+      </div>
+      <div className="field">
+        <label className="label">Greeting message</label>
+        <input className="input" placeholder={`Hi! I'm ${bot.name||'here to help'}. What can I do for you?`} value={bot.greeting} onChange={e => f('greeting', e.target.value)} />
+        <div className="label-sub mt-4">The first message your users see.</div>
+      </div>
+      <div className="field">
+        <label className="label">Welcome message</label>
+        <textarea className="input" style={{ minHeight:80 }} placeholder="Briefly describe what your assistant helps with. Appears above the suggested prompts." value={bot.welcome_message} onChange={e => f('welcome_message', e.target.value)} />
+      </div>
+      <div className="field">
+        <label className="label">Suggested prompts <span className="label-sub">(up to 4)</span></label>
+        {[0,1,2,3].map(i => (
+          <input key={i} className="input input-sm" style={{ marginBottom:7 }}
+            placeholder={`Prompt ${i+1}…`}
+            value={(bot.suggested_prompts||[])[i]||''}
+            onChange={e => { const a=[...(bot.suggested_prompts||['','','',''])]; a[i]=e.target.value; f('suggested_prompts',a) }} />
+        ))}
+      </div>
+    </>
+  )
+}
+
+// ── Step 3: Knowledge ─────────────────────────────────────────────────────────
+function StepKnowledge({ bot, f }) {
+  const [adding, setAdding]   = useState(false)
+  const [form,   setForm]     = useState({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+  const [editIdx,setEditIdx]  = useState(null)
+  const fileRef = useRef(null)
+  const entries = bot.knowledge_entries || []
+
+  const totalWords = entries.filter(e => e.enabled !== false).reduce((a,e) => a + (e.content?.split(/\s+/).filter(Boolean).length||0), 0)
+  const quality = totalWords === 0 ? null
+    : totalWords < 100  ? { label:'Very thin', color:'var(--danger)' }
+    : totalWords < 500  ? { label:'Minimal',   color:'var(--warn)' }
+    : totalWords < 2000 ? { label:'Good',       color:'var(--success)' }
+    :                     { label:'Strong',     color:'var(--success)' }
+
+  async function handleFileUpload(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const text = await file.text()
+    setForm(p => ({ ...p, title: file.name.replace(/\.[^.]+$/,''), content: text }))
+    setAdding(true)
+  }
+
+  function saveEntry() {
+    if (!form.title.trim() || !form.content.trim()) return
+    const entry = { ...form, id: editIdx !== null ? entries[editIdx].id : Date.now().toString() }
+    if (editIdx !== null) {
+      const updated = [...entries]; updated[editIdx] = entry
+      f('knowledge_entries', updated); setEditIdx(null)
+    } else {
+      f('knowledge_entries', [...entries, entry])
+    }
+    setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+    setAdding(false)
+  }
+
+  function removeEntry(idx) { f('knowledge_entries', entries.filter((_,i) => i !== idx)) }
+  function toggleEntry(idx) {
+    const updated = [...entries]; updated[idx] = { ...updated[idx], enabled: updated[idx].enabled === false ? true : false }
+    f('knowledge_entries', updated)
+  }
+  function editEntry(idx) { setForm({ ...entries[idx] }); setEditIdx(idx); setAdding(true) }
+
+  return (
+    <>
+      <SH n={3} title="Build your knowledge base" sub="Add everything your bot should know. Organise by type and priority so it answers from the right sources first." />
+
+      {/* Summary bar */}
+      {entries.length > 0 && (
+        <div style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 14px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)', marginBottom:16 }}>
+          <div style={{ flex:1, fontSize:13, color:'var(--ink2)' }}>
+            <strong>{entries.filter(e=>e.enabled!==false).length}</strong> active entries · <strong>{totalWords.toLocaleString()}</strong> words
+          </div>
+          {quality && <span style={{ fontSize:12, fontWeight:600, color:quality.color }}>{quality.label}</span>}
+        </div>
+      )}
+
+      {/* Entry list */}
+      {entries.length > 0 && !adding && (
+        <div style={{ marginBottom:16 }}>
+          {entries.map((entry, idx) => {
+            const kbType = KB_TYPES.find(t => t.id === entry.type)
+            const disabled = entry.enabled === false
+            return (
+              <div key={entry.id||idx} style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px', borderRadius:'var(--r)', border:'1px solid var(--line)', marginBottom:6, background: disabled?'var(--surface2)':'var(--surface)', opacity: disabled?0.6:1, transition:'all 0.12s' }}>
+                <button onClick={() => toggleEntry(idx)} style={{ background:'none', border:'none', cursor:'pointer', padding:0, flexShrink:0 }}>
+                  <div style={{ width:16, height:16, borderRadius:3, border:`1.5px solid ${disabled?'var(--line2)':'var(--coffee-0)'}`, background: disabled?'transparent':'var(--coffee-0)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    {!disabled && <I.Check width={9} height={9} style={{ color:'white' }} />}
+                  </div>
+                </button>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:13, fontWeight:500, color:'var(--ink)', marginBottom:2 }}>{entry.title}</div>
+                  <div style={{ display:'flex', gap:6, alignItems:'center' }}>
+                    <span style={{ fontSize:10.5, fontWeight:600, padding:'1px 7px', borderRadius:20, background: kbType?`${kbType.color}18`:'var(--surface3)', color: kbType?.color||'var(--ink4)' }}>{kbType?.label||entry.type}</span>
+                    <span style={{ fontSize:10.5, color:'var(--ink4)' }}>{PRIORITY_LEVELS.find(p=>p.id===entry.priority)?.label}</span>
+                    <span style={{ fontSize:10.5, color:'var(--ink4)' }}>{entry.content?.split(/\s+/).filter(Boolean).length||0} words</span>
+                  </div>
+                </div>
+                <button className="btn btn-ghost btn-xs" onClick={() => editEntry(idx)}><I.Pencil width={12} height={12} /></button>
+                <button className="btn btn-danger btn-xs" onClick={() => removeEntry(idx)}><I.X width={11} height={11} /></button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Add / Edit form */}
+      {adding ? (
+        <div style={{ border:'1px solid var(--line)', borderRadius:'var(--r-md)', padding:'18px', background:'var(--surface)', marginBottom:16 }}>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:14, fontWeight:600, color:'var(--coffee-0)', marginBottom:14 }}>
+            {editIdx !== null ? 'Edit entry' : 'Add knowledge entry'}
+          </div>
+          <div className="grid2 mb-12">
+            <div className="field" style={{ marginBottom:0 }}>
+              <label className="label">Title</label>
+              <input className="input input-sm" placeholder="e.g. Pricing FAQ, Refund Policy…" value={form.title} onChange={e => setForm(p=>({...p,title:e.target.value}))} autoFocus />
+            </div>
+            <div className="field" style={{ marginBottom:0 }}>
+              <label className="label">Type</label>
+              <select className="input input-sm" value={form.type} onChange={e => setForm(p=>({...p,type:e.target.value}))}>
+                {KB_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="field mb-12">
+            <label className="label">Priority</label>
+            <div style={{ display:'flex', gap:8 }}>
+              {PRIORITY_LEVELS.map(p => (
+                <button key={p.id} onClick={() => setForm(prev=>({...prev,priority:p.id}))}
+                  style={{ flex:1, padding:'8px', borderRadius:'var(--r)', border:`1px solid ${form.priority===p.id?'var(--coffee-0)':'var(--line)'}`, background:form.priority===p.id?'var(--coffee-0)':'var(--surface)', color:form.priority===p.id?'var(--parch-1)':'var(--ink3)', cursor:'pointer', fontSize:12, textAlign:'center', transition:'all 0.12s' }}>
+                  <div style={{ fontWeight:600, marginBottom:2 }}>{p.label}</div>
+                  <div style={{ fontSize:10.5, opacity:0.75 }}>{p.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="field" style={{ marginBottom:14 }}>
+            <label className="label">Content</label>
+            <textarea className="input" style={{ minHeight:160, lineHeight:1.7 }} placeholder="Paste your content here…" value={form.content} onChange={e => setForm(p=>({...p,content:e.target.value}))} />
+            <div className="label-sub mt-4">{form.content?.split(/\s+/).filter(Boolean).length||0} words</div>
+          </div>
+          <div style={{ display:'flex', gap:8 }}>
+            <button className="btn btn-primary" onClick={saveEntry} disabled={!form.title.trim()||!form.content.trim()}>
+              {editIdx !== null ? 'Save changes' : 'Add entry'}
+            </button>
+            <button className="btn btn-ghost" onClick={() => { setAdding(false); setEditIdx(null); setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true }) }}>Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+          <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>
+            <I.Plus width={13} height={13} /> Add entry
+          </button>
+          <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display:'none' }} onChange={handleFileUpload} />
+          <button className="btn btn-secondary btn-sm" onClick={() => fileRef.current?.click()}>
+            ↑ Upload file <span style={{ fontSize:11, color:'var(--ink4)' }}>(PDF, Word, TXT)</span>
+          </button>
+        </div>
+      )}
+
+      {entries.length === 0 && !adding && (
+        <div style={{ padding:'32px 20px', border:'2px dashed var(--line)', borderRadius:'var(--r-lg)', textAlign:'center' }}>
+          <div style={{ fontSize:24, marginBottom:10 }}>📚</div>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:15, color:'var(--coffee-1)', marginBottom:6 }}>No knowledge entries yet</div>
+          <div style={{ fontSize:13, color:'var(--ink4)', lineHeight:1.65 }}>Add your FAQs, policies, product info, SOPs — anything your customers ask about. The more you add, the better your bot answers.</div>
+        </div>
+      )}
+
+      {entries.length > 0 && entries.length < 3 && (
+        <div className="alert alert-info" style={{ fontSize:12.5 }}>
+          💡 Add at least 3–5 entries for reliable answers. Your bot currently has very thin knowledge.
+        </div>
+      )}
+    </>
+  )
+}
+
+// ── Step 4: Capabilities ──────────────────────────────────────────────────────
+function StepCapabilities({ bot, f }) {
+  const [newCat, setNewCat] = useState('')
+  function addCat() {
+    const name = newCat.trim(); if (!name) return
+    const cats = [...(bot.categories||[])]
+    if (cats.find(c=>c.name.toLowerCase()===name.toLowerCase())) return
+    cats.push({ id:Date.now().toString(), name }); f('categories',cats); setNewCat('')
+  }
+  return (
+    <>
+      <SH n={4} title="Configure capabilities" sub="Control what your bot can access and how it handles questions it can't answer." />
+      <div style={{ border:'1px solid var(--line)', borderRadius:'var(--r-md)', marginBottom:20, overflow:'hidden' }}>
+        <div className="toggle-row" style={{ padding:'14px 18px' }}>
+          <div><div className="toggle-title">Strict knowledge base only</div><div className="toggle-desc">Only answers from your knowledge base. Unknown questions go to your inbox.</div></div>
+          <label className="switch"><input type="checkbox" checked={bot.strict_kb_only} onChange={e=>f('strict_kb_only',e.target.checked)}/><span className="switch-track"/></label>
+        </div>
+        <div className="toggle-row" style={{ padding:'14px 18px' }}>
+          <div><div className="toggle-title">Broad AI knowledge</div><div className="toggle-desc">Bot can draw on general AI knowledge when your content doesn't have the answer.</div></div>
+          <label className="switch"><input type="checkbox" checked={bot.allow_broad_ai} onChange={e=>f('allow_broad_ai',e.target.checked)}/><span className="switch-track"/></label>
+        </div>
+        <div className="toggle-row" style={{ padding:'14px 18px' }}>
+          <div><div className="toggle-title">Web search</div><div className="toggle-desc">Bot can search the internet for current information.</div></div>
+          <label className="switch"><input type="checkbox" checked={bot.allow_web} onChange={e=>f('allow_web',e.target.checked)}/><span className="switch-track"/></label>
+        </div>
+      </div>
+      <div className="field mb-16">
+        <label className="label">Fallback message</label>
+        <div className="label-sub mb-8">What the bot says when it can't answer. The question gets sent to your inbox.</div>
+        <textarea className="input" style={{ minHeight:72 }} value={bot.fallback_message} onChange={e=>f('fallback_message',e.target.value)} />
+      </div>
+      <div className="field">
+        <label className="label">Conversation categories</label>
+        <div className="label-sub mb-8">Auto-tag conversations for your inbox and insights.</div>
+        <div className="flex g8 mb-8">
+          <input className="input" style={{ flex:1 }} placeholder="e.g. Billing, Support, Onboarding…" value={newCat} onChange={e=>setNewCat(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addCat()} />
+          <button className="btn btn-secondary" onClick={addCat} disabled={!newCat.trim()}>Add</button>
+        </div>
+        <div className="flex wrap g6">
+          {(bot.categories||[]).map(cat=>(
+            <div key={cat.id} style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 10px', borderRadius:20, background:'var(--surface3)', border:'1px solid var(--line)', fontSize:12.5 }}>
+              {cat.name}
+              <button style={{ background:'none', border:'none', cursor:'pointer', color:'var(--ink4)', display:'flex', padding:0 }} onClick={()=>f('categories',(bot.categories||[]).filter(c=>c.id!==cat.id))}><I.X width={11} height={11}/></button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ── Step 5: Branding ──────────────────────────────────────────────────────────
+// ── Slider component (must be outside StepBranding to use hooks) ─────────────
+function Slider({ label, field, min, max, step=1, unit='', leftLabel='', rightLabel='', bot, f }) {
+  const val = bot[field] ?? min
+  const [local, setLocal] = useState(val)
+  const dragging = useRef(false)
+  useEffect(() => { if (!dragging.current) setLocal(bot[field] ?? min) }, [bot[field]])
+  return (
+    <div style={{ marginBottom:14 }}>
+      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:5 }}>
+        <span style={{ fontSize:12, fontWeight:500, color:'var(--ink2)' }}>{label}</span>
+        <span style={{ fontSize:12, color:'var(--ink4)' }}>{Math.round(local)}{unit}</span>
+      </div>
+      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+        {leftLabel && <span style={{ fontSize:10.5, color:'var(--ink4)', whiteSpace:'nowrap', minWidth:40 }}>{leftLabel}</span>}
+        <input type="range" min={min} max={max} step={step} value={local}
+          style={{ flex:1 }}
+          onMouseDown={() => { dragging.current = true }}
+          onTouchStart={() => { dragging.current = true }}
+          onChange={e => { const n=Number(e.target.value); setLocal(n); f(field,n) }}
+          onMouseUp={() => { dragging.current = false }}
+          onTouchEnd={() => { dragging.current = false }}
+        />
+        {rightLabel && <span style={{ fontSize:10.5, color:'var(--ink4)', whiteSpace:'nowrap', minWidth:40, textAlign:'right' }}>{rightLabel}</span>}
+      </div>
+    </div>
+  )
+}
+
+function StepBranding({ bot, f }) {
+  const logoRef   = useRef(null)
+  const avatarRef = useRef(null)
+  const bgRef     = useRef(null)
+
+  async function handleFile(e, key) {
+    const file = e.target.files?.[0]; if (!file) return
+    if (file.size > 5*1024*1024) { alert('Max 5MB.'); return }
+    const reader = new FileReader()
+    reader.onload = () => f(key, reader.result)
+    reader.readAsDataURL(file)
+  }
+
+  function FontSelect({ label, fieldKey }) {
+    const val = bot[fieldKey] || FONTS[0].value
+    loadGoogleFont(val)
+    return (
+      <div className="field" style={{ marginBottom:12 }}>
+        <label className="label">{label}</label>
+        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+          <select className="input input-sm" style={{ flex:1 }} value={val} onChange={e=>{loadGoogleFont(e.target.value);f(fieldKey,e.target.value)}}>
+            {FONTS.map(fn=><option key={fn.value} value={fn.value}>{fn.label}</option>)}
+          </select>
+          <div style={{ fontFamily:val, fontSize:13, color:'var(--ink2)', whiteSpace:'nowrap', minWidth:100, padding:'4px 8px', background:'var(--surface2)', borderRadius:'var(--r-sm)', border:'1px solid var(--line)' }}>
+            The quick brown fox
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <SH n={5} title="Build your brand experience" sub="Every change updates the preview instantly." />
+
+      {/* Assets */}
+      <Section title="Identity Assets">
+        <div className="grid2">
+          <div>
+            <label className="label">Logo</label>
+            <div className="label-sub mb-8">Shown in chat header.</div>
+            <input ref={logoRef} type="file" accept="image/*" style={{ display:'none' }} onChange={e=>handleFile(e,'logo_url')} />
+            {bot.logo_url ? (
+              <div className="flex ic g8">
+                <img src={bot.logo_url} alt="logo" style={{ height:28, maxWidth:80, objectFit:'contain', borderRadius:4, border:'1px solid var(--line)' }} />
+                <button className="btn btn-secondary btn-xs" onClick={()=>logoRef.current?.click()}>Replace</button>
+                <button className="btn btn-danger btn-xs" onClick={()=>f('logo_url',null)}>✕</button>
+              </div>
+            ) : <button className="btn btn-secondary btn-sm" onClick={()=>logoRef.current?.click()}>Upload logo</button>}
+          </div>
+          <div>
+            <label className="label">Bot avatar</label>
+            <div className="label-sub mb-8">Replaces the letter initial.</div>
+            <input ref={avatarRef} type="file" accept="image/*" style={{ display:'none' }} onChange={e=>handleFile(e,'avatar_url')} />
+            {bot.avatar_url ? (
+              <div className="flex ic g8">
+                <div style={{ width:36, height:36, borderRadius:'50%', overflow:'hidden', border:'1px solid var(--line)' }}>
+                  <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                </div>
+                <button className="btn btn-secondary btn-xs" onClick={()=>avatarRef.current?.click()}>Replace</button>
+                <button className="btn btn-danger btn-xs" onClick={()=>f('avatar_url',null)}>✕</button>
+              </div>
+            ) : <button className="btn btn-secondary btn-sm" onClick={()=>avatarRef.current?.click()}>Upload avatar</button>}
+          </div>
+        </div>
+        <div className="flex ic g8 mt-12">
+          <label className="label" style={{ marginBottom:0, whiteSpace:'nowrap' }}>Avatar letter</label>
+          <input className="input input-sm" style={{ maxWidth:70 }} maxLength={2} placeholder={bot.name?.charAt(0)||'A'} value={bot.avatar_letter} onChange={e=>f('avatar_letter',e.target.value)} />
+        </div>
+      </Section>
+
+      {/* Colours */}
+      <Section title="Colours">
+        <div className="grid2">
+          {[['Primary colour','primary_color'],['Background colour','bg_color']].map(([lbl,field])=>(
+            <div key={field} className="field" style={{ marginBottom:0 }}>
+              <label className="label">{lbl}</label>
+              <div className="flex ic g8">
+                <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
+                  <input type="color" value={bot[field]||'#2C1810'} onChange={e=>f(field,e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+                </div>
+                <input className="input input-sm" style={{ flex:1, fontFamily:'monospace' }} value={bot[field]||''} onChange={e=>f(field,e.target.value)} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* Background image */}
+      <Section title="Background Image" sub="Optional. Will be dimmed automatically for readability.">
+        <input ref={bgRef} type="file" accept="image/*" style={{ display:'none' }} onChange={e=>handleFile(e,'bg_image_url')} />
+        {bot.bg_image_url ? (
+          <div>
+            <div style={{ width:'100%', height:56, borderRadius:'var(--r)', overflow:'hidden', border:'1px solid var(--line)', marginBottom:8 }}>
+              <img src={bot.bg_image_url} alt="bg" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+            </div>
+            <div className="flex g6 mb-12">
+              <button className="btn btn-secondary btn-xs" onClick={()=>bgRef.current?.click()}>Replace</button>
+              <button className="btn btn-danger btn-xs" onClick={()=>f('bg_image_url',null)}>Remove</button>
+            </div>
+            <Slider label="Overlay darkness" field="bg_overlay" min={0} max={100} step={0.1} unit="%" leftLabel="Lighter" rightLabel="Darker" bot={bot} f={f} />
+          </div>
+        ) : <button className="btn btn-secondary btn-sm" onClick={()=>bgRef.current?.click()}>Upload background image</button>}
+      </Section>
+
+      {/* Texture overlays */}
+      <Section title="Texture Overlay" sub="Adds a subtle material feel over the chat.">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
+          {OVERLAYS.map(o=>(
+            <button key={o.id} onClick={()=>f('texture_overlay',o.id)}
+              style={{ padding:'10px 8px', borderRadius:'var(--r)', border:`1.5px solid ${bot.texture_overlay===o.id?'var(--coffee-0)':'var(--line)'}`, background:bot.texture_overlay===o.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', fontSize:12, fontWeight:500, color:bot.texture_overlay===o.id?'var(--parch-1)':'var(--ink3)', transition:'all 0.12s', textAlign:'center' }}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      {/* Typography */}
+      <Section title="Typography">
+        <FontSelect label="Title / Bot name font" fieldKey="title_font" />
+        <FontSelect label="Body / Chat font"      fieldKey="body_font" />
+        <FontSelect label="Resource / Document font" fieldKey="resource_font" />
+        <Slider label="Base text size"    field="font_size" min={10} max={22} step={0.1} unit="px" bot={bot} f={f} />
+      </Section>
+
+      {/* Shape */}
+      <Section title="Shape & Form">
+        <Slider label="Border radius"  field="border_radius" min={0} max={32} step={0.1} unit="px" leftLabel="Sharp"   rightLabel="Rounded" bot={bot} f={f} />
+        <div style={{ display:'flex', gap:8, marginBottom:14 }}>
+          {[{v:'filled',l:'Filled'},{v:'outlined',l:'Outlined'},{v:'minimal',l:'Minimal'}].map(o=>(
+            <button key={o.v} onClick={()=>f('bubble_style',o.v)} style={{ flex:1, padding:'8px', borderRadius:'var(--r)', border:`1px solid ${bot.bubble_style===o.v?'var(--coffee-0)':'var(--line)'}`, background:bot.bubble_style===o.v?'var(--coffee-0)':'var(--surface)', color:bot.bubble_style===o.v?'var(--parch-1)':'var(--ink3)', cursor:'pointer', fontSize:12, fontWeight:500, transition:'all 0.12s' }}>{o.l}</button>
+          ))}
+        </div>
+      </Section>
+
+      {/* Layout controls */}
+      <Section title="Layout & Spacing">
+        <Slider label="Header height"    field="header_height" min={40} max={90} step={0.1} unit="px" bot={bot} f={f} />
+        <Slider label="Overall spacing"  field="spacing" min={4} max={32} step={0.1} unit="px" leftLabel="Tight" rightLabel="Spacious" bot={bot} f={f} />
+        <Slider label="Logo size"        field="logo_size" min={12} max={60} step={0.1} unit="px" bot={bot} f={f} />
+      </Section>
+
+      {/* Opacity controls */}
+      <Section title="Opacity & Visibility">
+        <Slider label="Text opacity"     field="text_opacity" min={30} max={100} step={0.1} unit="%" leftLabel="Subtle" rightLabel="Full" bot={bot} f={f} />
+        <Slider label="Panel opacity"    field="panel_opacity" min={20} max={100} step={0.1} unit="%" leftLabel="Transparent" rightLabel="Solid" bot={bot} f={f} />
+      </Section>
+
+      {/* CTA */}
+      <Section title="Optional Links">
+        <div className="grid2">
+          <div className="field" style={{ marginBottom:0 }}><label className="label">CTA text</label><input className="input input-sm" placeholder="Book a call" value={bot.cta_text||''} onChange={e=>f('cta_text',e.target.value)} /></div>
+          <div className="field" style={{ marginBottom:0 }}><label className="label">CTA URL</label><input className="input input-sm" placeholder="https://…" value={bot.cta_url||''} onChange={e=>f('cta_url',e.target.value)} /></div>
+        </div>
+        <div className="field mt-8" style={{ marginBottom:0 }}><label className="label">Support email</label><input className="input input-sm" placeholder="support@yoursite.com" value={bot.support_email||''} onChange={e=>f('support_email',e.target.value)} /></div>
+      </Section>
+    </>
+  )
+}
+
+// ── Step 6: Personality ───────────────────────────────────────────────────────
+function StepPersonality({ bot, f }) {
+  const Row = ({ label, desc, field, opts }) => (
+    <div style={{ paddingBottom:16, marginBottom:16, borderBottom:'1px solid var(--line)' }}>
+      <div style={{ fontSize:13.5, fontWeight:500, color:'var(--ink)', marginBottom:2 }}>{label}</div>
+      <div style={{ fontSize:12, color:'var(--ink4)', marginBottom:10, lineHeight:1.5 }}>{desc}</div>
+      <div className="flex wrap g6">
+        {opts.map(o=>(
+          <button key={o.v} onClick={()=>f(field,o.v)}
+            style={{ padding:'5px 13px', borderRadius:20, border:`1px solid ${bot[field]===o.v?'var(--coffee-0)':'var(--line)'}`, background:bot[field]===o.v?'var(--coffee-0)':'var(--surface)', color:bot[field]===o.v?'var(--parch-1)':'var(--ink3)', fontSize:12.5, cursor:'pointer', transition:'all 0.12s', fontFamily:'var(--font-body)' }}>
+            {o.l}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+  return (
+    <>
+      <SH n={6} title="Define the personality" sub="Your bot should sound like a deliberate representative of your brand — not a generic AI." />
+      {bot.use_case && (
+        <div className="alert alert-info mb-20" style={{ fontSize:12.5 }}>
+          ✓ Pre-configured for <strong>{USE_CASES.find(u=>u.id===bot.use_case)?.label}</strong>. Adjust anything below.
+        </div>
+      )}
+      <Row label="Tone" desc="How does your assistant communicate?" field="tone" opts={[{v:'warm',l:'Warm'},{v:'professional',l:'Professional'},{v:'expert',l:'Expert'},{v:'educational',l:'Educational'},{v:'direct',l:'Direct'},{v:'consultative',l:'Consultative'},{v:'premium',l:'Premium'}]} />
+      <Row label="Response length" desc="How much does it say per answer?" field="response_length" opts={[{v:'short',l:'Concise'},{v:'balanced',l:'Balanced'},{v:'detailed',l:'Detailed'}]} />
+      <Row label="Initiative" desc="How proactively does it guide?" field="initiative" opts={[{v:'reactive',l:'Just answers'},{v:'followup',l:'Asks follow-ups'},{v:'proactive',l:'Guides proactively'}]} />
+      <Row label="Writing style" field="writing_style" desc="How does it structure responses?" opts={[{v:'conversational',l:'Conversational'},{v:'polished',l:'Polished'},{v:'educational',l:'Educational'},{v:'support',l:'Support-focused'}]} />
+      <Row label="Emoji use" field="emoji_use" desc="How often does it use emoji?" opts={[{v:'none',l:'None'},{v:'minimal',l:'Minimal'},{v:'moderate',l:'Moderate'}]} />
+    </>
+  )
+}
+
+// ── Step 7: Test ──────────────────────────────────────────────────────────────
+function StepTest({ bot }) {
+  const [msgs,    setMsgs]    = useState([{ role:'bot', content:bot.greeting||`Hi! I'm ${bot.name}. How can I help?` }])
+  const [input,   setInput]   = useState('')
+  const [thinking,setThinking]= useState(false)
+  const primary = bot.primary_color||'#2C1810'
+  const r = `${bot.border_radius??12}px`
+
+  async function send() {
+    const t = input.trim(); if (!t||thinking) return
+    setInput('')
+    setMsgs(p=>[...p,{ role:'user', content:t }])
+    setThinking(true)
+    try {
+      const kbText = buildKbText(bot.knowledge_entries||[], bot.knowledge_text||'')
+      const botWithKb = { ...bot, knowledge_text: kbText }
+      const history = msgs.map(m=>({ role:m.role==='bot'?'assistant':'user', content:m.content }))
+      const reply = await callClaude({ system:buildBotSystem(botWithKb), messages:history, userMessage:t, allowWeb:bot.allow_web })
+      setMsgs(p=>[...p,{ role:'bot', content:reply }])
+    } catch { setMsgs(p=>[...p,{ role:'bot', content:'Error — check your API key.' }]) }
+    setThinking(false)
+  }
+
+  return (
+    <>
+      <SH n={7} title="Test before you launch" sub="Have a real conversation. Make sure the answers feel right." />
+      <div style={{ border:'1px solid var(--line)', borderRadius:'var(--r-lg)', overflow:'hidden', height:380, display:'flex', flexDirection:'column', background:'var(--surface)' }}>
+        <div style={{ flex:1, overflowY:'auto', padding:'14px 16px', display:'flex', flexDirection:'column', gap:10 }}>
+          {msgs.map((m,i)=>(
+            <div key={i} style={{ display:'flex', gap:8, maxWidth:'84%', alignSelf:m.role==='user'?'flex-end':'flex-start', flexDirection:m.role==='user'?'row-reverse':'row' }}>
+              <div style={{ width:22, height:22, borderRadius:6, flexShrink:0, background:m.role==='bot'?primary:'var(--surface3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:700, color:m.role==='bot'?'white':'var(--ink3)', marginTop:2 }}>
+                {m.role==='bot'?(bot.avatar_letter||bot.name?.charAt(0)||'B').toUpperCase():'U'}
+              </div>
+              <div style={{ padding:'9px 12px', borderRadius:m.role==='bot'?`3px ${r} ${r} ${r}`:`${r} 3px ${r} ${r}`, background:m.role==='user'?primary:'var(--surface2)', border:m.role==='bot'?'1px solid var(--line)':'none', color:m.role==='user'?'white':'var(--ink)', fontSize:13.5, lineHeight:1.65 }}
+                dangerouslySetInnerHTML={m.role==='bot'?{__html:renderMarkdown(m.content)}:undefined}>
+                {m.role==='user'?m.content:undefined}
+              </div>
+            </div>
+          ))}
+          {thinking && (
+            <div style={{ display:'flex', gap:8, maxWidth:'84%' }}>
+              <div style={{ width:22, height:22, borderRadius:6, background:primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:9, fontWeight:700, color:'white', marginTop:2 }}>{(bot.avatar_letter||bot.name?.charAt(0)||'B').toUpperCase()}</div>
+              <div style={{ padding:'10px 14px', borderRadius:`3px ${r} ${r} ${r}`, background:'var(--surface2)', border:'1px solid var(--line)', display:'flex', gap:4 }}>
+                {[0,1,2].map(i=><div key={i} style={{ width:5, height:5, borderRadius:'50%', background:'var(--coffee-4)', animation:'blink 1.3s infinite', animationDelay:`${i*0.18}s` }}/>)}
+              </div>
+            </div>
+          )}
+        </div>
+        <div style={{ padding:'10px 12px', borderTop:'1px solid var(--line)', display:'flex', gap:8 }}>
+          <input className="input input-sm" style={{ flex:1 }} placeholder="Ask your bot something…" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} />
+          <button style={{ width:32, height:32, borderRadius:`${Math.min(bot.border_radius??12,9)}px`, background:primary, border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:input.trim()&&!thinking?'pointer':'not-allowed', opacity:input.trim()&&!thinking?1:0.4 }} onClick={send} disabled={!input.trim()||thinking}>
+            <I.Send width={13} height={13} style={{ color:'white' }} />
+          </button>
+        </div>
+      </div>
+      <div className="alert alert-neutral mt-12" style={{ fontSize:12.5 }}>
+        More specific knowledge base content = better answers. If it's not answering well, add more entries.
+      </div>
+    </>
+  )
+}
+
+// ── Step 8: Publish ───────────────────────────────────────────────────────────
+function StepPublish({ bot, sub }) {
+  const [copied, setCopied] = useState(false)
+  const url = `${window.location.origin}?bot=${bot.id||'preview'}`
+  const ucName = USE_CASES.find(u=>u.id===bot.use_case)?.label||'—'
+  const entryCount = (bot.knowledge_entries||[]).filter(e=>e.enabled!==false).length
+  const checks = [
+    { label:'Use case',      done:!!bot.use_case,           value:ucName },
+    { label:'Bot name',      done:!!bot.name?.trim(),        value:bot.name||'—' },
+    { label:'Knowledge',     done:entryCount>0,              value:`${entryCount} entries` },
+    { label:'Primary colour',done:true,                      value:bot.primary_color||'#2C1810' },
+    { label:'Tone',          done:true,                      value:bot.tone||'Professional' },
+  ]
+  return (
+    <>
+      <SH n={8} title="Ready to launch" sub="Review your setup. Once published your bot link is live immediately." />
+      <div className="mb-20">
+        {checks.map((c,i)=>(
+          <div key={i} style={{ display:'flex', alignItems:'center', gap:12, padding:'11px 0', borderBottom:i<checks.length-1?'1px solid var(--line)':'none' }}>
+            <div style={{ width:20, height:20, borderRadius:'50%', flexShrink:0, background:c.done?'var(--success-bg)':'var(--warn-bg)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              {c.done?<I.Check width={10} height={10} style={{ color:'var(--success)' }}/>:<span style={{ fontSize:9, color:'var(--warn)', fontWeight:700 }}>!</span>}
+            </div>
+            <span style={{ flex:1, fontSize:13.5, fontWeight:500, color:'var(--ink)' }}>{c.label}</span>
+            <span style={{ fontSize:12.5, color:'var(--ink3)' }}>{c.value}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ padding:'14px 16px', borderRadius:'var(--r-md)', background:'var(--surface)', border:'1px solid var(--line)', marginBottom:14 }}>
+        <div className="label mb-8">Your bot link</div>
+        <div className="flex ic g8" style={{ padding:'8px 12px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)' }}>
+          <span style={{ flex:1, fontSize:12, color:'var(--coffee-3)', fontFamily:'monospace', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{url}</span>
+          <button className="btn btn-primary btn-xs" onClick={()=>{ navigator.clipboard.writeText(url).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false),2000) }}>
+            <I.Copy width={11} height={11}/> {copied?'Copied!':'Copy'}
+          </button>
+        </div>
+        <div className="label-sub mt-8">Live immediately after you publish.</div>
+      </div>
+      <div className="alert alert-neutral" style={{ fontSize:12.5 }}>You can edit everything after publishing. Changes take effect immediately.</div>
+    </>
+  )
+}
+
+// ── Shared section wrapper ────────────────────────────────────────────────────
+function Section({ title, sub, children }) {
+  return (
+    <div style={{ marginBottom:22, paddingBottom:22, borderBottom:'1px solid var(--line)' }}>
+      <div style={{ marginBottom:12 }}>
+        <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>{title}</div>
+        {sub && <div style={{ fontSize:12, color:'var(--ink4)', marginTop:2 }}>{sub}</div>}
+      </div>
+      {children}
+    </div>
+  )
+}
