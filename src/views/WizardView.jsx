@@ -23,16 +23,30 @@ const USE_CASES = [
   { id: 'intake',     label: 'Intake & Triage Bot',   icon: '📋', desc: 'Collect information, qualify requests, route to the right person.' },
 ]
 
-const KB_TYPES = [
-  { id: 'faq',        label: 'FAQ',              color: '#7C3AED' },
-  { id: 'service',    label: 'Service Info',     color: '#2563EB' },
-  { id: 'onboarding', label: 'Onboarding',       color: '#059669' },
-  { id: 'sop',        label: 'SOP / Process',    color: '#D97706' },
-  { id: 'training',   label: 'Training',         color: '#DC2626' },
-  { id: 'product',    label: 'Product Details',  color: '#0891B2' },
-  { id: 'policy',     label: 'Policy',           color: '#4B5563' },
-  { id: 'resource',   label: 'Resource',         color: '#7C3AED' },
+const KB_TYPES_CUSTOMER = [
+  { id: 'products',   label: 'Products / Services',       color: '#2563EB', hint: 'What you sell, descriptions, options, variations' },
+  { id: 'pricing',    label: 'Pricing & Payments',        color: '#7C3AED', hint: 'Prices, payment methods, fees, refund rules' },
+  { id: 'ordering',   label: 'Ordering / Booking',        color: '#059669', hint: 'How to order, scheduling, availability, lead times' },
+  { id: 'delivery',   label: 'Delivery / Pickup / Process', color: '#0891B2', hint: 'What happens after ordering, timelines, locations' },
+  { id: 'policies',   label: 'Policies',                  color: '#D97706', hint: 'Refunds, cancellations, returns, guarantees' },
+  { id: 'support',    label: 'Contact & Support',         color: '#DC2626', hint: 'Contact methods, hours, escalation' },
+  { id: 'faq',        label: 'FAQs',                      color: '#4B5563', hint: 'Common quick-answer questions' },
 ]
+
+const KB_TYPES_INTERNAL = [
+  { id: 'sop',          label: 'SOPs',                      color: '#2563EB', hint: 'Step-by-step processes, workflows, checklists' },
+  { id: 'policies',     label: 'Policies & Rules',          color: '#7C3AED', hint: 'HR rules, leave, conduct, compliance, privacy' },
+  { id: 'training',     label: 'Training & Onboarding',     color: '#059669', hint: 'Training guides, tutorials, orientation checklists' },
+  { id: 'troubleshoot', label: 'Troubleshooting',           color: '#DC2626', hint: 'Common problems, fixes, diagnostics, workarounds' },
+  { id: 'product',      label: 'Product / Service Info',    color: '#0891B2', hint: 'Specs, ingredients, pricing rules, substitutions' },
+  { id: 'updates',      label: 'Updates & Announcements',   color: '#D97706', hint: 'New info, changes, alerts, temporary instructions' },
+  { id: 'hr',           label: 'HR & Employee Info',        color: '#059669', hint: 'Benefits, payroll, leave processes, rights' },
+  { id: 'safety',       label: 'Safety & Emergency',        color: '#DC2626', hint: 'Emergency plans, incident response, evacuation' },
+  { id: 'tools',        label: 'Tools & Systems',           color: '#4B5563', hint: 'Software guides, login info, equipment instructions' },
+]
+
+// Keep a combined reference for rendering badges anywhere
+const KB_TYPES = [...KB_TYPES_CUSTOMER, ...KB_TYPES_INTERNAL]
 
 const PRIORITY_LEVELS = [
   { id: 'primary',    label: 'Primary',    desc: 'Always check first' },
@@ -188,7 +202,7 @@ function getOverlayStyle(type) {
 export default function WizardView({ user, sub, existingBot, onDone }) {
   const [bot,     setBot]     = useState(existingBot ? { ...BOT_DEFAULTS, ...existingBot } : { ...BOT_DEFAULTS, owner_id: sub.id })
   const [step,    setStep]    = useState(0)
-  const [maxStep, setMaxStep] = useState(existingBot ? 7 : 0)
+  const [maxStep, setMaxStep] = useState(7)
   const [saving,  setSaving]  = useState(false)
   const [error,   setError]   = useState('')
 
@@ -255,9 +269,21 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
               onMouseLeave={e => e.currentTarget.style.background='none'}>
               <I.Check width={13} height={13} /> Save
             </button>
-            {existingBot && (
-              <button className="btn btn-ghost btn-sm" onClick={() => onDone(existingBot)}>← Back to dashboard</button>
-            )}
+            <div className="flex ic g8">
+              {bot.use_case && (
+                <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+                  <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, background:'var(--surface2)', border:'1px solid var(--line)', color:'var(--ink3)', fontWeight:500 }}>
+                    {bot.bot_type === 'internal' ? '🔒 Internal' : '🌐 Customer'}
+                  </span>
+                  <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, background:'var(--surface2)', border:'1px solid var(--line)', color:'var(--ink3)', fontWeight:500 }}>
+                    {USE_CASES.find(u => u.id === bot.use_case)?.label || bot.use_case}
+                  </span>
+                </div>
+              )}
+              {existingBot && (
+                <button className="btn btn-ghost btn-sm" onClick={() => onDone(existingBot)}>← Back to dashboard</button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -472,7 +498,32 @@ function StepUseCase({ bot, f }) {
   }
   return (
     <>
-      <SH n={1} title="What kind of bot are you building?" sub="Choose the use case that best fits. This pre-configures the personality and knowledge structure — you can adjust everything afterwards." />
+      <SH n={1} title="What kind of bot are you building?" sub="Choose the use case and who it's for. This pre-configures personality and knowledge structure — adjust everything afterwards." />
+
+      {/* Bot type selector */}
+      <div style={{ display:'flex', gap:10, marginBottom:20 }}>
+        {[
+          { id:'customer', label:'Customer facing', icon:'🌐', desc:'Public link for your customers' },
+          { id:'internal', label:'Internal team',   icon:'🔒', desc:'Password protected for your team' },
+        ].map(t => (
+          <button key={t.id} onClick={() => f('bot_type', t.id)}
+            style={{ flex:1, padding:'14px', borderRadius:'var(--r-md)', textAlign:'left', border:`1.5px solid ${bot.bot_type===t.id?'var(--coffee-0)':'var(--line)'}`, background: bot.bot_type===t.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', transition:'all 0.12s' }}>
+            <div style={{ fontSize:20, marginBottom:6 }}>{t.icon}</div>
+            <div style={{ fontSize:13, fontWeight:600, color: bot.bot_type===t.id?'var(--parch-1)':'var(--ink)', marginBottom:3 }}>{t.label}</div>
+            <div style={{ fontSize:11.5, color: bot.bot_type===t.id?'rgba(253,250,244,0.7)':'var(--ink4)', lineHeight:1.5 }}>{t.desc}</div>
+          </button>
+        ))}
+      </div>
+
+      {/* Password field for internal bots */}
+      {bot.bot_type === 'internal' && (
+        <div className="field" style={{ marginBottom:20 }}>
+          <label className="label">Access password</label>
+          <div className="label-sub mb-8">Team members will need this to access the bot.</div>
+          <input className="input" type="text" placeholder="e.g. team2024" value={bot.access_password||''} onChange={e => f('access_password', e.target.value)} />
+        </div>
+      )}
+
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
         {USE_CASES.map(uc => (
           <button key={uc.id} onClick={() => select(uc.id)}
@@ -522,12 +573,47 @@ function StepIdentity({ bot, f }) {
       </div>
     </>
   )
+}async function aiClassifyEntry(entry, bot, f, idx) {
+  try {
+    const { callClaude } = await import('../lib/supabase.js')
+    const kbTypes = bot.bot_type === 'internal'
+      ? 'sop, policies, training, troubleshoot, product, updates, hr, safety, tools'
+      : 'products, pricing, ordering, delivery, policies, support, faq'
+    const result = await callClaude({
+      system: `You are categorising a knowledge base entry. Return JSON only:
+{
+  "title": "concise descriptive title (max 60 chars)",
+  "type": "best matching type from: ${kbTypes}"
+}`,
+      messages: [],
+      userMessage: `Categorise this knowledge base content:\n\n${entry.content.slice(0, 500)}`,
+    })
+    const cleaned = result.replace(/```json|```/g, '').trim()
+    const { title, type } = JSON.parse(cleaned)
+    // Use a callback-style update via a custom event to avoid stale closure
+    const event = new CustomEvent('lb-update-entry', { detail: { idx, title, type } })
+    window.dispatchEvent(event)
+  } catch(e) { console.error('AI classify failed:', e) }
 }
 
 // ── Step 3: Knowledge ─────────────────────────────────────────────────────────
 function StepKnowledge({ bot, f }) {
+  const KB_TYPES_ACTIVE = bot.bot_type === 'internal' ? KB_TYPES_INTERNAL : KB_TYPES_CUSTOMER
+
+  useEffect(() => {
+    function handleUpdate(e) {
+      const { idx, title, type } = e.detail
+      f('knowledge_entries', (bot.knowledge_entries || []).map((entry, i) =>
+        i === idx ? { ...entry, title: title || entry.title, type: type || entry.type } : entry
+      ))
+    }
+    window.addEventListener('lb-update-entry', handleUpdate)
+    return () => window.removeEventListener('lb-update-entry', handleUpdate)
+  }, [bot.knowledge_entries])
   const [adding, setAdding]   = useState(false)
-  const [form,   setForm]     = useState({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+  const [form,      setForm]      = useState({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+  const [titling,   setTitling]   = useState(false)
+  const titleTimer = useRef(null)
   const [editIdx,setEditIdx]  = useState(null)
   const fileRef = useRef(null)
   const entries = bot.knowledge_entries || []
@@ -547,17 +633,27 @@ function StepKnowledge({ bot, f }) {
     setAdding(true)
   }
 
-  function saveEntry() {
-    if (!form.title.trim() || !form.content.trim()) return
-    const entry = { ...form, id: editIdx !== null ? entries[editIdx].id : Date.now().toString() }
+  const [entryError, setEntryError] = useState('')
+
+function saveEntry() {
+    if (!form.content.trim()) { setEntryError('Please add some content for this entry.'); return }
+    setEntryError('')
+    // If no title, use placeholder then let AI fill it in
+    const entryToSave = { ...form }
+    if (!entryToSave.title.trim()) {
+      entryToSave.title = form.content.trim().split('\n')[0].slice(0, 50)
+    }
+    const entry = { ...entryToSave, id: editIdx !== null ? entries[editIdx].id : Date.now().toString() }
     if (editIdx !== null) {
       const updated = [...entries]; updated[editIdx] = entry
       f('knowledge_entries', updated); setEditIdx(null)
     } else {
       f('knowledge_entries', [...entries, entry])
     }
-    setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+   setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
     setAdding(false)
+    // AI classify in background — updates title and type automatically
+    aiClassifyEntry(entry, bot, f, editIdx !== null ? editIdx : (entries.length))
   }
 
   function removeEntry(idx) { f('knowledge_entries', entries.filter((_,i) => i !== idx)) }
@@ -582,7 +678,7 @@ function StepKnowledge({ bot, f }) {
       )}
 
       {/* Entry list */}
-      {entries.length > 0 && !adding && (
+      {entries.length > 0 && (
         <div style={{ marginBottom:16 }}>
           {entries.map((entry, idx) => {
             const kbType = KB_TYPES.find(t => t.id === entry.type)
@@ -624,8 +720,13 @@ function StepKnowledge({ bot, f }) {
             <div className="field" style={{ marginBottom:0 }}>
               <label className="label">Type</label>
               <select className="input input-sm" value={form.type} onChange={e => setForm(p=>({...p,type:e.target.value}))}>
-                {KB_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                {KB_TYPES_ACTIVE.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
               </select>
+              {KB_TYPES_ACTIVE.find(t => t.id === form.type)?.hint && (
+                <div style={{ fontSize:11.5, color:'var(--ink4)', marginTop:5, lineHeight:1.5 }}>
+                  💡 {KB_TYPES_ACTIVE.find(t => t.id === form.type).hint}
+                </div>
+              )}
             </div>
           </div>
           <div className="field mb-12">
@@ -642,11 +743,44 @@ function StepKnowledge({ bot, f }) {
           </div>
           <div className="field" style={{ marginBottom:14 }}>
             <label className="label">Content</label>
-            <textarea className="input" style={{ minHeight:160, lineHeight:1.7 }} placeholder="Paste your content here…" value={form.content} onChange={e => setForm(p=>({...p,content:e.target.value}))} />
-            <div className="label-sub mt-4">{form.content?.split(/\s+/).filter(Boolean).length||0} words</div>
+            <textarea className="input" style={{ minHeight:160, lineHeight:1.7 }} placeholder="Paste your content here…" value={form.content}
+              onChange={e => {
+                const content = e.target.value
+                setForm(p=>({...p, content}))
+                // Auto-title after 800ms pause in typing — always regenerate if content changed significantly
+                if (true) {
+                  clearTimeout(titleTimer.current)
+                  titleTimer.current = setTimeout(async () => {
+                    if (!content.trim() || content.trim().length < 30) return
+                    setTitling(true)
+                    try {
+                      const { callClaude } = await import('../lib/supabase.js')
+                      const kbTypes = bot.bot_type === 'internal'
+                        ? 'sop, policies, training, troubleshoot, product, updates, hr, safety, tools'
+                        : 'products, pricing, ordering, delivery, policies, support, faq'
+                      const result = await callClaude({
+                        system: `Return JSON only: { "title": "concise title max 60 chars", "type": "best type from: ${kbTypes}" }`,
+                        messages: [],
+                        userMessage: content.slice(0, 400),
+                      })
+                      const { title, type } = JSON.parse(result.replace(/```json|```/g,'').trim())
+                      setForm(p => ({ ...p, title: title || p.title, type: type || p.type }))
+                    } catch(e) { console.error(e) }
+                    setTitling(false)
+                  }, 800)
+                }
+              }}
+            />
+            <div className="flex ic jb mt-4">
+              <div className="label-sub">{form.content?.split(/\s+/).filter(Boolean).length||0} words</div>
+              {titling && <div style={{ fontSize:11, color:'var(--ink4)', display:'flex', alignItems:'center', gap:4 }}><span style={{ animation:'spin 0.7s linear infinite', display:'inline-block' }}>⟳</span> Naming…</div>}
+            </div>
           </div>
+          {entryError && (
+            <div className="alert alert-error mb-8" style={{ fontSize:12.5 }}>{entryError}</div>
+          )}
           <div style={{ display:'flex', gap:8 }}>
-            <button className="btn btn-primary" onClick={saveEntry} disabled={!form.title.trim()||!form.content.trim()}>
+            <button className="btn btn-primary" onClick={saveEntry} disabled={!form.content.trim()}>
               {editIdx !== null ? 'Save changes' : 'Add entry'}
             </button>
             <button className="btn btn-ghost" onClick={() => { setAdding(false); setEditIdx(null); setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true }) }}>Cancel</button>

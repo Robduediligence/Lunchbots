@@ -9,6 +9,8 @@ export default function ChatView({ botId }) {
   const [bot,     setBot]     = useState(null)
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState(null)
+  const [mode,    setMode]    = useState(null)
+  const [unlocked, setUnlocked] = useState(false) // null=landing, 'chat', 'feedback'
 
   useEffect(() => {
     getPublishedBot(botId)
@@ -33,7 +35,11 @@ export default function ChatView({ botId }) {
     </div>
   )
 
-  return <ActiveChat bot={bot} />
+  if (bot.bot_type === 'internal' && !unlocked)
+    return <PasswordGate bot={bot} onUnlock={() => setUnlocked(true)} />
+  if (mode === 'chat')     return <ActiveChat bot={bot} />
+  if (mode === 'feedback') return <FeedbackView bot={bot} onBack={() => setMode(null)} />
+  return <LandingScreen bot={bot} onChat={() => setMode('chat')} onFeedback={() => setMode('feedback')} />
 }
 
 function ActiveChat({ bot }) {
@@ -42,9 +48,36 @@ function ActiveChat({ bot }) {
   const [thinking,  setThinking]  = useState(false)
   const [convId,    setConvId]    = useState(null)
   const [sessionId] = useState(() => Math.random().toString(36).slice(2,10))
+  const [pendingGap, setPendingGap] = useState(null) // gap id waiting for admin answer
+  const pollRef = useRef(null)
   const msgsRef  = useRef([])
   const bottomRef= useRef(null)
   const inputRef = useRef(null)
+
+  // Poll for admin answer when a gap is pending
+  useEffect(() => {
+    if (!pendingGap) return
+    pollRef.current = setInterval(async () => {
+      try {
+        const { supabase } = await import('../lib/supabase.js')
+        const { data } = await supabase
+          .from('knowledge_gaps')
+          .select('admin_answer, resolved')
+          .eq('id', pendingGap)
+          .single()
+        if (data?.resolved && data?.admin_answer) {
+          clearInterval(pollRef.current)
+          setPendingGap(null)
+          // Remove waiting message and add real answer
+          setMsgs(p => [
+            ...p.filter(m => m.id !== 'waiting'),
+            { role:'bot', content: `✅ The team just got back to you:\n\n${data.admin_answer}`, id:'admin-reply-' + Date.now() }
+          ])
+        }
+      } catch(e) { console.error(e) }
+    }, 5000)
+    return () => clearInterval(pollRef.current)
+  }, [pendingGap])
 
   // Bot branding
   const primary  = bot.primary_color  || '#2C1810'
@@ -99,9 +132,13 @@ function ActiveChat({ bot }) {
       msgsRef.current = [...msgsRef.current, { role:'bot', content:reply }]
       if (convId) await addMessage(convId, 'bot', reply, !isFallback).catch(console.error)
 
-      // If fallback, create knowledge gap
+ // If fallback, create knowledge gap and start polling
       if (isFallback && convId) {
-        await createKnowledgeGap(bot.id, convId, t).catch(console.error)
+        const gap = await createKnowledgeGap(bot.id, convId, t).catch(console.error)
+        if (gap) {
+          setPendingGap(gap.id)
+          setMsgs(p => [...p, { role:'bot', content:'⏳ I\'ve flagged this for the team. I\'ll let you know as soon as they respond — usually within a few hours.', id:'waiting', isWaiting:true }])
+        }
       }
     } catch {
       const errMsg = { role:'bot', content:'Something went wrong. Please try again.', id:(Date.now()+1).toString() }
@@ -213,6 +250,553 @@ function ActiveChat({ bot }) {
         {bot.cta_text && bot.cta_url
           ? <a href={bot.cta_url} target="_blank" rel="noreferrer" style={{ color:primary, textDecoration:'none', fontWeight:500 }}>{bot.cta_text}</a>
           : 'Powered by Lunch Bots'}
+      </div>
+    </div>
+  )
+}
+
+// ── Landing screen — Ask a question or Leave feedback ─────────────────────────
+function LandingScreen({ bot, onChat, onFeedback }) {
+  const primary  = bot.primary_color  || '#2C1810'
+  const bg       = bot.bg_color       || '#F5F0E8'
+  const bgImage  = bot.bg_image_url   || null
+  const bgOv     = typeof bot.bg_overlay === 'number' ? bot.bg_overlay : 40
+  const font     = bot.body_font      || bot.font_family || 'Inter, system-ui, sans-serif'
+  const titleFont= bot.title_font     || "'Playfair Display', serif"
+  const sz       = typeof bot.font_size === 'number' ? bot.font_size : 14
+  const radius   = typeof bot.border_radius === 'number' ? bot.border_radius : 12
+  const letter   = (bot.avatar_letter || bot.name?.charAt(0) || 'B').toUpperCase()
+
+  return (
+    <div style={{
+      display:'flex', flexDirection:'column', alignItems:'center',
+      justifyContent:'center', minHeight:'100vh', padding:28,
+      fontFamily:font, fontSize:sz, position:'relative',
+      background: bgImage ? `url(${bgImage}) center/cover no-repeat` : bg,
+    }}>
+      {bgImage && <div style={{ position:'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
+
+      <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:400, display:'flex', flexDirection:'column', alignItems:'center', gap:28 }}>
+
+        {/* Bot identity */}
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12, animation:'fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both' }}>
+          <div style={{
+            width:72, height:72, borderRadius:`${Math.min(radius*1.2,20)}px`,
+            background: bot.avatar_url ? 'transparent' : primary,
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontSize:28, fontWeight:700, color:'white', overflow:'hidden',
+            boxShadow:`0 8px 24px ${primary}44`,
+          }}>
+            {bot.avatar_url
+              ? <img src={bot.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+              : letter}
+          </div>
+          <div style={{ textAlign:'center' }}>
+            <div style={{ fontFamily:titleFont, fontSize:sz*1.4, fontWeight:600, color: bgImage?'white':'var(--ink)', marginBottom:4, letterSpacing:-0.3 }}>
+              {bot.name}
+            </div>
+            {bot.descriptor && (
+              <div style={{ fontSize:sz*0.9, color: bgImage?'rgba(255,255,255,0.7)':'var(--ink3)' }}>
+                {bot.descriptor}
+              </div>
+            )}
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:5, marginTop:6, fontSize:sz*0.8, color:'#2D9E6B' }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:'#2D9E6B', display:'inline-block' }} />
+              Online
+            </div>
+          </div>
+        </div>
+
+        {/* Welcome message */}
+        {bot.welcome_message && (
+          <p style={{
+            textAlign:'center', fontSize:sz*0.95, lineHeight:1.7,
+            color: bgImage?'rgba(255,255,255,0.85)':'var(--ink3)',
+            maxWidth:340, animation:'fadeUp 0.5s 0.08s cubic-bezier(0.22,1,0.36,1) both',
+          }}>
+            {bot.welcome_message}
+          </p>
+        )}
+
+        {/* Two option cards */}
+        <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:12, animation:'fadeUp 0.5s 0.16s cubic-bezier(0.22,1,0.36,1) both' }}>
+          <button onClick={onChat} style={{
+            width:'100%', padding:'20px 24px', borderRadius:`${radius}px`,
+            background: bgImage ? 'rgba(255,255,255,0.95)' : 'white',
+            border:`1.5px solid ${primary}22`,
+            boxShadow:`0 2px 12px rgba(0,0,0,0.08), 0 0 0 0 ${primary}`,
+            cursor:'pointer', textAlign:'left', transition:'all 0.18s',
+            display:'flex', alignItems:'center', gap:16,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow=`0 8px 24px rgba(0,0,0,0.12)` }}
+          onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow=`0 2px 12px rgba(0,0,0,0.08)` }}>
+            <div style={{ width:44, height:44, borderRadius:`${Math.min(radius,12)}px`, background:primary, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <span style={{ fontSize:20 }}>💬</span>
+            </div>
+            <div>
+              <div style={{ fontFamily:titleFont, fontSize:sz*1.05, fontWeight:600, color:'var(--ink)', marginBottom:3 }}>Ask a question</div>
+              <div style={{ fontSize:sz*0.85, color:'var(--ink3)', lineHeight:1.5 }}>Get an instant answer from the knowledge base</div>
+            </div>
+            <I.ChevR style={{ marginLeft:'auto', color:'var(--ink4)', flexShrink:0 }} />
+          </button>
+
+          <button onClick={onFeedback} style={{
+            width:'100%', padding:'20px 24px', borderRadius:`${radius}px`,
+            background: bgImage ? 'rgba(255,255,255,0.95)' : 'white',
+            border:'1.5px solid rgba(0,0,0,0.06)',
+            boxShadow:'0 2px 12px rgba(0,0,0,0.06)',
+            cursor:'pointer', textAlign:'left', transition:'all 0.18s',
+            display:'flex', alignItems:'center', gap:16,
+          }}
+          onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 8px 24px rgba(0,0,0,0.1)' }}
+          onMouseLeave={e => { e.currentTarget.style.transform=''; e.currentTarget.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)' }}>
+            <div style={{ width:44, height:44, borderRadius:`${Math.min(radius,12)}px`, background:'var(--surface2)', border:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+              <span style={{ fontSize:20 }}>📝</span>
+            </div>
+            <div>
+              <div style={{ fontFamily:titleFont, fontSize:sz*1.05, fontWeight:600, color:'var(--ink)', marginBottom:3 }}>
+                {bot.bot_type === 'internal' ? 'Message the team' : 'Leave feedback'}
+              </div>
+              <div style={{ fontSize:sz*0.85, color:'var(--ink3)', lineHeight:1.5 }}>
+                {bot.bot_type === 'internal' ? 'Send a message directly to your team' : 'Share a suggestion, thought, or experience'}
+              </div>
+            </div>
+            <I.ChevR style={{ marginLeft:'auto', color:'var(--ink4)', flexShrink:0 }} />
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div style={{ fontSize:sz*0.75, color: bgImage?'rgba(255,255,255,0.4)':'var(--ink5)', animation:'fadeUp 0.5s 0.24s cubic-bezier(0.22,1,0.36,1) both' }}>
+          {bot.cta_text && bot.cta_url
+            ? <a href={bot.cta_url} target="_blank" rel="noreferrer" style={{ color:primary, textDecoration:'none' }}>{bot.cta_text}</a>
+            : 'Powered by Lunch Bots'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Feedback view — routes to correct version based on bot type ───────────────
+function FeedbackView({ bot, onBack }) {
+  if (bot.bot_type === 'internal') return <InternalMessaging bot={bot} onBack={onBack} />
+  return <CustomerFeedback bot={bot} onBack={onBack} />
+}
+
+// ── Customer feedback — simple card form ──────────────────────────────────────
+function CustomerFeedback({ bot, onBack }) {
+  const primary   = bot.primary_color || '#2C1810'
+  const bg        = bot.bg_color      || '#F5F0E8'
+  const bgImage   = bot.bg_image_url  || null
+  const bgOv      = typeof bot.bg_overlay === 'number' ? bot.bg_overlay : 40
+  const font      = bot.body_font     || 'Inter, system-ui, sans-serif'
+  const titleFont = bot.title_font    || "'Playfair Display', serif"
+  const sz        = typeof bot.font_size === 'number' ? bot.font_size : 14
+  const radius    = typeof bot.border_radius === 'number' ? bot.border_radius : 12
+  const [text,    setText]    = useState('')
+  const [isAnon,  setIsAnon]  = useState(true)
+  const [name,    setName]    = useState('')
+  const [contact, setContact] = useState('')
+  const [sent,    setSent]    = useState(false)
+  const [sending, setSending] = useState(false)
+  const [sessionId] = useState(() => Math.random().toString(36).slice(2,10))
+
+  async function submit() {
+    if (!text.trim()) return
+    setSending(true)
+    try {
+      const { supabase } = await import('../lib/supabase.js')
+      const { data: conv } = await supabase.from('conversations').insert({
+        bot_id: bot.id, session_id: sessionId, type: 'feedback',
+        is_anon: isAnon, user_name: isAnon ? null : name.trim() || null,
+      }).select().single()
+      await supabase.from('feedback').insert({
+        bot_id: bot.id, conversation_id: conv.id,
+        content: text.trim(), is_anon: isAnon,
+        user_name: isAnon ? null : name.trim() || null,
+        user_contact: isAnon ? null : contact.trim() || null,
+        session_id: sessionId,
+      })
+      setSent(true)
+      triggerFeedbackSummary(bot)
+    } catch(e) { console.error(e) }
+    setSending(false)
+  }
+
+
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', padding:28, fontFamily:font, fontSize:sz, position:'relative', background: bgImage ? `url(${bgImage}) center/cover no-repeat` : bg }}>
+      {bgImage && <div style={{ position:'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
+      <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:400 }}>
+        <button onClick={onBack} style={{ background:'none', border:'none', cursor:'pointer', fontSize:13, color: bgImage?'rgba(255,255,255,0.7)':'var(--ink3)', marginBottom:20, display:'flex', alignItems:'center', gap:5, padding:0 }}>← Back</button>
+        <div style={{ background: bgImage?'rgba(255,255,255,0.97)':'white', borderRadius:`${radius}px`, padding:'28px 24px', boxShadow:'0 8px 32px rgba(0,0,0,0.12)' }}>
+          {sent ? (
+            <div style={{ textAlign:'center', padding:'20px 0' }}>
+              <div style={{ fontSize:36, marginBottom:16 }}>🙏</div>
+              <div style={{ fontFamily:titleFont, fontSize:sz*1.3, fontWeight:600, color:'var(--ink)', marginBottom:8 }}>Thank you</div>
+              <p style={{ fontSize:sz*0.9, color:'var(--ink3)', lineHeight:1.65, marginBottom:24 }}>Your feedback has been sent to the team.</p>
+              <button onClick={onBack} style={{ width:'100%', padding:'11px', borderRadius:`${Math.min(radius,10)}px`, background:primary, color:'white', border:'none', fontSize:13, fontWeight:500, cursor:'pointer', fontFamily:font }}>← Back to start</button>
+            </div>
+          ) : (
+            <>
+              <div style={{ fontFamily:titleFont, fontSize:sz*1.2, fontWeight:600, color:'var(--ink)', marginBottom:4 }}>Share your feedback</div>
+              <p style={{ fontSize:sz*0.85, color:'var(--ink3)', marginBottom:20, lineHeight:1.6 }}>Your thoughts go directly to the team.</p>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 14px', background:'var(--surface2)', borderRadius:`${Math.min(radius,8)}px`, marginBottom:16, border:'1px solid var(--line)' }}>
+                <div>
+                  <div style={{ fontSize:13, fontWeight:500, color:'var(--ink)' }}>Send anonymously</div>
+                  <div style={{ fontSize:11.5, color:'var(--ink4)' }}>{isAnon ? "Your name won't be shown" : 'Your name will be visible'}</div>
+                </div>
+                <span onClick={() => setIsAnon(p=>!p)} style={{ position:'relative', display:'inline-block', width:36, height:20, background:isAnon?primary:'var(--parch-3)', borderRadius:20, cursor:'pointer', transition:'0.18s', flexShrink:0 }}>
+                  <span style={{ position:'absolute', width:14, height:14, left: isAnon?19:2, top:3, background:'white', borderRadius:'50%', transition:'0.18s', boxShadow:'0 1px 3px rgba(0,0,0,0.2)' }} />
+                </span>
+              </div>
+              {!isAnon && (
+                <>
+                  <div style={{ marginBottom:14 }}>
+                    <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Your name</label>
+                    <input value={name} onChange={e=>setName(e.target.value)} placeholder="How should we address you?" style={{ width:'100%', padding:'9px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', boxSizing:'border-box' }} />
+                  </div>
+                  <div style={{ marginBottom:14 }}>
+                    <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Contact <span style={{ fontWeight:400, color:'var(--ink4)' }}>(optional)</span></label>
+                    <input value={contact} onChange={e=>setContact(e.target.value)} placeholder="Email or phone for follow up" style={{ width:'100%', padding:'9px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', boxSizing:'border-box' }} />
+                  </div>
+                </>
+              )}
+              <div style={{ marginBottom:18 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Your message</label>
+                <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Share what's on your mind…" style={{ width:'100%', padding:'10px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', resize:'none', minHeight:120, lineHeight:1.65, boxSizing:'border-box' }} />
+              </div>
+              <button onClick={submit} disabled={!text.trim()||sending} style={{ width:'100%', padding:'12px', borderRadius:`${Math.min(radius,10)}px`, background:primary, color:'white', border:'none', fontSize:14, fontWeight:500, cursor:text.trim()&&!sending?'pointer':'not-allowed', opacity:text.trim()&&!sending?1:0.5, fontFamily:font }}>
+                {sending ? 'Sending…' : 'Send feedback →'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+// ── Shared feedback summary trigger ──────────────────────────────────────────
+async function triggerFeedbackSummary(bot) {
+  try {
+    const { supabase, callClaude } = await import('../lib/supabase.js')
+    const { data: allFeedback } = await supabase
+      .from('feedback').select('content').eq('bot_id', bot.id)
+    if (!allFeedback || allFeedback.length === 0) return
+    const text = allFeedback.map(f => `- ${f.content}`).join('\n')
+    const isInternal = bot.bot_type === 'internal'
+    const result = await callClaude({
+      system: `Analyse this ${isInternal ? 'internal team' : 'customer'} feedback and return JSON only:
+{
+  "overview": "2-3 sentence summary",
+  "topThemes": ["theme1","theme2","theme3"],
+  "sentiment": "positive|neutral|mixed|negative",
+  "urgent": ["urgent1"],
+  "suggestions": ["suggestion1","suggestion2"]
+}
+${isInternal ? 'These are messages from employees or team members, not customers.' : 'These are messages from customers.'}`,
+      messages: [],
+      userMessage: `Feedback:\n${text}`,
+    })
+    const cleaned = result.replace(/```json|```/g, '').trim()
+    const summary = JSON.parse(cleaned)
+    await supabase.from('bots').update({
+      feedback_summary: summary,
+      feedback_summary_at: new Date().toISOString(),
+    }).eq('id', bot.id)
+    console.log('Summary trigger completed')
+  } catch(e) { console.error('Summary generation failed:', e) }
+}
+
+// ── Internal messaging — messenger-style ──────────────────────────────────────
+function InternalMessaging({ bot, onBack }) {
+  const primary   = bot.primary_color || '#2C1810'
+  const bg        = bot.bg_color      || '#F5F0E8'
+  const font      = bot.body_font     || 'Inter, system-ui, sans-serif'
+  const titleFont = bot.title_font    || "'Playfair Display', serif"
+  const sz        = typeof bot.font_size === 'number' ? bot.font_size : 14
+  const radius    = typeof bot.border_radius === 'number' ? bot.border_radius : 12
+  const [sessionId] = useState(() => {
+    try {
+      const key = `lb_session_${bot.id}`
+      const existing = localStorage.getItem(key)
+      if (existing) return existing
+      const id = Math.random().toString(36).slice(2,10)
+      localStorage.setItem(key, id)
+      return id
+    } catch(e) {
+      return Math.random().toString(36).slice(2,10)
+    }
+  })
+  const [threads,   setThreads]   = useState([])
+  const [selected,  setSelected]  = useState(null)
+  const [replies,   setReplies]   = useState([])
+  const [newMsg,    setNewMsg]     = useState('')
+  const [sending,   setSending]   = useState(false)
+  const [loading,   setLoading]   = useState(true)
+  const [composing, setComposing] = useState(false)
+  const [draftText, setDraftText] = useState('')
+  const [isAnon,    setIsAnon]    = useState(true)
+  const [name,      setName]      = useState('')
+  const bottomRef = useRef(null)
+
+  useEffect(() => { loadThreads() }, [])
+  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [replies])
+
+  async function loadThreads() {
+    setLoading(true)
+    try {
+      const { getFeedbackBySession } = await import('../lib/supabase.js')
+      const data = await getFeedbackBySession(bot.id, sessionId)
+      setThreads(data)
+    } catch(e) { console.error(e) }
+    setLoading(false)
+  }
+
+  async function openThread(fb) {
+    setSelected(fb)
+    setComposing(false)
+    const { getFeedbackReplies } = await import('../lib/supabase.js')
+    const data = await getFeedbackReplies(fb.id)
+    setReplies(data)
+  }
+
+  async function sendReply() {
+    if (!newMsg.trim() || !selected) return
+    setSending(true)
+    try {
+      const { addFeedbackReply } = await import('../lib/supabase.js')
+      await addFeedbackReply(selected.id, 'user', newMsg.trim())
+      const { getFeedbackReplies } = await import('../lib/supabase.js')
+      const data = await getFeedbackReplies(selected.id)
+      setReplies(data)
+      setNewMsg('')
+    } catch(e) { console.error(e) }
+    setSending(false)
+  }
+
+  async function startNewThread() {
+    if (!draftText.trim()) return
+    setSending(true)
+    try {
+      const { supabase } = await import('../lib/supabase.js')
+      const { data: conv } = await supabase.from('conversations').insert({
+        bot_id: bot.id, session_id: sessionId, type: 'feedback',
+        is_anon: isAnon, user_name: isAnon ? null : name.trim() || null,
+      }).select().single()
+      const { data: fb } = await supabase.from('feedback').insert({
+        bot_id: bot.id, conversation_id: conv.id,
+        content: draftText.trim(), is_anon: isAnon,
+        user_name: isAnon ? null : name.trim() || null,
+        session_id: sessionId,
+      }).select().single()
+      setDraftText('')
+      setComposing(false)
+      await loadThreads()
+      await openThread(fb)
+      triggerFeedbackSummary(bot)
+    } catch(e) { console.error(e) }
+    setSending(false)
+  }
+
+  return (
+    <div style={{ display:'flex', height:'100vh', fontFamily:font, fontSize:sz, background:bg }}>
+
+      {/* Left — thread list */}
+      <div style={{ width:260, minWidth:260, borderRight:'1px solid rgba(0,0,0,0.08)', display:'flex', flexDirection:'column', background:'white' }}>
+        {/* Header */}
+        <div style={{ padding:'16px 16px 12px', borderBottom:'1px solid rgba(0,0,0,0.06)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div>
+            <button onClick={onBack} style={{ background:'none', border:'none', cursor:'pointer', fontSize:12, color:'var(--ink4)', padding:0, marginBottom:4, display:'block' }}>← Back</button>
+            <div style={{ fontFamily:titleFont, fontSize:sz*1.1, fontWeight:600, color:'var(--ink)' }}>Messages</div>
+          </div>
+          <button onClick={() => { setComposing(true); setSelected(null) }}
+            style={{ width:32, height:32, borderRadius:'50%', background:primary, border:'none', color:'white', fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            +
+          </button>
+        </div>
+
+        {/* Thread list */}
+        <div style={{ flex:1, overflowY:'auto' }}>
+          {loading ? (
+            <div style={{ padding:20, textAlign:'center', color:'var(--ink4)', fontSize:12 }}>Loading…</div>
+          ) : threads.length === 0 ? (
+            <div style={{ padding:24, textAlign:'center' }}>
+              <div style={{ fontSize:24, marginBottom:8 }}>💬</div>
+              <div style={{ fontSize:13, color:'var(--ink3)', lineHeight:1.6 }}>No messages yet. Tap + to start a conversation.</div>
+            </div>
+          ) : (
+            threads.map((fb, i) => (
+              <div key={i} onClick={() => openThread(fb)}
+                style={{ padding:'12px 16px', borderBottom:'1px solid rgba(0,0,0,0.05)', cursor:'pointer', background: selected?.id===fb.id?`${primary}12`:'white', transition:'background 0.1s' }}>
+                <div style={{ fontSize:13, fontWeight:500, color:'var(--ink)', marginBottom:3, lineHeight:1.4 }}>
+                  {fb.content.slice(0, 45)}{fb.content.length > 45 ? '…' : ''}
+                </div>
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                  <div style={{ fontSize:11, color:'var(--ink4)' }}>
+                    {new Date(fb.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}
+                  </div>
+                  {!fb.resolved && <span style={{ width:7, height:7, borderRadius:'50%', background:primary, display:'inline-block' }} />}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Right — conversation or compose */}
+      <div style={{ flex:1, display:'flex', flexDirection:'column', background:bg }}>
+        {composing ? (
+          // New message compose
+          <div style={{ flex:1, display:'flex', flexDirection:'column', padding:24, maxWidth:560 }}>
+            <div style={{ fontFamily:titleFont, fontSize:sz*1.1, fontWeight:600, color:'var(--ink)', marginBottom:6 }}>New message</div>
+            <p style={{ fontSize:sz*0.85, color:'var(--ink3)', marginBottom:20 }}>Your message goes directly to the team.</p>
+
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 14px', background:'white', borderRadius:`${Math.min(radius,8)}px`, marginBottom:14, border:'1px solid rgba(0,0,0,0.08)' }}>
+              <div style={{ fontSize:13, color:'var(--ink)' }}>Send anonymously</div>
+              <span onClick={() => setIsAnon(p=>!p)} style={{ position:'relative', display:'inline-block', width:36, height:20, background:isAnon?primary:'var(--parch-3)', borderRadius:20, cursor:'pointer', transition:'0.18s' }}>
+                <span style={{ position:'absolute', width:14, height:14, left: isAnon?19:2, top:3, background:'white', borderRadius:'50%', transition:'0.18s', boxShadow:'0 1px 3px rgba(0,0,0,0.2)' }} />
+              </span>
+            </div>
+
+            {!isAnon && (
+              <div style={{ marginBottom:14 }}>
+                <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Your name</label>
+                <input value={name} onChange={e=>setName(e.target.value)} placeholder="How should we address you?" style={{ width:'100%', padding:'9px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid rgba(0,0,0,0.1)', fontSize:13.5, fontFamily:font, outline:'none', background:'white', boxSizing:'border-box' }} />
+              </div>
+            )}
+
+            <textarea value={draftText} onChange={e=>setDraftText(e.target.value)}
+              placeholder="What would you like to say to the team?"
+              style={{ flex:1, padding:'12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid rgba(0,0,0,0.1)', fontSize:13.5, fontFamily:font, outline:'none', resize:'none', lineHeight:1.65, background:'white', marginBottom:12, boxSizing:'border-box' }} />
+
+            <div style={{ display:'flex', gap:8 }}>
+              <button onClick={() => setComposing(false)} style={{ flex:1, padding:'11px', borderRadius:`${Math.min(radius,8)}px`, background:'white', border:'1px solid rgba(0,0,0,0.1)', fontSize:13, cursor:'pointer', fontFamily:font }}>Cancel</button>
+              <button onClick={startNewThread} disabled={!draftText.trim()||sending}
+                style={{ flex:2, padding:'11px', borderRadius:`${Math.min(radius,8)}px`, background:primary, color:'white', border:'none', fontSize:13, fontWeight:500, cursor:draftText.trim()&&!sending?'pointer':'not-allowed', opacity:draftText.trim()&&!sending?1:0.5, fontFamily:font }}>
+                {sending ? 'Sending…' : 'Send message →'}
+              </button>
+            </div>
+          </div>
+        ) : selected ? (
+          // Open thread
+          <>
+            <div style={{ padding:'14px 20px', borderBottom:'1px solid rgba(0,0,0,0.07)', background:'white', flexShrink:0 }}>
+              <div style={{ fontSize:13.5, fontWeight:500, color:'var(--ink)' }}>
+                {selected.content.slice(0, 60)}{selected.content.length > 60 ? '…' : ''}
+              </div>
+              <div style={{ fontSize:11.5, color:'var(--ink4)', marginTop:2 }}>
+                {new Date(selected.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short', year:'numeric' })}
+              </div>
+            </div>
+
+            <div style={{ flex:1, overflowY:'auto', padding:'16px 20px', display:'flex', flexDirection:'column', gap:10 }}>
+              {/* Original message */}
+              <div style={{ display:'flex', gap:8, maxWidth:'80%', alignSelf:'flex-end', flexDirection:'row-reverse' }}>
+                <div style={{ width:24, height:24, borderRadius:7, background:'var(--surface3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, color:'var(--ink3)', flexShrink:0, marginTop:2 }}>U</div>
+                <div style={{ padding:'9px 13px', borderRadius:`${radius}px 3px ${radius}px ${radius}px`, background:primary, color:'white', fontSize:sz*0.9, lineHeight:1.6 }}>
+                  {selected.content}
+                </div>
+              </div>
+
+              {/* Replies */}
+              {replies.map((r, i) => (
+                <div key={i} style={{ display:'flex', gap:8, maxWidth:'80%', alignSelf: r.role==='admin'?'flex-start':'flex-end', flexDirection: r.role==='admin'?'row':'row-reverse' }}>
+                  <div style={{ width:24, height:24, borderRadius:7, background: r.role==='admin'?primary:'var(--surface3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, color: r.role==='admin'?'white':'var(--ink3)', flexShrink:0, marginTop:2 }}>
+                    {r.role === 'admin' ? '👋' : 'U'}
+                  </div>
+                  <div style={{ padding:'9px 13px', borderRadius: r.role==='admin'?`3px ${radius}px ${radius}px ${radius}px`:`${radius}px 3px ${radius}px ${radius}px`, background: r.role==='admin'?'white':primary, border: r.role==='admin'?'1px solid rgba(0,0,0,0.08)':'none', color: r.role==='admin'?'var(--ink)':'white', fontSize:sz*0.9, lineHeight:1.6 }}>
+                    {r.content}
+                  </div>
+                </div>
+              ))}
+              <div ref={bottomRef} />
+            </div>
+
+            {/* Reply input */}
+            <div style={{ padding:'12px 16px', borderTop:'1px solid rgba(0,0,0,0.07)', display:'flex', gap:8, background:'white', flexShrink:0 }}>
+              <input value={newMsg} onChange={e=>setNewMsg(e.target.value)}
+                onKeyDown={e => e.key==='Enter' && !e.shiftKey && sendReply()}
+                placeholder="Reply…"
+                style={{ flex:1, padding:'9px 13px', borderRadius:`${Math.min(radius,10)}px`, border:'1px solid rgba(0,0,0,0.1)', fontSize:13.5, fontFamily:font, outline:'none', background:'var(--surface2)' }} />
+              <button onClick={sendReply} disabled={!newMsg.trim()||sending}
+                style={{ width:38, height:38, borderRadius:`${Math.min(radius,10)}px`, background:primary, border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:newMsg.trim()&&!sending?'pointer':'not-allowed', opacity:newMsg.trim()&&!sending?1:0.4, flexShrink:0 }}>
+                <I.Send width={15} height={15} style={{ color:'white' }} />
+              </button>
+            </div>
+          </>
+        ) : (
+          // Empty state
+          <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:12, color:'var(--ink4)' }}>
+            <div style={{ fontSize:32 }}>💬</div>
+            <div style={{ fontSize:13.5, fontFamily:titleFont }}>Select a conversation or start a new one</div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+function PasswordGate({ bot, onUnlock }) {
+  const [pw,  setPw]  = useState('')
+  const [err, setErr] = useState(false)
+  const primary   = bot.primary_color || '#2C1810'
+  const bg        = bot.bg_color      || '#F5F0E8'
+  const bgImage   = bot.bg_image_url  || null
+  const bgOv      = typeof bot.bg_overlay === 'number' ? bot.bg_overlay : 40
+  const font      = bot.body_font     || 'Inter, system-ui, sans-serif'
+  const titleFont = bot.title_font    || "'Playfair Display', serif"
+  const radius    = typeof bot.border_radius === 'number' ? bot.border_radius : 12
+  const letter    = (bot.avatar_letter || bot.name?.charAt(0) || 'B').toUpperCase()
+
+  function attempt() {
+    if (pw === bot.access_password) { onUnlock() }
+    else { setErr(true); setPw(''); setTimeout(() => setErr(false), 2000) }
+  }
+
+  return (
+    <div style={{
+      display:'flex', flexDirection:'column', alignItems:'center',
+      justifyContent:'center', minHeight:'100vh', padding:28,
+      fontFamily:font, position:'relative',
+      background: bgImage ? `url(${bgImage}) center/cover no-repeat` : bg,
+    }}>
+      {bgImage && <div style={{ position:'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
+      <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:360 }}>
+        <div style={{ background: bgImage?'rgba(255,255,255,0.97)':'white', borderRadius:`${radius}px`, padding:'32px 28px', boxShadow:'0 8px 32px rgba(0,0,0,0.12)' }}>
+
+          {/* Bot identity */}
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:10, marginBottom:24 }}>
+            <div style={{ width:56, height:56, borderRadius:`${Math.min(radius,16)}px`, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 4px 16px ${primary}44` }}>
+              {bot.avatar_url ? <img src={bot.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
+            </div>
+            <div style={{ textAlign:'center' }}>
+              <div style={{ fontFamily:titleFont, fontSize:17, fontWeight:600, color:'var(--ink)', marginBottom:3 }}>{bot.name}</div>
+              <div style={{ fontSize:12, color:'var(--ink4)' }}>🔒 Team access only</div>
+            </div>
+          </div>
+
+          {err && (
+            <div style={{ background:'var(--danger-bg)', border:'1px solid rgba(155,34,38,0.15)', color:'var(--danger)', borderRadius:'var(--r)', padding:'8px 12px', fontSize:13, marginBottom:14, textAlign:'center' }}>
+              Incorrect password
+            </div>
+          )}
+
+          <div style={{ marginBottom:14 }}>
+            <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Password</label>
+            <input
+              type="password" value={pw} onChange={e => setPw(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && attempt()}
+              placeholder="Enter team password"
+              style={{ width:'100%', padding:'10px 12px', borderRadius:`${Math.min(radius,8)}px`, border:`1px solid ${err?'var(--danger)':'var(--line)'}`, fontSize:14, fontFamily:font, outline:'none', boxSizing:'border-box', transition:'border-color 0.15s' }}
+              autoFocus
+            />
+          </div>
+
+          <button onClick={attempt} disabled={!pw.trim()}
+            style={{ width:'100%', padding:'11px', borderRadius:`${Math.min(radius,10)}px`, background:primary, color:'white', border:'none', fontSize:14, fontWeight:500, cursor:pw.trim()?'pointer':'not-allowed', opacity:pw.trim()?1:0.5, fontFamily:font, transition:'opacity 0.15s' }}>
+            Enter →
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -66,3 +66,17 @@ What's included in Layer 1:
 ✅ Super admin panel
 ✅ Parchment/coffee aesthetic throughout
 ✅ PROGRESS.md to track sessions
+## Layer 3 Status: ✅ COMPLETE
+- Customer + Internal bot types with password gate
+- Landing page (Ask / Feedback) 
+- Full feedback flows (card for customer, messenger for internal)
+- Two-way feedback conversations
+- AI feedback summaries auto-generated on submission
+- AI insights page
+- Dashboard analytics with 7-day chart
+- Inline inbox answering
+
+## Next session priorities:
+1. Verify feedback summary auto-display is working
+2. Polish & visual improvements
+3. Deploy to Vercel
