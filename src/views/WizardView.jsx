@@ -573,13 +573,47 @@ function StepIdentity({ bot, f }) {
       </div>
     </>
   )
+}async function aiClassifyEntry(entry, bot, f, idx) {
+  try {
+    const { callClaude } = await import('../lib/supabase.js')
+    const kbTypes = bot.bot_type === 'internal'
+      ? 'sop, policies, training, troubleshoot, product, updates, hr, safety, tools'
+      : 'products, pricing, ordering, delivery, policies, support, faq'
+    const result = await callClaude({
+      system: `You are categorising a knowledge base entry. Return JSON only:
+{
+  "title": "concise descriptive title (max 60 chars)",
+  "type": "best matching type from: ${kbTypes}"
+}`,
+      messages: [],
+      userMessage: `Categorise this knowledge base content:\n\n${entry.content.slice(0, 500)}`,
+    })
+    const cleaned = result.replace(/```json|```/g, '').trim()
+    const { title, type } = JSON.parse(cleaned)
+    // Use a callback-style update via a custom event to avoid stale closure
+    const event = new CustomEvent('lb-update-entry', { detail: { idx, title, type } })
+    window.dispatchEvent(event)
+  } catch(e) { console.error('AI classify failed:', e) }
 }
 
 // ── Step 3: Knowledge ─────────────────────────────────────────────────────────
 function StepKnowledge({ bot, f }) {
   const KB_TYPES_ACTIVE = bot.bot_type === 'internal' ? KB_TYPES_INTERNAL : KB_TYPES_CUSTOMER
+
+  useEffect(() => {
+    function handleUpdate(e) {
+      const { idx, title, type } = e.detail
+      f('knowledge_entries', (bot.knowledge_entries || []).map((entry, i) =>
+        i === idx ? { ...entry, title: title || entry.title, type: type || entry.type } : entry
+      ))
+    }
+    window.addEventListener('lb-update-entry', handleUpdate)
+    return () => window.removeEventListener('lb-update-entry', handleUpdate)
+  }, [bot.knowledge_entries])
   const [adding, setAdding]   = useState(false)
-  const [form,   setForm]     = useState({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+  const [form,      setForm]      = useState({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+  const [titling,   setTitling]   = useState(false)
+  const titleTimer = useRef(null)
   const [editIdx,setEditIdx]  = useState(null)
   const fileRef = useRef(null)
   const entries = bot.knowledge_entries || []
@@ -599,17 +633,27 @@ function StepKnowledge({ bot, f }) {
     setAdding(true)
   }
 
-  function saveEntry() {
-    if (!form.title.trim() || !form.content.trim()) return
-    const entry = { ...form, id: editIdx !== null ? entries[editIdx].id : Date.now().toString() }
+  const [entryError, setEntryError] = useState('')
+
+function saveEntry() {
+    if (!form.content.trim()) { setEntryError('Please add some content for this entry.'); return }
+    setEntryError('')
+    // If no title, use placeholder then let AI fill it in
+    const entryToSave = { ...form }
+    if (!entryToSave.title.trim()) {
+      entryToSave.title = form.content.trim().split('\n')[0].slice(0, 50)
+    }
+    const entry = { ...entryToSave, id: editIdx !== null ? entries[editIdx].id : Date.now().toString() }
     if (editIdx !== null) {
       const updated = [...entries]; updated[editIdx] = entry
       f('knowledge_entries', updated); setEditIdx(null)
     } else {
       f('knowledge_entries', [...entries, entry])
     }
-    setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
+   setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true })
     setAdding(false)
+    // AI classify in background — updates title and type automatically
+    aiClassifyEntry(entry, bot, f, editIdx !== null ? editIdx : (entries.length))
   }
 
   function removeEntry(idx) { f('knowledge_entries', entries.filter((_,i) => i !== idx)) }
@@ -634,7 +678,7 @@ function StepKnowledge({ bot, f }) {
       )}
 
       {/* Entry list */}
-      {entries.length > 0 && !adding && (
+      {entries.length > 0 && (
         <div style={{ marginBottom:16 }}>
           {entries.map((entry, idx) => {
             const kbType = KB_TYPES.find(t => t.id === entry.type)
@@ -699,11 +743,44 @@ function StepKnowledge({ bot, f }) {
           </div>
           <div className="field" style={{ marginBottom:14 }}>
             <label className="label">Content</label>
-            <textarea className="input" style={{ minHeight:160, lineHeight:1.7 }} placeholder="Paste your content here…" value={form.content} onChange={e => setForm(p=>({...p,content:e.target.value}))} />
-            <div className="label-sub mt-4">{form.content?.split(/\s+/).filter(Boolean).length||0} words</div>
+            <textarea className="input" style={{ minHeight:160, lineHeight:1.7 }} placeholder="Paste your content here…" value={form.content}
+              onChange={e => {
+                const content = e.target.value
+                setForm(p=>({...p, content}))
+                // Auto-title after 800ms pause in typing — always regenerate if content changed significantly
+                if (true) {
+                  clearTimeout(titleTimer.current)
+                  titleTimer.current = setTimeout(async () => {
+                    if (!content.trim() || content.trim().length < 30) return
+                    setTitling(true)
+                    try {
+                      const { callClaude } = await import('../lib/supabase.js')
+                      const kbTypes = bot.bot_type === 'internal'
+                        ? 'sop, policies, training, troubleshoot, product, updates, hr, safety, tools'
+                        : 'products, pricing, ordering, delivery, policies, support, faq'
+                      const result = await callClaude({
+                        system: `Return JSON only: { "title": "concise title max 60 chars", "type": "best type from: ${kbTypes}" }`,
+                        messages: [],
+                        userMessage: content.slice(0, 400),
+                      })
+                      const { title, type } = JSON.parse(result.replace(/```json|```/g,'').trim())
+                      setForm(p => ({ ...p, title: title || p.title, type: type || p.type }))
+                    } catch(e) { console.error(e) }
+                    setTitling(false)
+                  }, 800)
+                }
+              }}
+            />
+            <div className="flex ic jb mt-4">
+              <div className="label-sub">{form.content?.split(/\s+/).filter(Boolean).length||0} words</div>
+              {titling && <div style={{ fontSize:11, color:'var(--ink4)', display:'flex', alignItems:'center', gap:4 }}><span style={{ animation:'spin 0.7s linear infinite', display:'inline-block' }}>⟳</span> Naming…</div>}
+            </div>
           </div>
+          {entryError && (
+            <div className="alert alert-error mb-8" style={{ fontSize:12.5 }}>{entryError}</div>
+          )}
           <div style={{ display:'flex', gap:8 }}>
-            <button className="btn btn-primary" onClick={saveEntry} disabled={!form.title.trim()||!form.content.trim()}>
+            <button className="btn btn-primary" onClick={saveEntry} disabled={!form.content.trim()}>
               {editIdx !== null ? 'Save changes' : 'Add entry'}
             </button>
             <button className="btn btn-ghost" onClick={() => { setAdding(false); setEditIdx(null); setForm({ title:'', type:'faq', priority:'primary', content:'', enabled:true }) }}>Cancel</button>
