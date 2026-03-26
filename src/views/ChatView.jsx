@@ -29,8 +29,22 @@ export default function ChatView({ botId }) {
     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', background:'var(--parch-1)', padding:24 }}>
       <div style={{ background:'var(--surface)', border:'1px solid var(--line)', borderRadius:'var(--r-xl)', padding:'48px 40px', textAlign:'center', maxWidth:380, boxShadow:'var(--shadow-md)' }}>
         <div style={{ fontSize:28, marginBottom:14, opacity:0.4 }}>✦</div>
-        <div className="serif" style={{ fontSize:17, fontWeight:600, marginBottom:8, color:'var(--coffee-0)' }}>Bot not found</div>
-        <p style={{ fontSize:13.5, color:'var(--ink3)', lineHeight:1.65 }}>This link may be invalid or the bot may have been removed.</p>
+        <div className="serif" style={{ fontSize:17, fontWeight:600, marginBottom:8, color:'var(--coffee-0)' }}>
+          {error ? 'Something went wrong' : 'Bot not found'}
+        </div>
+        <p style={{ fontSize:13.5, color:'var(--ink3)', lineHeight:1.65, marginBottom:20 }}>
+          {error === 'Failed to fetch'
+            ? 'Could not connect. Please check your internet connection and try again.'
+            : error
+            ? error
+            : 'This link may be invalid or the bot may have been removed.'}
+        </p>
+        {error && (
+          <button onClick={() => window.location.reload()}
+            style={{ background:'var(--coffee-0)', color:'var(--parch-1)', border:'none', borderRadius:'var(--r)', padding:'10px 20px', cursor:'pointer', fontSize:13, fontWeight:500 }}>
+            Try again
+          </button>
+        )}
       </div>
     </div>
   )

@@ -14,7 +14,8 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
   const [stats,   setStats]   = useState(null)
   const [gaps,    setGaps]    = useState([])
   const [convs,   setConvs]   = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading,   setLoading]   = useState(true)
+  const [loadError, setLoadError] = useState(null)
   const [allBots,   setAllBots]   = useState([])
   const [activeBot, setActiveBot] = useState(bot)
   const [feedback,  setFeedback]  = useState([])
@@ -38,7 +39,10 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
       getFeedback(activeBot.id),
     ]).then(([s, g, c, fb]) => {
       setStats(s); setGaps(g); setConvs(c); setFeedback(fb)
-    }).catch(console.error).finally(() => setLoading(false))
+    }).catch(e => {
+      console.error(e)
+      setLoadError('Could not load dashboard data. Please refresh the page.')
+    }).finally(() => setLoading(false))
   }, [activeBot?.id])
 
   const shareUrl = activeBot ? `${window.location.origin}?bot=${activeBot.id}` : ''
@@ -91,7 +95,13 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
         </div>
       )}
 
-      {loading ? (
+      {loadError ? (
+        <div className="flex ic jc" style={{ height:'calc(100vh - 54px)', flexDirection:'column', gap:12 }}>
+          <div style={{ fontSize:24 }}>⚠️</div>
+          <div style={{ fontSize:14, color:'var(--ink2)', fontWeight:500 }}>{loadError}</div>
+          <button className="btn btn-secondary" onClick={() => window.location.reload()}>Refresh page</button>
+        </div>
+      ) : loading ? (
         <div className="flex ic jc" style={{ height: 'calc(100vh - 54px)', gap: 8 }}>
           <Spinner size={20} color="var(--coffee-3)" />
           <span style={{ color: 'var(--ink3)', fontSize: 13 }}>Loading…</span>
