@@ -80,7 +80,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
       {/* Pages */}
       {/* Bot switcher */}
       {allBots.length > 0 && (
-        <div style={{ padding:'8px 28px', borderBottom:'1px solid var(--line)', background:'var(--surface2)', display:'flex', alignItems:'center', gap:8 }}>
+        <div className="bot-switcher" style={{ padding:'8px 16px', borderBottom:'1px solid var(--line)', background:'var(--surface2)', display:'flex', alignItems:'center', gap:8 }}>
           <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginRight:4 }}>Active bot:</span>
           {allBots.map(b => (
             <button key={b.id} onClick={() => { setActiveBot(b); setPage('dashboard') }}
