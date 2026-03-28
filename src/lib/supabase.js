@@ -254,8 +254,10 @@ export function sanitise(str, maxLength = 10000) {
   if (!str || typeof str !== 'string') return ''
   return str
     .slice(0, maxLength)
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<[^>]+>/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
     .trim()
 }
 
