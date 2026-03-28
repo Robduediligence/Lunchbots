@@ -595,14 +595,16 @@ function InternalMessaging({ bot, onBack }) {
     if (!draftText.trim()) return
     setSending(true)
     try {
-      const { supabase } = await import('../lib/supabase.js')
+      const { supabase, sanitise } = await import('../lib/supabase.js')
+      const cleanDraft = sanitise(draftText.trim(), 5000)
+      if (!cleanDraft) return
       const { data: conv } = await supabase.from('conversations').insert({
         bot_id: bot.id, session_id: sessionId, type: 'feedback',
         is_anon: isAnon, user_name: isAnon ? null : name.trim() || null,
       }).select().single()
       const { data: fb } = await supabase.from('feedback').insert({
         bot_id: bot.id, conversation_id: conv.id,
-        content: draftText.trim(), is_anon: isAnon,
+        content: cleanDraft, is_anon: isAnon,
         user_name: isAnon ? null : name.trim() || null,
         session_id: sessionId,
       }).select().single()
