@@ -9,9 +9,9 @@ const NAV = [
   { id: 'insights',  label: 'Insights',  Icon: I.Chart },
 ]
 
-export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
+export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialPage, initialBotId }) {
   const params = new URLSearchParams(window.location.search)
-  const [page, setPage] = useState(params.get('page') || 'dashboard')
+  const [page, setPage] = useState(initialPage || params.get('page') || 'dashboard')
   const [stats,   setStats]   = useState(null)
   const [gaps,    setGaps]    = useState([])
   const [convs,   setConvs]   = useState([])
@@ -19,13 +19,13 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
   const [loadError, setLoadError] = useState(null)
   const [allBots,   setAllBots]   = useState([])
   const [activeBot, setActiveBot] = useState(bot)
-  const initialBotId = params.get('activeBotId')
+  const resolvedBotId = initialBotId || params.get('activeBotId')
   const [feedback,  setFeedback]  = useState([])
 
   useEffect(() => {
     getBotsByOwner(sub.id).then(bots => {
       setAllBots(bots)
-      const current = bots.find(b => b.id === initialBotId) || bot || bots[0] || null
+      const current = bots.find(b => b.id === resolvedBotId) || bot || bots[0] || null
       setActiveBot(current)
     }).catch(console.error)
   }, [sub.id])

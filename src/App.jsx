@@ -15,13 +15,14 @@ export default function App() {
 
   // Check URL params first
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const botId  = params.get('bot')
-    const mode   = params.get('mode')
-
-    if (mode === 'admin') { setRoute('admin'); return }
-    if (botId)            { setRoute({ type:'chat', botId }); return }
-
+    const params      = new URLSearchParams(window.location.search)
+  const botId       = params.get('bot')
+  const mode        = params.get('mode')
+  const activePage  = params.get('page')
+  const activeBotId = params.get('activeBotId')
+  if (mode === 'admin') { setRoute('admin'); return }
+  if (botId)            { setRoute({ type:'chat', botId }); return }
+  if (activePage || activeBotId) { setRoute({ type:'dashboard', activePage, activeBotId }); return }
     // Check Supabase session
     getSession().then(async session => {
       if (session?.user) {
@@ -103,6 +104,8 @@ export default function App() {
       bot={bot}
       onEditBot={handleEditBot}
       onLogout={handleLogout}
+      initialPage={route?.activePage}
+      initialBotId={route?.activeBotId}
     />
   )
 
