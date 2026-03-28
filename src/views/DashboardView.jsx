@@ -11,18 +11,23 @@ const NAV = [
 
 export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialPage, initialBotId }) {
   const params = new URLSearchParams(window.location.search)
-  const [page, setPage] = useState(initialPage || params.get('page') || 'dashboard')
-  const [stats,   setStats]   = useState(null)
-  const [gaps,    setGaps]    = useState([])
-  const [convs,   setConvs]   = useState([])
+  const resolvedBotId = initialBotId || params.get('activeBotId')
+  const [page,      setPage]      = useState(initialPage || params.get('page') || 'dashboard')
+  const [stats,     setStats]     = useState(null)
+  const [gaps,      setGaps]      = useState([])
+  const [convs,     setConvs]     = useState([])
   const [loading,   setLoading]   = useState(true)
   const [loadError, setLoadError] = useState(null)
+  const [allBots,   setAllBots]   = useState([])
+  const [activeBot, setActiveBot] = useState(bot)
+  const [feedback,  setFeedback]  = useState([])
 
   useEffect(() => {
     const p = new URLSearchParams(window.location.search)
     p.set('page', page)
     if (activeBot?.id) p.set('activeBotId', activeBot.id)
     window.history.replaceState({}, '', `?${p.toString()}`)
+  }, [page, activeBot?.id]), '', `?${p.toString()}`)
   }, [page, activeBot?.id])
   const [allBots,   setAllBots]   = useState([])
   const [activeBot, setActiveBot] = useState(bot)
