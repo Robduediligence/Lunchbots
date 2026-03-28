@@ -17,6 +17,13 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   const [convs,   setConvs]   = useState([])
   const [loading,   setLoading]   = useState(true)
   const [loadError, setLoadError] = useState(null)
+
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search)
+    p.set('page', page)
+    if (activeBot?.id) p.set('activeBotId', activeBot.id)
+    window.history.replaceState({}, '', `?${p.toString()}`)
+  }, [page, activeBot?.id])
   const [allBots,   setAllBots]   = useState([])
   const [activeBot, setActiveBot] = useState(bot)
   const resolvedBotId = initialBotId || params.get('activeBotId')
