@@ -761,9 +761,18 @@ input[type='range']::-moz-range-thumb {
   }
   #main-nav-pill {
     width: 100%;
-    justify-content: space-between;
+    justify-content: stretch;
     border-radius: 10px;
     padding: 3px;
+    display: flex;
+  }
+  #main-nav-pill .pill-item {
+    flex: 1;
+    text-align: center;
+    padding: 6px 2px;
+    font-size: 10.5px;
+    justify-content: center;
+    min-width: 0;
   }
   #main-nav-pill .pill-item {
     flex: 1;
