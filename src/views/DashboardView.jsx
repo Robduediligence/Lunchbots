@@ -152,7 +152,7 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit }) {
       </div>
 
       {/* Stats */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(6, 1fr)', gap:12, marginBottom:24 }}>
+      <div className="stat-grid" style={{ marginBottom:24 }}>
         {[
           { label: 'Total conversations', num: stats?.totalConversations ?? 0 },
           { label: 'Unique users',        num: stats?.uniqueUsers ?? 0 },
