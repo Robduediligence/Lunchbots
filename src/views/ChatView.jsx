@@ -122,7 +122,8 @@ function ActiveChat({ bot }) {
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [msgs, thinking])
 
   async function send(text) {
-    const t = (text || input).trim()
+    const { sanitiseMessage } = await import('../lib/supabase.js')
+    const t = sanitiseMessage((text || input).trim())
     if (!t || thinking) return
     setInput('')
     inputRef.current?.focus()
@@ -415,17 +416,18 @@ function CustomerFeedback({ bot, onBack }) {
   const [sessionId] = useState(() => Math.random().toString(36).slice(2,10))
 
   async function submit() {
-    if (!text.trim()) return
+    const { supabase, sanitise } = await import('../lib/supabase.js')
+    const cleanText = sanitise(text.trim(), 5000)
+    if (!cleanText) return
     setSending(true)
     try {
-      const { supabase } = await import('../lib/supabase.js')
       const { data: conv } = await supabase.from('conversations').insert({
         bot_id: bot.id, session_id: sessionId, type: 'feedback',
         is_anon: isAnon, user_name: isAnon ? null : name.trim() || null,
       }).select().single()
       await supabase.from('feedback').insert({
         bot_id: bot.id, conversation_id: conv.id,
-        content: text.trim(), is_anon: isAnon,
+        content: cleanText, is_anon: isAnon,
         user_name: isAnon ? null : name.trim() || null,
         user_contact: isAnon ? null : contact.trim() || null,
         session_id: sessionId,

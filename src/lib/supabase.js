@@ -249,6 +249,28 @@ export async function getBotStats(botId) {
     sevenDays,
   }
 }
+// ── Input sanitisation ────────────────────────────────────────────────────────
+export function sanitise(str, maxLength = 10000) {
+  if (!str || typeof str !== 'string') return ''
+  return str
+    .slice(0, maxLength)
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<[^>]+>/g, '')
+    .trim()
+}
+
+export function sanitiseKbEntry(entry) {
+  return {
+    ...entry,
+    title:   sanitise(entry.title,   200),
+    content: sanitise(entry.content, 50000),
+  }
+}
+
+export function sanitiseMessage(msg, maxLength = 2000) {
+  if (!msg || typeof msg !== 'string') return ''
+  return msg.slice(0, maxLength).trim()
+}
 // ── Feedback helpers ──────────────────────────────────────────────────────────
 export async function getFeedback(botId) {
   const { data, error } = await supabase

@@ -643,6 +643,9 @@ function saveEntry() {
     if (!entryToSave.title.trim()) {
       entryToSave.title = form.content.trim().split('\n')[0].slice(0, 50)
     }
+    // Sanitise content before saving
+    if (entryToSave.content) entryToSave.content = entryToSave.content.replace(/<[^>]+>/g, '').slice(0, 50000)
+    if (entryToSave.title) entryToSave.title = entryToSave.title.replace(/<[^>]+>/g, '').slice(0, 200)
     const entry = { ...entryToSave, id: editIdx !== null ? entries[editIdx].id : Date.now().toString() }
     if (editIdx !== null) {
       const updated = [...entries]; updated[editIdx] = entry
