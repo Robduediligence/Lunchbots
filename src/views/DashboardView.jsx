@@ -27,12 +27,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
     p.set('page', page)
     if (activeBot?.id) p.set('activeBotId', activeBot.id)
     window.history.replaceState({}, '', `?${p.toString()}`)
-  }, [page, activeBot?.id]), '', `?${p.toString()}`)
   }, [page, activeBot?.id])
-  const [allBots,   setAllBots]   = useState([])
-  const [activeBot, setActiveBot] = useState(bot)
-  const resolvedBotId = initialBotId || params.get('activeBotId')
-  const [feedback,  setFeedback]  = useState([])
 
   useEffect(() => {
     getBotsByOwner(sub.id).then(bots => {
