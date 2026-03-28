@@ -56,7 +56,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
           Lunch Bots
         </div>
 
-        <div className="topnav-pill">
+        <div className="topnav-pill" id="main-nav-pill">
           {NAV.map(({ id, label, Icon }) => (
             <button key={id} className={`pill-item ${page === id ? 'active' : ''}`}
               onClick={() => setPage(id)}>
