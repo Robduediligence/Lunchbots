@@ -10,7 +10,8 @@ const NAV = [
 ]
 
 export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
-  const [page,    setPage]    = useState('dashboard')
+  const params = new URLSearchParams(window.location.search)
+  const [page, setPage] = useState(params.get('page') || 'dashboard')
   const [stats,   setStats]   = useState(null)
   const [gaps,    setGaps]    = useState([])
   const [convs,   setConvs]   = useState([])
@@ -18,13 +19,13 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout }) {
   const [loadError, setLoadError] = useState(null)
   const [allBots,   setAllBots]   = useState([])
   const [activeBot, setActiveBot] = useState(bot)
+  const initialBotId = params.get('activeBotId')
   const [feedback,  setFeedback]  = useState([])
 
   useEffect(() => {
     getBotsByOwner(sub.id).then(bots => {
       setAllBots(bots)
-      // default to first bot or passed bot
-      const current = bot || bots[0] || null
+      const current = bots.find(b => b.id === initialBotId) || bot || bots[0] || null
       setActiveBot(current)
     }).catch(console.error)
   }, [sub.id])
