@@ -15,7 +15,7 @@ export default function App() {
 const [bots,    setBots]    = useState([])
 
   // Check URL params first
-  useEffect(() => {
+  useEffect(() => { (async () => {
     const params = new URLSearchParams(window.location.search)
     const botId  = params.get('bot')
     const mode   = params.get('mode')
@@ -23,23 +23,22 @@ const [bots,    setBots]    = useState([])
     if (botId)            { setRoute({ type:'chat', botId }); return }
   
 
-    // Check Supabase session
-    getSession().then(async session => {
-      if (session?.user) {
-        setUser(session.user)
-        const s = await ensureSubscriber(session.user.id, session.user.email)
-        setSub(s)
-        const [b, allBots] = await Promise.all([
-          getBotByOwner(session.user.id),
-          getBotsByOwner(session.user.id),
-        ])
-        setBot(b)
-        setBots(allBots)
-        setRoute('dashboard')
-      } else {
-        setRoute('auth')
-      }
-    }).catch(() => setRoute('auth'))
+    // Show dashboard instantly if we have a cached session
+    const { data: { session: cachedSession } } = await supabase.auth.getSession()
+    if (cachedSession?.user) {
+      setUser(cachedSession.user)
+      setRoute('dashboard')
+      const [s, b, allBots] = await Promise.all([
+        ensureSubscriber(cachedSession.user.id, cachedSession.user.email),
+        getBotByOwner(cachedSession.user.id),
+        getBotsByOwner(cachedSession.user.id),
+      ])
+      setSub(s)
+      setBot(b)
+      setBots(allBots)
+    } else {
+      setRoute('auth')
+    }
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -48,7 +47,7 @@ const [bots,    setBots]    = useState([])
       }
     })
     return () => subscription.unsubscribe()
-  }, [])
+  })() }, [])
 
   async function handleAuth(user, sub) {
     setUser(user)
