@@ -10,9 +10,8 @@ const NAV = [
 ]
 
 export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialBots }) {
-  const params = new URLSearchParams(window.location.search)
-  const resolvedBotId = initialBotId || params.get('activeBotId')
-  const [page,      setPage]      = useState(initialPage || params.get('page') || 'dashboard')
+  const saved = (() => { try { return JSON.parse(localStorage.getItem('lb_dash') || '{}') } catch { return {} } })()
+  const [page, setPage] = useState(saved.page || 'dashboard')
   const [stats,     setStats]     = useState(null)
   const [gaps,      setGaps]      = useState([])
   const [convs,     setConvs]     = useState([])
@@ -23,16 +22,13 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   const [feedback,  setFeedback]  = useState([])
 
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search)
-    p.set('page', page)
-    if (activeBot?.id) p.set('activeBotId', activeBot.id)
-    window.history.replaceState({}, '', `?${p.toString()}`)
+    localStorage.setItem('lb_dash', JSON.stringify({ page, botId: activeBot?.id }))
   }, [page, activeBot?.id])
 
   useEffect(() => {
     getBotsByOwner(sub.id).then(bots => {
       setAllBots(bots)
-      const current = bots.find(b => b.id === resolvedBotId) || bot || bots[0] || null
+      const current = bots.find(b => b.id === saved.botId) || bot || bots[0] || null
       setActiveBot(current)
     }).catch(console.error)
   }, [sub.id])
