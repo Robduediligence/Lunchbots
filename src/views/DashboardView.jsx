@@ -11,26 +11,35 @@ const NAV = [
 
 export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialBots }) {
   const saved = (() => { try { return JSON.parse(localStorage.getItem('lb_dash') || '{}') } catch { return {} } })()
+  const cachedBots = (() => { try { return JSON.parse(localStorage.getItem('lb_bots') || '[]') } catch { return [] } })()
   const [page, setPage] = useState(saved.page || 'dashboard')
   const [stats,     setStats]     = useState(null)
   const [gaps,      setGaps]      = useState([])
   const [convs,     setConvs]     = useState([])
   const [loading,   setLoading]   = useState(true)
   const [loadError, setLoadError] = useState(null)
-  const [allBots,   setAllBots]   = useState(initialBots || [])
-  const savedBot = (initialBots || []).find(b => b.id === saved.botId) || bot || (initialBots || [])[0] || null
+  const startingBots = initialBots?.length ? initialBots : cachedBots
+  const [allBots,   setAllBots]   = useState(startingBots)
+  const savedBot = startingBots.find(b => b.id === saved.botId) || startingBots[0] || null
   const [activeBot, setActiveBot] = useState(savedBot)
   const [feedback,  setFeedback]  = useState([])
+
 
   useEffect(() => {
     localStorage.setItem('lb_dash', JSON.stringify({ page, botId: activeBot?.id }))
   }, [page, activeBot?.id])
 
   useEffect(() => {
+    if (!sub?.id) return
     getBotsByOwner(sub.id).then(bots => {
       setAllBots(bots)
+      localStorage.setItem('lb_bots', JSON.stringify(bots))
+      if (!activeBot) {
+        const current = bots.find(b => b.id === saved.botId) || bots[0] || null
+        setActiveBot(current)
+      }
     }).catch(console.error)
-  }, [sub.id])
+  }, [sub?.id])
 
   useEffect(() => {
     if (!activeBot) { setLoading(false); return }

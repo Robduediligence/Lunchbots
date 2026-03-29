@@ -7,65 +7,62 @@ import ChatView      from './views/ChatView.jsx'
 import AdminView     from './views/AdminView.jsx'
 
 export default function App() {
-  const [route,   setRoute]   = useState(null) // null=loading
+  const [route,   setRoute]   = useState(null)
   const [user,    setUser]    = useState(null)
   const [sub,     setSub]     = useState(null)
   const [bot,     setBot]     = useState(null)
   const [editing, setEditing] = useState(false)
-const [bots,    setBots]    = useState([])
+  const [bots,    setBots]    = useState([])
 
-  // Check URL params first
-  useEffect(() => { (async () => {
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const botId  = params.get('bot')
     const mode   = params.get('mode')
     if (mode === 'admin') { setRoute('admin'); return }
     if (botId)            { setRoute({ type:'chat', botId }); return }
-  
 
-    // Show dashboard instantly if we have a cached session
-    const { data: { session: cachedSession } } = await supabase.auth.getSession()
-    if (cachedSession?.user) {
-      setUser(cachedSession.user)
-      setRoute('dashboard')
+    // Wake up Supabase immediately in background
+    supabase.from('bots').select('id').limit(1).then(() => {})
+
+    // Check for cached session synchronously
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) { setRoute('auth'); return }
+      setUser(session.user)
       const [s, b, allBots] = await Promise.all([
-        ensureSubscriber(cachedSession.user.id, cachedSession.user.email),
-        getBotByOwner(cachedSession.user.id),
-        getBotsByOwner(cachedSession.user.id),
+        ensureSubscriber(session.user.id, session.user.email),
+        getBotByOwner(session.user.id),
+        getBotsByOwner(session.user.id),
       ])
       setSub(s)
       setBot(b)
       setBots(allBots)
-    } else {
-      setRoute('auth')
-    }
+      setRoute('dashboard')
+    }).catch(() => setRoute('auth'))
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
-        setUser(null); setSub(null); setBot(null); setRoute('auth')
+        setUser(null); setSub(null); setBot(null); setBots([]); setRoute('auth')
       }
     })
     return () => subscription.unsubscribe()
-  })() }, [])
+  }, [])
 
   async function handleAuth(user, sub) {
     setUser(user)
     setSub(sub)
-    const b = await getBotByOwner(user.id)
+    const [b, allBots] = await Promise.all([
+      getBotByOwner(user.id),
+      getBotsByOwner(user.id),
+    ])
     setBot(b)
+    setBots(allBots)
     setRoute('dashboard')
-  }
-
-  async function refreshBots() {
-    const b = await getBotByOwner(user.id)
-    setBot(b)
   }
 
   async function handleLogout() {
     const { signOut } = await import('./lib/supabase.js')
     await signOut()
-    setUser(null); setSub(null); setBot(null); setRoute('auth')
+    setUser(null); setSub(null); setBot(null); setBots([]); setRoute('auth')
   }
 
   function handleEditBot(botToEdit) { setEditing(true); setBot(botToEdit); setRoute('wizard') }
@@ -76,7 +73,6 @@ const [bots,    setBots]    = useState([])
     setRoute('dashboard')
   }
 
-  // Loading state
   if (route === null) return (
     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', background:'var(--parch-1)', gap:6 }}>
       {[0,1,2].map(i => (
@@ -85,11 +81,9 @@ const [bots,    setBots]    = useState([])
     </div>
   )
 
-  if (route === 'admin') return <AdminView />
-
-  if (route?.type === 'chat') return <ChatView botId={route.botId} />
-
-  if (route === 'auth') return <AuthView onAuth={handleAuth} />
+  if (route === 'admin')       return <AdminView />
+  if (route?.type === 'chat')  return <ChatView botId={route.botId} />
+  if (route === 'auth')        return <AuthView onAuth={handleAuth} />
 
   if (route === 'wizard') return (
     <WizardView
@@ -100,7 +94,7 @@ const [bots,    setBots]    = useState([])
     />
   )
 
-  if (route === 'dashboard' || route?.type === 'dashboard') return (
+  if (route === 'dashboard') return (
     <DashboardView
       user={user}
       sub={sub}

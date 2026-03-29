@@ -283,3 +283,139 @@ Key files:
 
 src/App.jsx — routing, session check, passes bot prop to DashboardView
 src/views/DashboardView.jsx — has page and activeBot state, setPage and setActiveBot functions
+
+# Lunch Bots — Progress Tracker
+
+## Project
+- Name: Lunch Bots
+- Stack: React + Vite + Supabase + Anthropic API + Vercel
+- Supabase URL: https://vklbfvfrfcncpsslnivm.supabase.co
+- Live URL: https://lunchbots.vercel.app
+- GitHub: https://github.com/Robduediligence/Lunchbots
+- Local dev: http://localhost:5175
+
+## Admin password: admin (changeable in AdminView.jsx line 4)
+
+---
+
+## Phase 1: Foundation ✅ COMPLETE
+- Supabase Auth (email/password, email verification)
+- Full Postgres schema: subscribers, bots, conversations, messages, knowledge_gaps, feedback, feedback_replies
+- Row Level Security on all tables
+- 8-step bot wizard with live preview
+- Two bot types: Customer-facing and Internal (password-gated)
+- Customer chat with streaming, fallback detection, suggested prompts, markdown
+- Internal bot with messenger-style feedback UI
+- Two-way feedback conversations
+- AI feedback summaries
+- Inbox with inline answering (auto-adds to knowledge base)
+- Insights page (AI-generated analysis)
+- Dashboard with 6 stat cards + 7-day activity chart
+- Bot switcher
+- Settings page (change password, sign out)
+- Super admin panel
+- Anthropic API key server-side only (api/claude.js)
+- Rate limiting on claude proxy + email notifications
+- Resend email notifications (knowledge gaps + feedback)
+- RLS policies on all tables
+- Input sanitisation
+- Vercel deployment + GitHub auto-deploy
+
+## Phase 2: Infrastructure ✅ MOSTLY COMPLETE
+- Vercel connected to GitHub, auto-deploys on push to main
+- Environment variables set in Vercel
+- Local dev uses VITE_ANTHROPIC_API_KEY directly
+- Production routes through /api/claude proxy
+- Mobile responsiveness (partial — nav, wizard, bot switcher)
+
+### Phase 2 remaining:
+- [ ] Custom domain (buy lunchbots.app or similar)
+- [ ] Sentry error monitoring
+- [ ] Staging environment
+
+---
+
+## Phase 3: Billing ❌ NOT STARTED
+- [ ] Stripe integration
+- [ ] Starter / Creator / Pro tiers
+- [ ] Message limits per plan
+- [ ] Billing page in dashboard
+- [ ] Upgrade prompts when limits hit
+- [ ] Webhooks for subscription events
+
+## Phase 4: Creator Experience ✅ MOSTLY COMPLETE
+- Wizard with 8 steps and live preview
+- Dashboard analytics
+- Inbox + knowledge base management
+- Feedback admin with AI summary
+- Insights page
+
+### Phase 4 remaining:
+- [ ] Onboarding flow (new signup → wizard immediately)
+- [ ] Duplicate / archive / delete bots
+- [ ] Rate limiting per end user per bot
+
+## Phase 5: Legal ❌ NOT STARTED
+- [ ] Terms of Service (use Termly)
+- [ ] Privacy Policy (use Termly)
+- [ ] GDPR cookie banner
+- [ ] Review Anthropic usage policies
+- [ ] Register LLC
+- [ ] Business bank account
+
+## Phase 6: Marketing ❌ NOT STARTED
+- [ ] Landing page (separate from app)
+- [ ] Waitlist
+- [ ] Find first 10 creators manually
+- [ ] Soft launch to waitlist
+
+## Phase 7: Launch ❌ NOT STARTED
+- [ ] Product Hunt preparation
+- [ ] Beta/founding member pricing
+- [ ] Announcement sequence
+
+---
+
+## UX Fixes Completed This Session
+- Page + active bot now persists across refresh (localStorage)
+- Active bot switcher loads instantly with everything else
+- Switching bots stays on current page (no more reset to dashboard)
+- Bot list cached in localStorage (lb_bots) for instant load on return visits
+- All data fetches run in parallel on login
+
+## Known Issues
+- First load on free Supabase tier can take 3-5 seconds (DB cold start)
+  → Fix: upgrade to Supabase Pro ($25/mo) before launch
+- Mobile nav pill not full width (minor)
+
+---
+
+## Key Code Patterns
+
+### callClaude (src/lib/supabase.js)
+Routes to /api/claude in production, direct Anthropic in dev.
+
+### buildBotSystem
+Compiles knowledge_entries + knowledge_text into system prompt.
+
+### saveBot
+Explicitly whitelists all known columns before saving.
+
+### triggerFeedbackSummary (src/views/ChatView.jsx)
+Top-level async function shared between CustomerFeedback and InternalMessaging.
+
+### localStorage keys
+- lb_dash: { page, botId } — remembers active page + bot
+- lb_bots: [...] — cached bot list for instant load
+
+---
+
+## Git Workflow
+git add .
+git commit -m "description"
+git push origin main   # triggers Vercel auto-deploy
+
+## Multi-machine workflow
+On new computer: git clone https://github.com/Robduediligence/Lunchbots
+Use GitHub Personal Access Token as password
+Run: rm -rf node_modules && npm install
