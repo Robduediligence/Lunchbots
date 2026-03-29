@@ -419,3 +419,200 @@ git push origin main   # triggers Vercel auto-deploy
 On new computer: git clone https://github.com/Robduediligence/Lunchbots
 Use GitHub Personal Access Token as password
 Run: rm -rf node_modules && npm install
+
+# Bot Brunch — Progress Tracker
+
+## Project
+- Name: Bot Brunch
+- Domain: botbrunch.com (connected to Vercel)
+- Stack: React + Vite + Supabase + Anthropic API + Vercel
+- Supabase URL: https://vklbfvfrfcncpsslnivm.supabase.co
+- Live URL: https://lunchbots.vercel.app (update to botbrunch.com once DNS propagates)
+- GitHub: https://github.com/Robduediligence/Lunchbots
+- Local dev: http://localhost:5175
+
+## Admin password: admin (changeable in AdminView.jsx line 4)
+
+---
+
+## Phase 1: Foundation ✅ COMPLETE
+- Supabase Auth (email/password, email verification)
+- Full Postgres schema: subscribers, bots, conversations, messages, knowledge_gaps, feedback, feedback_replies
+- Row Level Security on all tables
+- 8-step bot wizard with live preview
+- Two bot types: Customer-facing and Internal (password-gated)
+- Customer chat with streaming, fallback detection, suggested prompts, markdown
+- Internal bot with messenger-style feedback UI
+- Two-way feedback conversations
+- AI feedback summaries
+- Inbox with inline answering (auto-adds to knowledge base)
+- Insights page (AI-generated analysis)
+- Dashboard with stat cards + 7-day activity chart
+- Bot switcher
+- Settings page (change password, sign out)
+- Super admin panel
+- Anthropic API key server-side only (api/claude.js)
+- Rate limiting on claude proxy + email notifications
+- Resend email notifications (knowledge gaps + feedback)
+- RLS policies on all tables
+- Input sanitisation
+- Vercel deployment + GitHub auto-deploy
+
+## Phase 2: Infrastructure ✅ MOSTLY COMPLETE
+- Vercel connected to GitHub, auto-deploys on push to main
+- Environment variables set in Vercel
+- botbrunch.com domain purchased and connected to Vercel
+- Local dev uses VITE_ANTHROPIC_API_KEY directly
+- Production routes through /api/claude proxy
+
+### Phase 2 remaining:
+- [ ] Sentry error monitoring
+- [ ] Staging environment
+- [ ] Update live URL to botbrunch.com once DNS confirmed
+
+---
+
+## Phase 3: Billing ❌ NOT STARTED
+- [ ] Stripe integration
+- [ ] Starter / Creator / Pro tiers
+- [ ] Message limits per plan
+- [ ] Billing page in dashboard
+- [ ] Upgrade prompts when limits hit
+- [ ] Webhooks for subscription events
+
+## Phase 4: Creator Experience ✅ MOSTLY COMPLETE
+- Wizard with 8 steps and live preview
+- Dashboard analytics
+- Inbox + knowledge base management
+- Feedback admin with AI summary
+- Insights page
+- New action-oriented dashboard layout
+
+### Phase 4 remaining:
+- [ ] Edit Bot should stay inside dashboard layout (not replace full screen)
+- [ ] Onboarding flow (new signup → wizard immediately)
+- [ ] Duplicate / archive / delete bots
+- [ ] Rate limiting per end user per bot
+
+## Phase 5: Legal ❌ NOT STARTED
+- [ ] Terms of Service (use Termly)
+- [ ] Privacy Policy (use Termly)
+- [ ] GDPR cookie banner
+- [ ] Review Anthropic usage policies
+- [ ] Register LLC
+- [ ] Business bank account
+
+## Phase 6: Marketing ❌ NOT STARTED
+- [ ] Landing page (separate from app)
+- [ ] Waitlist
+- [ ] Find first 10 creators manually
+- [ ] Soft launch to waitlist
+
+## Phase 7: Launch ❌ NOT STARTED
+- [ ] Product Hunt preparation
+- [ ] Beta/founding member pricing
+- [ ] Announcement sequence
+
+---
+
+## Rebrand: Bot Brunch ✅ IN PROGRESS
+
+### Completed:
+- New name: Bot Brunch (botbrunch.com)
+- Logo: Bot_Brunch_Logo.png (in /public)
+- Parchment background: Bot_Brunch_Parchment.jpg (in /public)
+- New colour system applied to :root CSS variables:
+  - Espresso #3B2B23 (primary brand)
+  - Warm gold #C89B5A (accent)
+  - Soft sage #7F9C8B (support/success)
+  - Neutral text #2F2F2F
+  - Secondary text #7A7A7A
+  - Borders #E6DFD4
+- Logo sits above nav pill, scrolls away as you scroll
+- Nav pill stays sticky at top when scrolling
+- Stat cards: white with coloured indicator dots
+- Cards: soft parchment tones with blur backdrop
+- Action-oriented dashboard layout:
+  - Bot status with inline share link
+  - Quick actions panel
+  - Questions needing attention (Answer / Reply only)
+  - Recent activity feed
+  - Stat cards retained at top
+
+### Remaining rebrand work:
+- [ ] Apply new colour system to Inbox page
+- [ ] Apply new colour system to Feedback page
+- [ ] Apply new colour system to Insights page
+- [ ] Apply new colour system to Settings page
+- [ ] Apply new colour system to Wizard
+- [ ] Apply new colour system to Chat/bot view
+- [ ] Apply new colour system to Auth (login/signup) page
+- [ ] Edit Bot should stay within dashboard layout
+- [ ] Remove all remaining "Lunch Bots" references in code
+- [ ] Update page title in index.html to "Bot Brunch"
+- [ ] Add favicon
+
+---
+
+## Colour System (Bot Brunch)
+
+### Brand
+- Espresso: #3B2B23
+- Warm gold: #C89B5A
+- Soft sage: #7F9C8B
+
+### Neutrals
+- Text primary: #2F2F2F
+- Text secondary: #7A7A7A
+- Borders: #E6DFD4
+
+### Surfaces
+- Page background: #F6F1E7
+- Panel background: #FFFFFF
+- Section background: #FBF7EF
+
+### Midday accents (used sparingly)
+- Clay red: #C98278
+- Burnt orange: #D98757
+- Warm yellow: #E8D167
+- Soft green: #9AB86C
+- Dusty teal: #749CA5
+- Slate blue: #708C91
+- Muted lavender: #A28791
+- Stone grey: #8A8480
+
+---
+
+## Key Code Patterns
+
+### callClaude (src/lib/supabase.js)
+Routes to /api/claude in production, direct Anthropic in dev.
+
+### buildBotSystem
+Compiles knowledge_entries + knowledge_text into system prompt.
+
+### saveBot
+Explicitly whitelists all known columns before saving.
+
+### triggerFeedbackSummary (src/views/ChatView.jsx)
+Top-level async function shared between CustomerFeedback and InternalMessaging.
+
+### localStorage keys
+- lb_dash: { page, botId } — remembers active page + bot
+- lb_bots: [...] — cached bot list for instant load
+
+### Answer vs Reply only (dashboard inbox)
+- Answer: saves to knowledge base + sends to user
+- Reply only: sends to user only, not saved to KB
+
+---
+
+## Git Workflow
+git add .
+git commit -m "description"
+git push origin main   # triggers Vercel auto-deploy
+
+## Multi-machine workflow
+On new computer: git clone https://github.com/Robduediligence/Lunchbots
+Use GitHub Personal Access Token as password
+Run: rm -rf node_modules && npm install

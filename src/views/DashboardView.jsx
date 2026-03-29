@@ -62,37 +62,43 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   return (
     <div className="app">
       {/* Top nav pill */}
+      <div>
       <nav className="topnav">
         <div className="topnav-logo">
-          <div className="topnav-logo-mark">🥪</div>
-          Lunch Bots
+          <img src="/Bot_Brunch_Logo.png" alt="Bot Brunch" />
         </div>
-
-        <div className="topnav-pill" id="main-nav-pill">
-          {NAV.map(({ id, label, Icon }) => (
-            <button key={id} className={`pill-item ${page === id ? 'active' : ''}`}
-              onClick={() => setPage(id)}>
-              {label}
+        <div className="topnav-bottom-row">
+          <div className="topnav-pill" id="main-nav-pill">
+            {NAV.map(({ id, label, Icon }) => {
+              let count = null
+              if (id === 'inbox') count = (stats?.unresolvedGaps ?? 0) + (stats?.unresolvedFeedback ?? 0)
+              if (id === 'feedback') count = feedback.filter(f => !f.resolved).length
+              return (
+                <button key={id} className={`pill-item ${page === id ? 'active' : ''}`}
+                  onClick={() => setPage(id)}>
+                  {label}{count > 0 ? ` (${count})` : ''}
+                </button>
+              )
+            })}
+            <button className="pill-item" onClick={onEditBot}>
+              {bot ? 'Edit Bot' : 'Create Bot'}
             </button>
-          ))}
-          <button className="pill-item" onClick={onEditBot}>
-            {bot ? 'Edit Bot' : 'Create Bot'}
-          </button>
-          <button className="pill-item" onClick={() => setPage('settings')}>
-            Settings
-          </button>
-        </div>
-
-        <div className="topnav-right">
-          <span style={{ fontSize: 12, color: 'var(--ink4)' }}>{sub?.business_name || user?.email}</span>
-          <button className="btn btn-ghost btn-sm" onClick={onLogout}>Sign out</button>
+            <button className="pill-item" onClick={() => setPage('settings')}>
+              Settings
+            </button>
+          </div>
+          <div className="topnav-right">
+            <span style={{ fontSize: 12, color: 'var(--ink4)' }}>{sub?.business_name || user?.email}</span>
+            <button className="btn btn-ghost btn-sm" onClick={onLogout}>Sign out</button>
+          </div>
         </div>
       </nav>
+      
 
       {/* Pages */}
       {/* Bot switcher */}
       {allBots.length > 0 && (
-        <div className="bot-switcher" style={{ padding:'8px 16px', borderBottom:'1px solid var(--line)', background:'var(--surface2)', display:'flex', alignItems:'center', gap:8 }}>
+        <div className="bot-switcher" style={{ padding:'8px 16px', marginTop:'16px', borderBottom:'1px solid var(--line)', background:'var(--surface2)', display:'flex', alignItems:'center', gap:8 }}>
           <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginRight:4 }}>Active bot:</span>
           {allBots.map(b => (
             <button key={b.id} onClick={() => { setActiveBot(b) }}
@@ -106,6 +112,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
           </button>
         </div>
       )}
+      </div>
 
       {loadError ? (
         <div className="flex ic jc" style={{ height:'calc(100vh - 54px)', flexDirection:'column', gap:12 }}>
@@ -120,7 +127,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
         </div>
       ) : (
         <>
-          {page === 'dashboard' && <DashPage bot={activeBot} stats={stats} convs={convs} gaps={gaps} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} />}
+          {page === 'dashboard' && <DashPage bot={activeBot} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} />}
           {page === 'inbox'     && <InboxPage bot={activeBot} gaps={gaps} setGaps={setGaps} />}
           {page === 'feedback'  && <FeedbackAdminPage bot={activeBot} feedback={feedback} setFeedback={setFeedback} />}
           {page === 'insights'  && <InsightsPage bot={activeBot} convs={convs} />}
@@ -132,16 +139,15 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
 }
 
 // ── Dashboard page ────────────────────────────────────────────────────────────
-function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit }) {
+function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps }) {
   const [copied, setCopied] = useState(false)
 
   if (!bot) {
     return (
       <div className="flex ic jc" style={{ height: 'calc(100vh - 54px)', flexDirection: 'column', gap: 16 }}>
-        <div style={{ fontSize: 48 }}>🥪</div>
         <h2 className="serif" style={{ fontSize: '1.5rem', color: 'var(--coffee-0)' }}>Build your first bot</h2>
         <p style={{ fontSize: 13.5, color: 'var(--ink3)', textAlign: 'center', maxWidth: 340, lineHeight: 1.7 }}>
-          Turn your knowledge into a branded AI assistant in about 5 minutes. Share it with your customers or team.
+          Turn your knowledge into a branded AI assistant in about 5 minutes.
         </p>
         <button className="btn btn-accent btn-lg" onClick={onEdit}>
           <I.Rocket /> Launch setup →
@@ -150,199 +156,173 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit }) {
     )
   }
 
+  const inboxCount = (stats?.unresolvedGaps ?? 0) + (stats?.unresolvedFeedback ?? 0)
+  const answeredToday = stats?.conversationsThisWeek ?? 0
+  const statusDot = inboxCount === 0 ? '#7F9C8B' : inboxCount <= 2 ? '#C89B5A' : '#C0522A'
+  const sentiment = bot?.feedback_summary?.sentiment
+  const feedbackDot = sentiment === 'positive' ? '#7F9C8B' : sentiment === 'negative' ? '#C0522A' : sentiment === 'mixed' ? '#C89B5A' : null
+
   return (
     <div className="page fade-up">
-      <div className="flex ic jb mb-28">
-        <div>
-          <h1 className="page-title">{bot.name}</h1>
-          {bot.descriptor && <p className="page-sub">{bot.descriptor}</p>}
-        </div>
-        <div className="flex ic g8">
-          <span className="badge badge-green">● Live</span>
-          <button className="btn btn-secondary btn-sm" onClick={onEdit}>Edit bot</button>
-        </div>
-      </div>
 
-      {/* Stats */}
-      <div className="stat-grid" style={{ marginBottom:24 }}>
+      {/* ── Stat cards ── */}
+      <div className="stat-grid" style={{ marginBottom:16 }}>
         {[
-          { label: 'Total conversations', num: stats?.totalConversations ?? 0 },
-          { label: 'Unique users',        num: stats?.uniqueUsers ?? 0 },
-          { label: 'Messages sent',       num: stats?.totalMessages ?? 0 },
-          { label: 'This week',           num: stats?.conversationsThisWeek ?? 0 },
-          { label: 'Feedback received',   num: stats?.feedbackCount ?? 0 },
-          { label: 'Inbox items',         num: (stats?.unresolvedGaps ?? 0) + (stats?.unresolvedFeedback ?? 0) },
+          { label: 'Total conversations', num: stats?.totalConversations ?? 0, dot: null },
+          { label: 'Unique users',        num: stats?.uniqueUsers ?? 0,        dot: null },
+          { label: 'Messages sent',       num: stats?.totalMessages ?? 0,      dot: null },
+          { label: 'This week',           num: stats?.conversationsThisWeek ?? 0, dot: null },
+          { label: 'Feedback received',   num: stats?.feedbackCount ?? 0,      dot: feedbackDot },
+          { label: 'Inbox items',         num: inboxCount,                     dot: inboxCount === 0 ? '#7F9C8B' : inboxCount <= 2 ? '#C89B5A' : '#C0522A' },
         ].map((s, i) => (
           <div key={i} className={`stat-card fade-up d${i+1}`}>
-            <div className="stat-label">{s.label}</div>
+            <div className="stat-label" style={{ display:'flex', alignItems:'center', gap:6 }}>
+              {s.dot && <span style={{ width:7, height:7, borderRadius:'50%', background:s.dot, flexShrink:0, display:'inline-block' }} />}
+              {s.label}
+            </div>
             <div className="stat-num">{s.num}</div>
           </div>
         ))}
       </div>
 
-      {/* 7-day activity chart */}
-      {stats?.sevenDays && stats.sevenDays.some(d => d.count > 0) && (
-        <div className="card mb-12 fade-up d3">
-          <div className="card-head"><div className="card-title">Activity — last 7 days</div></div>
-          <div className="card-body">
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(7, 1fr)', gap:6, height:80, alignItems:'flex-end' }}>
-              {stats.sevenDays.map((d, i) => {
-                const max = Math.max(...stats.sevenDays.map(x => x.count), 1)
-                const h   = Math.max((d.count / max) * 100, d.count > 0 ? 8 : 2)
-                return (
-                  <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:5 }}>
-                    <div style={{ fontSize:10, color:'var(--ink4)', fontWeight:500 }}>{d.count > 0 ? d.count : ''}</div>
-                    <div style={{ width:'100%', height:80, display:'flex', alignItems:'flex-end' }}>
-                      <div style={{ width:'100%', height:`${h}%`, background: d.count > 0 ? 'var(--coffee-0)' : 'var(--surface3)', borderRadius:'3px 3px 0 0', transition:'height 0.4s ease', minHeight:3 }} />
-                    </div>
-                    <div style={{ fontSize:10.5, color:'var(--ink4)' }}>{d.label}</div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ── Top: Bot Status + Quick Actions ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:16, alignItems:'start', marginBottom:20 }}>
 
-      {/* Share link */}
-      <div className="card mb-12 fade-up d2">
-        <div className="card-head">
-          <div>
-            <div className="card-title">Your bot link</div>
-            <div className="card-sub">Share this with your customers to start conversations.</div>
+        {/* Bot Status */}
+        <div className="card" style={{ padding:'20px 24px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
+            <span style={{ width:10, height:10, borderRadius:'50%', background:statusDot, flexShrink:0, display:'inline-block' }} />
+            <h1 style={{ fontSize:18, fontWeight:600, color:'var(--ink)', fontFamily:'var(--font-display)' }}>{bot.name}</h1>
+            <span className="badge badge-green" style={{ marginLeft:4 }}>Live</span>
+            <button className="btn btn-secondary btn-sm" style={{ marginLeft:'auto' }} onClick={onEdit}>Edit bot</button>
           </div>
-          <button className="btn btn-secondary btn-sm"
-            onClick={() => window.open(shareUrl, '_blank')}>
-            <I.Eye /> Preview
-          </button>
-        </div>
-        <div className="card-body">
-          <div className="flex ic g8" style={{ padding: '9px 12px', background: 'var(--surface2)', border: '1px solid var(--line)', borderRadius: 'var(--r)' }}>
-            <span style={{ flex: 1, fontSize: 12.5, color: 'var(--coffee-3)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{shareUrl}</span>
-            <button className="btn btn-primary btn-sm"
-              onClick={() => { navigator.clipboard.writeText(shareUrl).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false), 2000) }}>
-              <I.Copy width={12} height={12} /> {copied ? 'Copied!' : 'Copy'}
+          <p style={{ fontSize:14, color:'var(--ink3)', lineHeight:1.6 }}>
+            Your bot answered <strong style={{ color:'var(--ink)' }}>{answeredToday} questions</strong> this week
+            {inboxCount > 0 && <> · <strong style={{ color:'#C0522A' }}>{inboxCount} question{inboxCount > 1 ? 's' : ''} need{inboxCount === 1 ? 's' : ''} your help</strong></>}
+            {inboxCount === 0 && <> · <span style={{ color:'#7F9C8B' }}>all caught up</span></>}
+          </p>
+          {/* Share link inline */}
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:14, padding:'8px 12px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)' }}>
+            <span style={{ flex:1, fontSize:12, color:'var(--ink3)', fontFamily:'monospace', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{shareUrl}</span>
+            <button className="btn btn-secondary btn-sm" onClick={() => window.open(shareUrl, '_blank')}>Preview</button>
+            <button className="btn btn-primary btn-sm" onClick={() => { navigator.clipboard.writeText(shareUrl).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false), 2000) }}>
+              {copied ? 'Copied!' : 'Copy link'}
             </button>
           </div>
         </div>
-      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        {/* Recent conversations */}
-        <div className="card fade-up d3">
-          <div className="card-head"><div className="card-title">Recent conversations</div></div>
-          {convs.length === 0 ? (
-            <div className="empty" style={{ padding: '32px 20px' }}>
-              <div className="empty-icon">💬</div>
-              <div className="empty-title">No conversations yet</div>
-              <div className="empty-sub">Share your bot link to start collecting real questions from your customers.</div>
-            </div>
-          ) : (
-            <table className="tbl">
-              <thead><tr><th>Type</th><th>Messages</th><th>Date</th></tr></thead>
-              <tbody>
-                {convs.slice(0, 6).map((c, i) => (
-                  <tr key={i}>
-                    <td><span className={`badge ${c.type==='feedback'?'badge-amber':'badge-coffee'}`}>{c.type}</span></td>
-                    <td style={{ fontSize: 13 }}>{c.messages?.[0]?.count ?? '—'}</td>
-                    <td style={{ fontSize: 12, color: 'var(--ink4)' }}>{new Date(c.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-
-        {/* Knowledge gaps */}
-        <div className="card fade-up d4">
-          <div className="card-head">
-            <div className="card-title">Inbox preview</div>
-            {gaps.length > 0 && <span className="badge badge-amber">{gaps.length} unresolved</span>}
+        {/* Quick Actions */}
+        <div className="card" style={{ padding:'20px 24px', minWidth:200 }}>
+          <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:12 }}>Quick actions</div>
+          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            {[
+              { label:'Edit knowledge base', action: onEdit },
+              { label:'Test my bot', action: () => window.open(shareUrl, '_blank') },
+              { label:'Copy bot link', action: () => { navigator.clipboard.writeText(shareUrl).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false), 2000) } },
+            ].map((a, i) => (
+              <button key={i} className="btn btn-secondary btn-sm" style={{ justifyContent:'flex-start', width:'100%' }} onClick={a.action}>
+                {a.label}
+              </button>
+            ))}
           </div>
-          {gaps.length === 0 ? (
-            <div className="empty" style={{ padding: '32px 20px' }}>
-              <div className="empty-icon">✉️</div>
-              <div className="empty-title">Inbox is clear</div>
-              <div className="empty-sub">When your bot can't answer a question, it appears here for you to respond to.</div>
-            </div>
-          ) : (
-            <div style={{ padding: '8px 0' }}>
-              {gaps.slice(0, 5).map((g, i) => (
-                <QuickAnswerRow key={i} gap={g} bot={bot} isLast={i >= Math.min(gaps.length-1, 4)}
-                  onAnswered={() => setGaps(p => p.filter(x => x.id !== g.id))} />
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Knowledge health */}
-      <div className="card mt-12 fade-up d5">
+      {/* ── Middle: Questions needing attention ── */}
+      <div className="card" style={{ marginBottom:14 }}>
         <div className="card-head">
-          <div className="card-title">Knowledge base</div>
-          <button className="btn btn-secondary btn-sm" onClick={onEdit}>Edit content</button>
+          <div>
+            <div className="card-title">Questions that need your attention</div>
+            <div className="card-sub">Answer to help your customers and improve your bot</div>
+          </div>
+          {inboxCount > 0 && <span className="badge badge-amber">{inboxCount} unresolved</span>}
         </div>
-        <div className="card-body">
-          {bot.knowledge_text ? (
-            <div>
-              <div style={{ fontSize: 13, color: 'var(--ink2)', marginBottom: 8 }}>
-                {bot.knowledge_text.split(/\s+/).filter(Boolean).length.toLocaleString()} words · {bot.knowledge_text.length.toLocaleString()} characters
-              </div>
-              <div style={{ height: 4, background: 'var(--surface3)', borderRadius: 2, maxWidth: 400 }}>
-                <div style={{ height: 4, width: `${Math.min(100, (bot.knowledge_text.split(/\s+/).filter(Boolean).length / 2000) * 100)}%`, background: 'var(--coffee-0)', borderRadius: 2, transition: 'width 0.6s ease' }} />
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--ink4)', marginTop: 6 }}>
-                {bot.knowledge_text.split(/\s+/).filter(Boolean).length < 300 ? '⚠ Consider adding more content for stronger answers.' : '✓ Good knowledge base.'}
-              </div>
-            </div>
-          ) : (
-            <div style={{ fontSize: 13.5, color: 'var(--ink3)' }}>
-              No content added yet. <button className="btn btn-ghost btn-sm" style={{ display: 'inline-flex' }} onClick={onEdit}>Add knowledge base →</button>
-            </div>
-          )}
-        </div>
+        {gaps.length === 0 ? (
+          <div className="empty" style={{ padding:'32px 20px' }}>
+            <div className="empty-icon">✅</div>
+            <div className="empty-title">All caught up</div>
+            <div className="empty-sub">No questions need your attention right now.</div>
+          </div>
+        ) : (
+          <div>
+            {gaps.slice(0, 5).map((g, i) => (
+              <AttentionRow key={i} gap={g} bot={bot} isLast={i >= Math.min(gaps.length-1, 4)}
+                onAnswered={() => setGaps(p => p.filter(x => x.id !== g.id))} />
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* ── Bottom: Recent Activity ── */}
+      <div className="card">
+        <div className="card-head"><div className="card-title">Recent activity</div></div>
+        {convs.length === 0 ? (
+          <div className="empty" style={{ padding:'24px 20px' }}>
+            <div className="empty-icon">💬</div>
+            <div className="empty-title">No activity yet</div>
+            <div className="empty-sub">Share your bot link to start collecting conversations.</div>
+          </div>
+        ) : (
+          <div style={{ padding:'8px 0' }}>
+            {convs.slice(0, 8).map((c, i) => {
+              const isLast = i >= Math.min(convs.length-1, 7)
+              const label = c.type === 'feedback' ? 'Feedback received' : c.type === 'internal' ? 'Staff used the bot' : 'Customer asked a question'
+              const dot = c.type === 'feedback' ? '#C89B5A' : c.type === 'internal' ? '#7F9C8B' : '#749CA5'
+              return (
+                <div key={i} style={{ padding:'10px 20px', display:'flex', alignItems:'center', gap:10, borderBottom: isLast ? 'none' : '1px solid var(--line)' }}>
+                  <span style={{ width:7, height:7, borderRadius:'50%', background:dot, flexShrink:0 }} />
+                  <span style={{ fontSize:13.5, color:'var(--ink)', flex:1 }}>{label}</span>
+                  <span style={{ fontSize:12, color:'var(--ink4)' }}>{new Date(c.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
     </div>
   )
 }
-// ── Quick answer row (used in dashboard inbox preview) ────────────────────────
-function QuickAnswerRow({ gap, bot, isLast, onAnswered }) {
-  const [open,    setOpen]    = useState(false)
-  const [answer,  setAnswer]  = useState('')
+
+// ── Attention row (answer or reply only) ──────────────────────────────────────
+function AttentionRow({ gap, bot, isLast, onAnswered }) {
+  const [mode,    setMode]    = useState(null) // null | 'answer' | 'reply'
+  const [text,    setText]    = useState('')
   const [saving,  setSaving]  = useState(false)
 
   async function handleAnswer() {
-    if (!answer.trim()) return
+    if (!text.trim()) return
     setSaving(true)
     try {
       const { supabase } = await import('../lib/supabase.js')
+      const isKb = mode === 'answer'
       await supabase.from('knowledge_gaps').update({
-        admin_answer: answer.trim(),
+        admin_answer: text.trim(),
         resolved: true,
-        added_to_kb: true,
+        added_to_kb: isKb,
         resolved_at: new Date().toISOString(),
       }).eq('id', gap.id)
 
-      const currentEntries = Array.isArray(bot.knowledge_entries) ? bot.knowledge_entries : []
-      const newEntry = {
-        id: Date.now().toString(),
-        title: gap.question.slice(0, 60) + (gap.question.length > 60 ? '…' : ''),
-        type: 'faq',
-        priority: 'primary',
-        content: `Q: ${gap.question}\n\nA: ${answer.trim()}`,
-        enabled: true,
-        source: 'inbox',
-        created_at: new Date().toISOString(),
+      if (isKb) {
+        const currentEntries = Array.isArray(bot.knowledge_entries) ? bot.knowledge_entries : []
+        const newEntry = {
+          id: Date.now().toString(),
+          title: gap.question.slice(0, 60) + (gap.question.length > 60 ? '…' : ''),
+          type: 'faq', priority: 'primary',
+          content: `Q: ${gap.question}\n\nA: ${text.trim()}`,
+          enabled: true, source: 'inbox',
+          created_at: new Date().toISOString(),
+        }
+        const updatedEntries = [...currentEntries, newEntry]
+        const newKbText = (bot.knowledge_text || '') + `\n\nQ: ${gap.question}\nA: ${text.trim()}`
+        await supabase.from('bots').update({
+          knowledge_entries: updatedEntries,
+          knowledge_text: newKbText,
+          updated_at: new Date().toISOString(),
+        }).eq('id', bot.id)
+        bot.knowledge_entries = updatedEntries
+        bot.knowledge_text = newKbText
       }
-      const updatedEntries = [...currentEntries, newEntry]
-      const newKbText = (bot.knowledge_text || '') + `\n\nQ: ${gap.question}\nA: ${answer.trim()}`
-      await supabase.from('bots').update({
-        knowledge_entries: updatedEntries,
-        knowledge_text: newKbText,
-        updated_at: new Date().toISOString(),
-      }).eq('id', bot.id)
-      bot.knowledge_entries = updatedEntries
-      bot.knowledge_text = newKbText
       onAnswered()
     } catch(e) { console.error(e) }
     setSaving(false)
@@ -350,30 +330,36 @@ function QuickAnswerRow({ gap, bot, isLast, onAnswered }) {
 
   return (
     <div style={{ borderBottom: isLast ? 'none' : '1px solid var(--line)' }}>
-      <div style={{ padding:'10px 20px', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, cursor:'pointer' }}
-        onClick={() => setOpen(p => !p)}>
+      <div style={{ padding:'12px 20px', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
         <div style={{ minWidth:0 }}>
-          <div style={{ fontSize:13, color:'var(--ink)', marginBottom:2, lineHeight:1.5 }}>
-            "{gap.question.slice(0, 60)}{gap.question.length > 60 ? '…' : ''}"
+          <div style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.55, marginBottom:3 }}>
+            "{gap.question.slice(0, 80)}{gap.question.length > 80 ? '…' : ''}"
           </div>
           <div style={{ fontSize:11.5, color:'var(--ink4)' }}>
             {new Date(gap.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}
           </div>
         </div>
-        <button className="btn btn-secondary btn-xs" style={{ flexShrink:0 }}>
-          {open ? 'Cancel' : 'Answer →'}
-        </button>
+        <div style={{ display:'flex', gap:6, flexShrink:0 }}>
+          {mode ? (
+            <button className="btn btn-ghost btn-xs" onClick={() => { setMode(null); setText('') }}>Cancel</button>
+          ) : (
+            <>
+              <button className="btn btn-primary btn-xs" onClick={() => setMode('answer')}>Answer</button>
+              <button className="btn btn-secondary btn-xs" onClick={() => setMode('reply')}>Reply only</button>
+            </>
+          )}
+        </div>
       </div>
-      {open && (
+      {mode && (
         <div style={{ padding:'0 20px 14px' }}>
-          <textarea
-            className="input" style={{ minHeight:80, marginBottom:8 }}
-            placeholder="Type your answer…"
-            value={answer} onChange={e => setAnswer(e.target.value)}
-            autoFocus
-          />
-          <button className="btn btn-primary btn-sm w100" onClick={handleAnswer} disabled={!answer.trim() || saving}>
-            {saving ? <Spinner size={13} color="white" /> : 'Save & add to knowledge base'}
+          <div style={{ fontSize:11.5, color:'var(--ink4)', marginBottom:6 }}>
+            {mode === 'answer' ? '✓ This reply will be saved to your knowledge base' : '→ This reply will be sent once and not saved'}
+          </div>
+          <textarea className="input" style={{ minHeight:80, marginBottom:8 }}
+            placeholder={mode === 'answer' ? 'Type your answer…' : 'Type a one-off reply…'}
+            value={text} onChange={e => setText(e.target.value)} autoFocus />
+          <button className="btn btn-primary btn-sm w100" onClick={handleAnswer} disabled={!text.trim() || saving}>
+            {saving ? <Spinner size={13} color="white" /> : mode === 'answer' ? 'Save & add to knowledge base' : 'Send reply only'}
           </button>
         </div>
       )}
