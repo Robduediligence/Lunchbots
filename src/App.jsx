@@ -12,16 +12,15 @@ export default function App() {
   const [sub,     setSub]     = useState(null)
   const [bot,     setBot]     = useState(null)
   const [editing, setEditing] = useState(false)
+const [bots,    setBots]    = useState([])
 
   // Check URL params first
   useEffect(() => {
-    const params      = new URLSearchParams(window.location.search)
-  const botId       = params.get('bot')
-  const mode        = params.get('mode')
-  const activePage  = params.get('page')
-  const activeBotId = params.get('activeBotId')
-  if (mode === 'admin') { setRoute('admin'); return }
-  if (botId)            { setRoute({ type:'chat', botId }); return }
+    const params = new URLSearchParams(window.location.search)
+    const botId  = params.get('bot')
+    const mode   = params.get('mode')
+    if (mode === 'admin') { setRoute('admin'); return }
+    if (botId)            { setRoute({ type:'chat', botId }); return }
   
 
     // Check Supabase session
@@ -30,9 +29,13 @@ export default function App() {
         setUser(session.user)
         const s = await ensureSubscriber(session.user.id, session.user.email)
         setSub(s)
-        const b = await getBotByOwner(session.user.id)
+        const [b, allBots] = await Promise.all([
+          getBotByOwner(session.user.id),
+          getBotsByOwner(session.user.id),
+        ])
         setBot(b)
-        setRoute(activePage || activeBotId ? { type:'dashboard', activePage, activeBotId } : 'dashboard')
+        setBots(allBots)
+        setRoute('dashboard')
       } else {
         setRoute('auth')
       }
@@ -103,10 +106,9 @@ export default function App() {
       user={user}
       sub={sub}
       bot={bot}
+      initialBots={bots}
       onEditBot={handleEditBot}
       onLogout={handleLogout}
-      initialPage={route?.activePage}
-      initialBotId={route?.activeBotId}
     />
   )
 

@@ -262,3 +262,24 @@ git push origin main   # triggers Vercel auto-deploy
 On new computer: git clone https://github.com/Robduediligence/Lunchbots
 Use GitHub Personal Access Token as password (not account password)
 Run: rm -rf node_modules && npm install
+
+Project: Lunch Bots
+
+Stack: React + Vite + Supabase + Anthropic API
+Live: https://lunchbots.vercel.app
+GitHub: https://github.com/Robduediligence/Lunchbots
+Local dev: http://localhost:5175
+
+What we were just working on:
+We tried to make the dashboard remember which page (Dashboard/Inbox/Feedback/Insights) and which bot was active when you refresh the browser. The approach was to write ?page=feedback&activeBotId=xxx to the URL using window.history.replaceState and read it back on load.
+It's not working — refreshing still goes to the Dashboard of the newest bot. The URL params approach got messy across App.jsx and DashboardView.jsx and caused a blank screen at one point.
+Please try a simpler approach using localStorage instead:
+
+When the user changes page or switches bot, save { page, botId } to localStorage
+On load, read from localStorage and restore the last page and bot
+This avoids touching the URL routing entirely
+
+Key files:
+
+src/App.jsx — routing, session check, passes bot prop to DashboardView
+src/views/DashboardView.jsx — has page and activeBot state, setPage and setActiveBot functions

@@ -9,7 +9,7 @@ const NAV = [
   { id: 'insights',  label: 'Insights',  Icon: I.Chart },
 ]
 
-export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialPage, initialBotId }) {
+export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialBots }) {
   const params = new URLSearchParams(window.location.search)
   const resolvedBotId = initialBotId || params.get('activeBotId')
   const [page,      setPage]      = useState(initialPage || params.get('page') || 'dashboard')
@@ -18,7 +18,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   const [convs,     setConvs]     = useState([])
   const [loading,   setLoading]   = useState(true)
   const [loadError, setLoadError] = useState(null)
-  const [allBots,   setAllBots]   = useState([])
+  const [allBots,   setAllBots]   = useState(initialBots || [])
   const [activeBot, setActiveBot] = useState(bot)
   const [feedback,  setFeedback]  = useState([])
 
