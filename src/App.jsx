@@ -22,7 +22,8 @@ export default function App() {
   const activeBotId = params.get('activeBotId')
   if (mode === 'admin') { setRoute('admin'); return }
   if (botId)            { setRoute({ type:'chat', botId }); return }
-  if (activePage || activeBotId) { setRoute({ type:'dashboard', activePage, activeBotId }); return }
+  
+
     // Check Supabase session
     getSession().then(async session => {
       if (session?.user) {
@@ -31,7 +32,7 @@ export default function App() {
         setSub(s)
         const b = await getBotByOwner(session.user.id)
         setBot(b)
-        setRoute('dashboard')
+        setRoute(activePage || activeBotId ? { type:'dashboard', activePage, activeBotId } : 'dashboard')
       } else {
         setRoute('auth')
       }
