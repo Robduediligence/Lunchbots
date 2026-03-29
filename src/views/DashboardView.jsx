@@ -18,7 +18,8 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   const [loading,   setLoading]   = useState(true)
   const [loadError, setLoadError] = useState(null)
   const [allBots,   setAllBots]   = useState(initialBots || [])
-  const [activeBot, setActiveBot] = useState(bot)
+  const savedBot = (initialBots || []).find(b => b.id === saved.botId) || bot || (initialBots || [])[0] || null
+  const [activeBot, setActiveBot] = useState(savedBot)
   const [feedback,  setFeedback]  = useState([])
 
   useEffect(() => {
@@ -28,8 +29,6 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   useEffect(() => {
     getBotsByOwner(sub.id).then(bots => {
       setAllBots(bots)
-      const current = bots.find(b => b.id === saved.botId) || bot || bots[0] || null
-      setActiveBot(current)
     }).catch(console.error)
   }, [sub.id])
 
