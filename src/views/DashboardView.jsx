@@ -86,7 +86,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
         <div className="bot-switcher" style={{ padding:'8px 16px', borderBottom:'1px solid var(--line)', background:'var(--surface2)', display:'flex', alignItems:'center', gap:8 }}>
           <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginRight:4 }}>Active bot:</span>
           {allBots.map(b => (
-            <button key={b.id} onClick={() => { setActiveBot(b); setPage('dashboard') }}
+            <button key={b.id} onClick={() => { setActiveBot(b) }}
               style={{ display:'flex', alignItems:'center', gap:6, padding:'5px 12px', borderRadius:20, border:`1.5px solid ${activeBot?.id===b.id?'var(--coffee-0)':'var(--line)'}`, background: activeBot?.id===b.id?'var(--coffee-0)':'var(--surface)', color: activeBot?.id===b.id?'var(--parch-1)':'var(--ink3)', fontSize:12.5, fontWeight:500, cursor:'pointer', transition:'all 0.12s' }}>
               {b.bot_type === 'internal' ? '🔒' : '🌐'} {b.name || 'Unnamed bot'}
             </button>
