@@ -97,7 +97,7 @@ export default function App() {
     />
   )
 
-  if (route === 'dashboard') return (
+  if (route === 'dashboard' || route?.type === 'dashboard') return (
     <DashboardView
       user={user}
       sub={sub}
