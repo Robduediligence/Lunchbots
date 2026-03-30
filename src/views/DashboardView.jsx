@@ -24,6 +24,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   const [activeBot, setActiveBot] = useState(savedBot)
   const [feedback,  setFeedback]  = useState([])
   const [activity,  setActivity]  = useState([])
+  const [resolvedCount, setResolvedCount] = useState(0)
 
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
           <div className="topnav-pill" id="main-nav-pill">
             {NAV.map(({ id, label, Icon }) => {
               let count = null
-              if (id === 'inbox') count = stats?.unresolvedGaps ?? 0
+              if (id === 'inbox') count = Math.max(0, (stats?.unresolvedGaps ?? 0) - resolvedCount)
               if (id === 'feedback') count = feedback.filter(f => !f.resolved).length
               return (
                 <button key={id} className={`pill-item ${page === id ? 'active' : ''}`}
@@ -165,10 +166,10 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity
   const feedbackDot = sentiment === 'positive' ? '#7F9C8B' : sentiment === 'negative' ? '#C0522A' : sentiment === 'mixed' ? '#C89B5A' : null
 
   return (
-    <div className="page fade-up">
+    <div className="page fade-up" style={{ display:'flex', flexDirection:'column', gap:14 }}>
 
       {/* ── Stat cards ── */}
-      <div className="stat-grid" style={{ marginBottom:16 }}>
+      <div className="stat-grid">
         {[
           { label: 'Total conversations', num: stats?.totalConversations ?? 0, dot: null },
           { label: 'Unique users',        num: stats?.uniqueUsers ?? 0,        dot: null },
@@ -191,7 +192,7 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity
       <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:16, alignItems:'start', marginBottom:20 }}>
 
         {/* Bot Status */}
-        <div className="card" style={{ padding:'20px 24px' }}>
+        <div className="card" style={{ padding:'20px 20px' }}>
           <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
             <span style={{ width:10, height:10, borderRadius:'50%', background:statusDot, flexShrink:0, display:'inline-block' }} />
             <h1 style={{ fontSize:18, fontWeight:600, color:'var(--ink)', fontFamily:'var(--font-display)' }}>{bot.name}</h1>
@@ -214,7 +215,7 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity
         </div>
 
         {/* Quick Actions */}
-        <div className="card" style={{ padding:'20px 24px', minWidth:200 }}>
+        <div className="card" style={{ padding:'7px 20px', minWidth:200, alignSelf:'start' }}>
           <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:12 }}>Quick actions</div>
           <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
             {[
@@ -231,7 +232,7 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity
       </div>
 
       {/* ── Middle: Questions needing attention ── */}
-      <div className="card" style={{ marginBottom:14 }}>
+      <div className="card">
         <div className="card-head">
           <div>
             <div className="card-title">Questions that need your attention</div>
@@ -251,6 +252,7 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity
               <AttentionRow key={i} gap={g} bot={bot} isLast={i >= Math.min(gaps.length-1, 4)}
                onAnswered={(answeredGap, mode, answerText) => {
   setGaps(p => p.filter(x => x.id !== answeredGap.id))
+  setResolvedCount(p => p + 1)
   setActivity(p => [{
     id: Date.now(),
     type: mode === 'answer' ? 'answered_question' : 'replied_question',
