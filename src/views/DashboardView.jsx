@@ -83,8 +83,8 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
                 </button>
               )
             })}
-            <button className="pill-item" onClick={onEditBot}>
-              {bot ? 'Edit Bot' : 'Create Bot'}
+            <button className="pill-item" onClick={() => onEditBot(activeBot)}>
+              {activeBot ? 'Edit Bot' : 'Create Bot'}
             </button>
             <button className="pill-item" onClick={() => setPage('settings')}>
               Settings
