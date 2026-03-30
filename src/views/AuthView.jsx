@@ -19,10 +19,7 @@ export default function AuthView({ onAuth }) {
     if (pw !== pw2)           return setErr('Passwords do not match.')
     setLoading(true)
     try {
-      const data = await signUp(email.trim(), pw)
-      if (data.user) {
-        await ensureSubscriber(data.user.id, email.trim(), biz.trim())
-      }
+      await signUp(email.trim(), pw)
       setDone(true)
     } catch (e) {
       setErr(e.message || 'Registration failed. Please try again.')
@@ -36,7 +33,7 @@ export default function AuthView({ onAuth }) {
     setLoading(true)
     try {
       const data = await signIn(email.trim(), pw)
-      const sub  = await ensureSubscriber(data.user.id, data.user.email)
+      const sub  = await ensureSubscriber(data.user.id, data.user.email, biz.trim())
       onAuth(data.user, sub)
     } catch (e) {
       setErr(e.message || 'Sign in failed. Please check your details.')
@@ -48,7 +45,7 @@ export default function AuthView({ onAuth }) {
     return (
       <div className="auth-wrap">
         <div className="auth-card fade-up tc">
-          <div style={{ fontSize: 32, marginBottom: 16 }}>☕</div>
+          <img src="/Bot_Brunch_Logo.png" alt="Bot Brunch" style={{ height: 60, marginBottom: 12 }} />
           <h2 className="serif mb-8" style={{ fontSize: '1.4rem', color: 'var(--coffee-0)' }}>Check your inbox</h2>
           <p style={{ fontSize: 13.5, color: 'var(--ink3)', lineHeight: 1.7, marginBottom: 24 }}>
             We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then come back here to sign in.
@@ -65,10 +62,7 @@ export default function AuthView({ onAuth }) {
     <div className="auth-wrap">
       {mode === 'choice' && (
         <div className="auth-card fade-up tc">
-          <div style={{ fontSize: 36, marginBottom: 12 }}>🥪</div>
-          <h1 className="serif mb-8" style={{ fontSize: '1.8rem', fontWeight: 600, color: 'var(--coffee-0)', letterSpacing: -0.3 }}>
-            Lunch Bots
-          </h1>
+          <img src="/Bot_Brunch_Logo.png" alt="Bot Brunch" style={{ height: 80, marginBottom: 12 }} />
           <p style={{ fontSize: 13.5, color: 'var(--ink3)', lineHeight: 1.7, marginBottom: 28, maxWidth: 280, margin: '0 auto 28px' }}>
             Turn your knowledge into a branded AI assistant. Share it with your customers in minutes.
           </p>
@@ -87,7 +81,7 @@ export default function AuthView({ onAuth }) {
       {(mode === 'register' || mode === 'login') && (
         <div className="auth-card fade-up">
           <div className="mb-24">
-            <div style={{ fontSize: 22, marginBottom: 6 }}>☕</div>
+            <img src="/Bot_Brunch_Logo.png" alt="Bot Brunch" style={{ height: 60, marginBottom: 12 }} />
             <h2 className="serif mb-4" style={{ fontSize: '1.3rem', color: 'var(--coffee-0)' }}>
               {mode === 'register' ? 'Create your account' : 'Welcome back'}
             </h2>
