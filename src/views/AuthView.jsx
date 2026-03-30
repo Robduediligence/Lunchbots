@@ -137,6 +137,14 @@ export default function AuthView({ onAuth }) {
               {mode === 'register' ? 'Already have an account? Sign in' : 'Need an account? Register'}
             </button>
           </div>
+          {mode === 'register' && (
+            <div className="tc mt-8" style={{ fontSize: 11, color: 'var(--ink4)' }}>
+              By creating an account you agree to our{' '}
+              <a href="/terms.html" target="_blank" style={{ color: 'var(--coffee-3)' }}>Terms of Service</a>
+              {' '}and{' '}
+              <a href="/privacy.html" target="_blank" style={{ color: 'var(--coffee-3)' }}>Privacy Policy</a>
+            </div>
+          )}
         </div>
       )}
     </div>
