@@ -249,7 +249,17 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity
           <div>
             {gaps.slice(0, 5).map((g, i) => (
               <AttentionRow key={i} gap={g} bot={bot} isLast={i >= Math.min(gaps.length-1, 4)}
-                onAnswered={() => setGaps(p => p.filter(x => x.id !== g.id))} />
+               onAnswered={(answeredGap, mode, answerText) => {
+  setGaps(p => p.filter(x => x.id !== answeredGap.id))
+  setActivity(p => [{
+    id: Date.now(),
+    type: mode === 'answer' ? 'answered_question' : 'replied_question',
+    description: mode === 'answer' 
+      ? `Answered: "${answeredGap.question.slice(0, 60)}"` 
+      : `Replied to: "${answeredGap.question.slice(0, 60)}"`,
+    created_at: new Date().toISOString(),
+  }, ...p])
+}} />
             ))}
           </div>
         )}
@@ -343,7 +353,7 @@ function AttentionRow({ gap, bot, isLast, onAnswered }) {
         bot.knowledge_entries = updatedEntries
         bot.knowledge_text = newKbText
       }
-      onAnswered()
+      onAnswered(gap, mode, text)
     } catch(e) { console.error(e) }
     setSaving(false)
   }
