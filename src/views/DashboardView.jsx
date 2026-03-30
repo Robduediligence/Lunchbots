@@ -605,9 +605,7 @@ Return ONLY valid JSON, no markdown.`,
         </button>
       </div>
 
-    
-
-      {feedback.length === 0 ? (
+    {feedback.length === 0 ? (
         <div className="card">
           <div className="empty">
             <div className="empty-icon">📝</div>
@@ -617,41 +615,7 @@ Return ONLY valid JSON, no markdown.`,
         </div>
       ) : (
         <div style={{ display:'grid', gridTemplateColumns: summary ? '1fr 1fr' : '1fr', gap:14, alignItems:'start' }}>
-          {summary && (
-            <div className="card fade-in" style={{ position:'sticky', top:8 }}>
-              <div className="card-head">
-                <div className="card-title">Feedback summary</div>
-                <button className="btn btn-secondary btn-sm" onClick={generateSummary} disabled={summarising}>
-                  {summarising ? <Spinner size={13} color="var(--ink3)" /> : '↻ Refresh'}
-                </button>
-              </div>
-              <div className="card-body">
-                <p style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.75, marginBottom:16 }}>{summary.overview}</p>
-                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                  <div>
-                    <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Top themes</div>
-                    {summary.topThemes?.map((t, i) => (
-                      <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>• {t}</div>
-                    ))}
-                  </div>
-                  <div>
-                    <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Suggestions</div>
-                    {summary.suggestions?.map((s, i) => (
-                      <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>💡 {s}</div>
-                    ))}
-                  </div>
-                  {summary.urgent?.length > 0 && (
-                    <div style={{ padding:'10px 14px', background:'var(--warn-bg)', borderRadius:'var(--r)', border:'1px solid rgba(181,99,26,0.2)' }}>
-                      <div style={{ fontSize:11, fontWeight:600, color:'var(--warn)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Urgent</div>
-                      {summary.urgent.map((u, i) => <div key={i} style={{ fontSize:13, color:'var(--warn)' }}>⚠️ {u}</div>)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
           <div style={{ display:'grid', gridTemplateColumns: selected ? '1fr 420px' : '1fr', gap:14, alignItems:'start' }}>
-
           {/* Feedback list */}
           <div className="card">
             <table className="tbl">
@@ -691,7 +655,6 @@ Return ONLY valid JSON, no markdown.`,
                 <button className="btn btn-ghost btn-xs" onClick={() => setSelected(null)}><I.X /></button>
               </div>
               <div className="card-body">
-                {/* Original message */}
                 <div style={{ padding:'10px 14px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)', marginBottom:14, fontSize:13.5, color:'var(--ink)', lineHeight:1.65 }}>
                   <div style={{ fontSize:11, fontWeight:600, color:'var(--ink4)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.06em' }}>
                     {selected.is_anon ? 'Anonymous' : selected.user_name || 'User'}
@@ -699,8 +662,6 @@ Return ONLY valid JSON, no markdown.`,
                   </div>
                   {selected.content}
                 </div>
-
-                {/* Replies thread */}
                 {replies.length > 0 && (
                   <div style={{ marginBottom:14 }}>
                     {replies.map((r, i) => (
@@ -713,8 +674,6 @@ Return ONLY valid JSON, no markdown.`,
                     ))}
                   </div>
                 )}
-
-                {/* Reply input */}
                 <div className="field">
                   <label className="label">Your reply</label>
                   <textarea className="input" style={{ minHeight:100 }}
@@ -727,7 +686,41 @@ Return ONLY valid JSON, no markdown.`,
               </div>
             </div>
           )}
-       </div>
+          </div>
+
+          {summary && (
+            <div className="card fade-in" style={{ position:'sticky', top:8 }}>
+              <div className="card-head">
+                <div className="card-title">Feedback summary</div>
+                <button className="btn btn-secondary btn-sm" onClick={generateSummary} disabled={summarising}>
+                  {summarising ? <Spinner size={13} color="var(--ink3)" /> : '↻ Refresh'}
+                </button>
+              </div>
+              <div className="card-body">
+                <p style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.75, marginBottom:16 }}>{summary.overview}</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Top themes</div>
+                    {summary.topThemes?.map((t, i) => (
+                      <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>• {t}</div>
+                    ))}
+                  </div>
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Suggestions</div>
+                    {summary.suggestions?.map((s, i) => (
+                      <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>💡 {s}</div>
+                    ))}
+                  </div>
+                  {summary.urgent?.length > 0 && (
+                    <div style={{ padding:'10px 14px', background:'var(--warn-bg)', borderRadius:'var(--r)', border:'1px solid rgba(181,99,26,0.2)' }}>
+                      <div style={{ fontSize:11, fontWeight:600, color:'var(--warn)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Urgent</div>
+                      {summary.urgent.map((u, i) => <div key={i} style={{ fontSize:13, color:'var(--warn)' }}>⚠️ {u}</div>)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
