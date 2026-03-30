@@ -134,7 +134,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
           {page === 'inbox'     && <InboxPage bot={activeBot} gaps={gaps} setGaps={setGaps} />}
           {page === 'feedback'  && <FeedbackAdminPage bot={activeBot} feedback={feedback} setFeedback={setFeedback} />}
           {page === 'insights'  && <InsightsPage bot={activeBot} convs={convs} />}
-          {page === 'settings'  && <SettingsPage user={user} sub={sub} onLogout={onLogout} />}
+          {page === 'settings'  && <SettingsPage user={user} sub={sub} onLogout={onLogout} activeBot={activeBot} onBotDeleted={() => { setAllBots(p => p.filter(b => b.id !== activeBot?.id)); setActiveBot(null); setPage('dashboard') }} />}
         </>
       )}
     </div>
@@ -922,10 +922,27 @@ Return ONLY valid JSON, no markdown, no explanation.`,
 }
 
 // ── Settings page ─────────────────────────────────────────────────────────────
-function SettingsPage({ user, sub, onLogout }) {
+function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
   const [pw,  setPw]  = useState('')
   const [pw2, setPw2] = useState('')
   const [msg, setMsg] = useState('')
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+
+  async function handleDeleteBot() {
+    if (!activeBot) return
+    setDeleting(true)
+    try {
+      const { supabase } = await import('../lib/supabase.js')
+      await supabase.from('conversations').delete().eq('bot_id', activeBot.id)
+      await supabase.from('knowledge_gaps').delete().eq('bot_id', activeBot.id)
+      await supabase.from('feedback').delete().eq('bot_id', activeBot.id)
+      await supabase.from('activity_log').delete().eq('bot_id', activeBot.id)
+      await supabase.from('bots').delete().eq('id', activeBot.id)
+      onBotDeleted()
+    } catch(e) { console.error(e) }
+    setDeleting(false)
+  }
 
   async function changePw() {
     if (!pw || pw !== pw2) return setMsg('error:Passwords do not match.')
@@ -966,6 +983,36 @@ function SettingsPage({ user, sub, onLogout }) {
         <div className="card-head"><div className="card-title">Session</div></div>
         <div className="card-body"><button className="btn btn-danger" onClick={onLogout}>Sign out</button></div>
       </div>
+
+      {activeBot && (
+        <div className="card mt-12" style={{ borderColor: 'rgba(155,34,38,0.2)' }}>
+          <div className="card-head"><div className="card-title" style={{ color:'var(--danger)' }}>Danger zone</div></div>
+          <div className="card-body">
+            <p style={{ fontSize:13.5, color:'var(--ink3)', marginBottom:14 }}>
+              Permanently delete <strong>{activeBot.name || 'this bot'}</strong> and all its data — conversations, knowledge base, feedback, and inbox items. This cannot be undone.
+            </p>
+            {!confirmDelete ? (
+              <button className="btn btn-danger btn-sm" onClick={() => setConfirmDelete(true)}>
+                Delete this bot
+              </button>
+            ) : (
+              <div style={{ padding:'16px', background:'var(--danger-bg)', borderRadius:'var(--r)', border:'1px solid rgba(155,34,38,0.2)' }}>
+                <p style={{ fontSize:13.5, fontWeight:600, color:'var(--danger)', marginBottom:12 }}>
+                  Are you sure? This will permanently delete "{activeBot.name}" and all its data.
+                </p>
+                <div style={{ display:'flex', gap:8 }}>
+                  <button className="btn btn-danger btn-sm" disabled={deleting} onClick={handleDeleteBot}>
+                    {deleting ? 'Deleting...' : 'Yes, delete permanently'}
+                  </button>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setConfirmDelete(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
