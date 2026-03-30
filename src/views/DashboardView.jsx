@@ -73,7 +73,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
           <div className="topnav-pill" id="main-nav-pill">
             {NAV.map(({ id, label, Icon }) => {
               let count = null
-              if (id === 'inbox') count = (stats?.unresolvedGaps ?? 0) + (stats?.unresolvedFeedback ?? 0)
+              if (id === 'inbox') count = stats?.unresolvedGaps ?? 0
               if (id === 'feedback') count = feedback.filter(f => !f.resolved).length
               return (
                 <button key={id} className={`pill-item ${page === id ? 'active' : ''}`}
