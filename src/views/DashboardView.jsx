@@ -7,6 +7,7 @@ const NAV = [
   { id: 'inbox',     label: 'Inbox',     Icon: I.Inbox },
   { id: 'feedback',  label: 'Feedback',  Icon: I.Users },
   { id: 'insights',  label: 'Insights',  Icon: I.Chart },
+  { id: 'share',     label: 'Share',     Icon: I.Eye },
 ]
 
 export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialBots }) {
@@ -134,6 +135,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
           {page === 'inbox'     && <InboxPage bot={activeBot} gaps={gaps} setGaps={setGaps} />}
           {page === 'feedback'  && <FeedbackAdminPage bot={activeBot} feedback={feedback} setFeedback={setFeedback} />}
           {page === 'insights'  && <InsightsPage bot={activeBot} convs={convs} />}
+         {page === 'share'     && <SharePage bot={activeBot} shareUrl={shareUrl} />}
           {page === 'settings'  && <SettingsPage user={user} sub={sub} onLogout={onLogout} activeBot={activeBot} onBotDeleted={() => { setAllBots(p => p.filter(b => b.id !== activeBot?.id)); setActiveBot(null); setPage('dashboard') }} />}
         </>
       )}
@@ -917,6 +919,158 @@ Return ONLY valid JSON, no markdown, no explanation.`,
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+// ── Share page ────────────────────────────────────────────────────────────────
+function SharePage({ bot, shareUrl }) {
+  const [copied, setCopied]       = useState(null)
+  const [platform, setPlatform]   = useState('squarespace')
+
+  if (!bot) return <EmptyBot label="Share" />
+
+  const embedCode = `<script src="https://botbrunch.com/widget.js" data-bot-id="${bot.id}"></script>`
+
+  function copy(text, key) {
+    navigator.clipboard.writeText(text).catch(() => {})
+    setCopied(key)
+    setTimeout(() => setCopied(null), 2000)
+  }
+
+  const platforms = {
+    squarespace: {
+      label: 'Squarespace',
+      steps: [
+        'Log in to your Squarespace account',
+        'Click Settings in the left sidebar',
+        'Click Advanced → Code Injection',
+        'Paste the code below into the Footer box',
+        'Click Save — your chat bubble will appear immediately',
+      ]
+    },
+    wix: {
+      label: 'Wix',
+      steps: [
+        'Log in to your Wix account and open your site editor',
+        'Click Settings in the top menu',
+        'Click Custom Code',
+        'Click + Add Custom Code',
+        'Paste the code below, set "Place Code in" to Body — end, set "Add Code to Pages" to All Pages',
+        'Click Apply — your chat bubble will appear immediately',
+      ]
+    },
+    wordpress: {
+      label: 'WordPress',
+      steps: [
+        'Log in to your WordPress dashboard',
+        'Go to Appearance → Theme File Editor',
+        'Find and click footer.php in the file list on the right',
+        'Find the line that says </body> near the bottom',
+        'Paste the code just above that line',
+        'Click Update File — your chat bubble will appear immediately',
+      ]
+    },
+    shopify: {
+      label: 'Shopify',
+      steps: [
+        'Log in to your Shopify admin',
+        'Go to Online Store → Themes',
+        'Click Actions → Edit Code on your current theme',
+        'Find and click theme.liquid in the file list',
+        'Find the line that says </body> near the bottom',
+        'Paste the code just above that line',
+        'Click Save — your chat bubble will appear immediately',
+      ]
+    },
+    other: {
+      label: 'Other website',
+      steps: [
+        'Open your website\'s HTML editor or admin panel',
+        'Find the footer section of your site',
+        'Paste the code just before the closing </body> tag',
+        'Save your changes — your chat bubble will appear immediately',
+        'If you\'re not sure how to do this, send the code to your web developer',
+      ]
+    },
+  }
+
+  return (
+    <div className="page fade-up" style={{ maxWidth: 680 }}>
+      <div style={{ marginBottom: 28 }}>
+        <h1 className="page-title">Share your bot</h1>
+        <p className="page-sub">Share your bot link or install it as a chat widget on your website.</p>
+      </div>
+
+      {/* Bot link */}
+      <div className="card" style={{ marginBottom: 14 }}>
+        <div className="card-head"><div className="card-title">Your bot link</div></div>
+        <div className="card-body">
+          <p style={{ fontSize:13.5, color:'var(--ink3)', marginBottom:12 }}>
+            Share this link directly with anyone — they can chat with your bot instantly, no install needed.
+          </p>
+          <div style={{ display:'flex', alignItems:'center', gap:8, padding:'9px 12px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)' }}>
+            <span style={{ flex:1, fontSize:12.5, color:'var(--coffee-3)', fontFamily:'monospace', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{shareUrl}</span>
+            <button className="btn btn-secondary btn-sm" onClick={() => window.open(shareUrl, '_blank')}>Preview</button>
+            <button className="btn btn-primary btn-sm" onClick={() => copy(shareUrl, 'link')}>
+              {copied === 'link' ? 'Copied!' : 'Copy link'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Website widget */}
+      <div className="card">
+        <div className="card-head"><div className="card-title">Add to your website</div></div>
+        <div className="card-body">
+          <p style={{ fontSize:13.5, color:'var(--ink3)', marginBottom:20 }}>
+            Add a chat bubble to your website so visitors can talk to your bot without leaving your site. Choose your website platform below for step-by-step instructions.
+          </p>
+
+          {/* Platform selector */}
+          <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:24 }}>
+            {Object.entries(platforms).map(([key, p]) => (
+              <button key={key}
+                onClick={() => setPlatform(key)}
+                style={{ padding:'6px 14px', borderRadius:20, border:`1.5px solid ${platform===key?'var(--coffee-0)':'var(--line)'}`, background: platform===key?'var(--coffee-0)':'transparent', color: platform===key?'var(--parch-1)':'var(--ink3)', fontSize:13, cursor:'pointer', fontFamily:'var(--font-body)', transition:'all 0.15s' }}>
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Steps */}
+          <div style={{ marginBottom:24 }}>
+            <div style={{ fontSize:12, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:12 }}>
+              How to install on {platforms[platform].label}
+            </div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {platforms[platform].steps.map((step, i) => (
+                <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:12 }}>
+                  <div style={{ width:24, height:24, borderRadius:'50%', background:'var(--coffee-0)', color:'var(--parch-1)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, flexShrink:0 }}>
+                    {i + 1}
+                  </div>
+                  <span style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.6, paddingTop:2 }}>{step}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Embed code */}
+          <div style={{ fontSize:12, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>
+            Your embed code
+          </div>
+          <div style={{ padding:'12px 14px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)', fontFamily:'monospace', fontSize:12, color:'var(--coffee-2)', wordBreak:'break-all', marginBottom:10 }}>
+            {embedCode}
+          </div>
+          <button className="btn btn-primary" onClick={() => copy(embedCode, 'embed')} style={{ width:'100%' }}>
+            {copied === 'embed' ? '✓ Copied!' : 'Copy embed code'}
+          </button>
+
+          <div style={{ marginTop:14, padding:'10px 14px', background:'var(--surface2)', borderRadius:'var(--r)', fontSize:12.5, color:'var(--ink4)' }}>
+            💡 Not sure how to do this? Copy the embed code and send it to whoever built your website — they'll know exactly what to do with it.
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
