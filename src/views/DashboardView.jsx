@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut } from '../lib/supabase.js'
+import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut, getActivityLog } from '../lib/supabase.js'
 import { I, Spinner } from '../components/UI.jsx'
 
 const NAV = [
@@ -23,6 +23,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
   const savedBot = startingBots.find(b => b.id === saved.botId) || startingBots[0] || null
   const [activeBot, setActiveBot] = useState(savedBot)
   const [feedback,  setFeedback]  = useState([])
+  const [activity,  setActivity]  = useState([])
 
 
   useEffect(() => {
@@ -49,8 +50,9 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
       getKnowledgeGaps(activeBot.id),
       getConversations(activeBot.id),
       getFeedback(activeBot.id),
-    ]).then(([s, g, c, fb]) => {
-      setStats(s); setGaps(g); setConvs(c); setFeedback(fb)
+      getActivityLog(activeBot.id),
+    ]).then(([s, g, c, fb, al]) => {
+      setStats(s); setGaps(g); setConvs(c); setFeedback(fb); setActivity(al)
     }).catch(e => {
       console.error(e)
       setLoadError('Could not load dashboard data. Please refresh the page.')
@@ -127,7 +129,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
         </div>
       ) : (
         <>
-          {page === 'dashboard' && <DashPage bot={activeBot} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} />}
+          {page === 'dashboard' && <DashPage bot={activeBot} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} activity={activity} setActivity={setActivity} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} />}
           {page === 'inbox'     && <InboxPage bot={activeBot} gaps={gaps} setGaps={setGaps} />}
           {page === 'feedback'  && <FeedbackAdminPage bot={activeBot} feedback={feedback} setFeedback={setFeedback} />}
           {page === 'insights'  && <InsightsPage bot={activeBot} convs={convs} />}
@@ -139,7 +141,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
 }
 
 // ── Dashboard page ────────────────────────────────────────────────────────────
-function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps }) {
+function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity, setActivity }) {
   const [copied, setCopied] = useState(false)
 
   if (!bot) {
@@ -256,23 +258,35 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps }) {
       {/* ── Bottom: Recent Activity ── */}
       <div className="card">
         <div className="card-head"><div className="card-title">Recent activity</div></div>
-        {convs.length === 0 ? (
+        {activity.length === 0 ? (
           <div className="empty" style={{ padding:'24px 20px' }}>
             <div className="empty-icon">💬</div>
             <div className="empty-title">No activity yet</div>
-            <div className="empty-sub">Share your bot link to start collecting conversations.</div>
+            <div className="empty-sub">Activity will appear here as you and your bot interact.</div>
           </div>
         ) : (
           <div style={{ padding:'8px 0' }}>
-            {convs.slice(0, 8).map((c, i) => {
-              const isLast = i >= Math.min(convs.length-1, 7)
-              const label = c.type === 'feedback' ? 'Feedback received' : c.type === 'internal' ? 'Staff used the bot' : 'Customer asked a question'
-              const dot = c.type === 'feedback' ? '#C89B5A' : c.type === 'internal' ? '#7F9C8B' : '#749CA5'
+            {activity.map((a, i) => {
+              const isLast = i >= activity.length - 1
+              const dots = {
+                answered_question: '#7F9C8B',
+                replied_question:  '#749CA5',
+                kb_updated:        '#C89B5A',
+                bot_created:       '#9AB86C',
+                bot_updated:       '#A28791',
+                new_conversation:  '#749CA5',
+                new_feedback:      '#D98757',
+                knowledge_gap:     '#C98278',
+                bot_previewed:     '#8A8480',
+                kb_milestone:      '#C89B5A',
+                first_conversation:'#7F9C8B',
+              }
+              const dot = dots[a.type] || '#8A8480'
               return (
                 <div key={i} style={{ padding:'10px 20px', display:'flex', alignItems:'center', gap:10, borderBottom: isLast ? 'none' : '1px solid var(--line)' }}>
                   <span style={{ width:7, height:7, borderRadius:'50%', background:dot, flexShrink:0 }} />
-                  <span style={{ fontSize:13.5, color:'var(--ink)', flex:1 }}>{label}</span>
-                  <span style={{ fontSize:12, color:'var(--ink4)' }}>{new Date(c.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}</span>
+                  <span style={{ fontSize:13.5, color:'var(--ink)', flex:1 }}>{a.description}</span>
+                  <span style={{ fontSize:12, color:'var(--ink4)' }}>{new Date(a.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</span>
                 </div>
               )
             })}
@@ -303,6 +317,12 @@ function AttentionRow({ gap, bot, isLast, onAnswered }) {
         resolved_at: new Date().toISOString(),
       }).eq('id', gap.id)
 
+      const { logActivity } = await import('../lib/supabase.js')
+      await logActivity(bot.id, bot.owner_id,
+        isKb ? 'answered_question' : 'replied_question',
+        isKb ? `Answered: "${gap.question.slice(0, 60)}"` : `Replied to: "${gap.question.slice(0, 60)}"`,
+        { question: gap.question, mode }
+      )
       if (isKb) {
         const currentEntries = Array.isArray(bot.knowledge_entries) ? bot.knowledge_entries : []
         const newEntry = {

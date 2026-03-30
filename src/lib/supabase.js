@@ -28,6 +28,32 @@ export async function getSession() {
   return session
 }
 
+// ── Activity log ──────────────────────────────────────────────────────────────
+export async function logActivity(botId, ownerId, type, description, meta = {}) {
+  try {
+    await supabase.from('activity_log').insert({
+      bot_id: botId,
+      owner_id: ownerId,
+      type,
+      description,
+      meta,
+    })
+  } catch(e) {
+    console.error('Activity log error:', e)
+  }
+}
+
+export async function getActivityLog(botId, limit = 20) {
+  const { data, error } = await supabase
+    .from('activity_log')
+    .select('*')
+    .eq('bot_id', botId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  if (error) throw error
+  return data || []
+}
+
 // ── Subscriber helpers ────────────────────────────────────────────────────────
 export async function getSubscriber(userId) {
   const { data, error } = await supabase
