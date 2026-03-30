@@ -106,7 +106,7 @@ export async function getPublishedBot(botId) {
 export async function getBotByOwner(ownerId) {
   const { data, error } = await supabase
     .from('bots')
-    .select('*')
+    .select('id, name, bot_type, primary_color, published, owner_id, feedback_summary, created_at, updated_at')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -118,7 +118,7 @@ export async function getBotByOwner(ownerId) {
 export async function getBotsByOwner(ownerId) {
   const { data, error } = await supabase
     .from('bots')
-    .select('*')
+    .select('id, name, bot_type, primary_color, published, owner_id, feedback_summary, created_at, updated_at')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: true })
   if (error) throw error
