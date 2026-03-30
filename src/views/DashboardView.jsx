@@ -35,7 +35,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
     if (!sub?.id) return
     getBotsByOwner(sub.id).then(bots => {
       setAllBots(bots)
-      localStorage.setItem('lb_bots', JSON.stringify(bots))
+      try { localStorage.setItem('lb_bots', JSON.stringify(bots)) } catch(e) { console.warn('localStorage full') }
       if (!activeBot) {
         const current = bots.find(b => b.id === saved.botId) || bots[0] || null
         setActiveBot(current)
