@@ -605,35 +605,7 @@ Return ONLY valid JSON, no markdown.`,
         </button>
       </div>
 
-      {/* AI Summary */}
-      {summary && (
-        <div className="card mb-16 fade-in">
-          <div className="card-head"><div className="card-title">Feedback summary</div></div>
-          <div className="card-body">
-            <p style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.75, marginBottom:16 }}>{summary.overview}</p>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
-              <div>
-                <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Top themes</div>
-                {summary.topThemes?.map((t, i) => (
-                  <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>• {t}</div>
-                ))}
-              </div>
-              <div>
-                <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Suggestions</div>
-                {summary.suggestions?.map((s, i) => (
-                  <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>💡 {s}</div>
-                ))}
-              </div>
-            </div>
-            {summary.urgent?.length > 0 && (
-              <div style={{ marginTop:12, padding:'10px 14px', background:'var(--warn-bg)', borderRadius:'var(--r)', border:'1px solid rgba(181,99,26,0.2)' }}>
-                <div style={{ fontSize:11, fontWeight:600, color:'var(--warn)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Urgent</div>
-                {summary.urgent.map((u, i) => <div key={i} style={{ fontSize:13, color:'var(--warn)' }}>⚠️ {u}</div>)}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+    
 
       {feedback.length === 0 ? (
         <div className="card">
@@ -644,7 +616,42 @@ Return ONLY valid JSON, no markdown.`,
           </div>
         </div>
       ) : (
-        <div style={{ display:'grid', gridTemplateColumns: selected ? '1fr 420px' : '1fr', gap:14, alignItems:'start' }}>
+        <div style={{ display:'grid', gridTemplateColumns: summary ? '1fr 1fr' : '1fr', gap:14, alignItems:'start' }}>
+          {summary && (
+            <div className="card fade-in" style={{ position:'sticky', top:8 }}>
+              <div className="card-head">
+                <div className="card-title">Feedback summary</div>
+                <button className="btn btn-secondary btn-sm" onClick={generateSummary} disabled={summarising}>
+                  {summarising ? <Spinner size={13} color="var(--ink3)" /> : '↻ Refresh'}
+                </button>
+              </div>
+              <div className="card-body">
+                <p style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.75, marginBottom:16 }}>{summary.overview}</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Top themes</div>
+                    {summary.topThemes?.map((t, i) => (
+                      <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>• {t}</div>
+                    ))}
+                  </div>
+                  <div>
+                    <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:8 }}>Suggestions</div>
+                    {summary.suggestions?.map((s, i) => (
+                      <div key={i} style={{ fontSize:13, color:'var(--ink)', padding:'5px 0', borderBottom:'1px solid var(--line)' }}>💡 {s}</div>
+                    ))}
+                  </div>
+                  {summary.urgent?.length > 0 && (
+                    <div style={{ padding:'10px 14px', background:'var(--warn-bg)', borderRadius:'var(--r)', border:'1px solid rgba(181,99,26,0.2)' }}>
+                      <div style={{ fontSize:11, fontWeight:600, color:'var(--warn)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.08em' }}>Urgent</div>
+                      {summary.urgent.map((u, i) => <div key={i} style={{ fontSize:13, color:'var(--warn)' }}>⚠️ {u}</div>)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          <div style={{ display:'grid', gridTemplateColumns: selected ? '1fr 420px' : '1fr', gap:14, alignItems:'start' }}>
+
           {/* Feedback list */}
           <div className="card">
             <table className="tbl">
@@ -720,12 +727,13 @@ Return ONLY valid JSON, no markdown.`,
               </div>
             </div>
           )}
+       </div>
         </div>
       )}
     </div>
   )
 }
-// ── Insights page ─────────────────────────────────────────────────────────────
+// ── Insights page  ─────────────────────────────────────────────────────────────
 function InsightsPage({ bot, convs }) {
   if (!bot) return <EmptyBot label="Insights" />
 
