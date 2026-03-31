@@ -234,13 +234,17 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
   async function handlePublish() {
     setSaving(true); setError('')
     try {
-      const kbText = buildKbText(bot.knowledge_entries || [], bot.knowledge_text || '')
+      console.log('BOT DATA:', JSON.stringify(bot, null, 2))
       const saved = await saveBot({
-        ...bot, owner_id: sub.id, knowledge_text: kbText,
+        ...bot, owner_id: sub.id,
         published: true, published_at: new Date().toISOString()
       })
+      console.log('SAVED:', saved)
       onDone(saved)
-    } catch (e) { setError(e.message) }
+    } catch (e) { 
+      console.error('PUBLISH ERROR:', e)
+      setError(e.message) 
+    }
     setSaving(false)
   }
 
