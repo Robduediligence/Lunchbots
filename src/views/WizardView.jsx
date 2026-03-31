@@ -223,23 +223,20 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
 
   async function handleSave() {
     try {
-      // Flatten knowledge entries into knowledge_text for the AI
-      const kbText = buildKbText(bot.knowledge_entries || [], bot.knowledge_text || '')
-      const saved = await saveBot({ ...bot, owner_id: sub.id, knowledge_text: kbText })
+      const saved = await saveBot({ ...bot, owner_id: sub.id })
       setBot(p => ({ ...p, id: saved.id }))
-      onDone(saved)
     } catch (e) { setError(e.message) }
   }
 
   async function handlePublish() {
     setSaving(true); setError('')
     try {
-      console.log('BOT DATA:', JSON.stringify(bot, null, 2))
+      
       const saved = await saveBot({
         ...bot, owner_id: sub.id,
         published: true, published_at: new Date().toISOString()
       })
-      console.log('SAVED:', saved)
+      
       onDone(saved)
     } catch (e) { 
       console.error('PUBLISH ERROR:', e)
