@@ -106,7 +106,7 @@ export async function getPublishedBot(botId) {
 export async function getBotByOwner(ownerId) {
   const { data, error } = await supabase
     .from('bots')
-    .select('id, name, bot_type, primary_color, published, owner_id, feedback_summary, created_at, updated_at')
+    .select('*')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -118,7 +118,7 @@ export async function getBotByOwner(ownerId) {
 export async function getBotsByOwner(ownerId) {
   const { data, error } = await supabase
     .from('bots')
-    .select('id, name, bot_type, primary_color, published, owner_id, feedback_summary, created_at, updated_at')
+    .select('*')
     .eq('owner_id', ownerId)
     .order('created_at', { ascending: true })
   if (error) throw error
@@ -414,7 +414,8 @@ ${fullKb.trim() ? `## Your Knowledge Base\nThis is your ONLY source of truth. Al
 - Emoji use: ${bot.emoji_use === 'none' ? 'Use no emojis.' : bot.emoji_use === 'minimal' ? 'Use emojis sparingly.' : 'Use emojis naturally.'}.
 ${bot.strict_kb_only ? '- ONLY answer from your knowledge base. If the answer is not there, say clearly: "I don\'t have that information yet. I\'ve flagged your question for the team."' : ''}
 ${bot.allow_broad_ai ? '- You may draw on general knowledge when the knowledge base does not cover the topic.' : ''}
-- Never fabricate information. If you do not know, say so honestly.
+- Never fabricate information. If the answer is not in your knowledge base and you cannot confidently help, you MUST include the exact token [FALLBACK] at the very start of your response, before any other text. This token will be hidden from the user — it is for internal routing only.
+- If you include [FALLBACK], still give a brief, polite response after it explaining you don't have that information.
 - Stay in character as ${bot.name} at all times.
 
 ## Formatting

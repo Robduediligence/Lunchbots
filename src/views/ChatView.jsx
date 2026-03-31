@@ -140,26 +140,13 @@ function ActiveChat({ bot }) {
       const reply = await callClaude({ system: buildBotSystem(bot), messages: history, userMessage: t, allowWeb: bot.allow_web })
 
       // Detect if it's a fallback
-      const isFallback = reply.includes("don't have that information") || 
-        reply.includes("flagged your question") ||
-        reply.includes("flagged this") ||
-        reply.includes("I don't have") ||
-        reply.includes("I'm not sure") ||
-        reply.includes("I cannot find") ||
-        reply.includes("I can't find") ||
-        reply.includes("don't have enough information") ||
-        reply.includes("haven't been provided") ||
-        reply.includes("not in my knowledge") ||
-        reply.includes("reach out to") ||
-        reply.includes("contact the team") ||
-        reply.includes("I've let the team know") ||
-        reply.includes("notified the team") ||
-        (bot.fallback_message && reply.includes(bot.fallback_message.slice(0, 30)))
+      const isFallback = reply.trimStart().startsWith('[FALLBACK]')
+      const cleanReply = reply.replace('[FALLBACK]', '').trimStart()
 
-      const botMsg = { role:'bot', content:reply, id:(Date.now()+1).toString() }
+      const botMsg = { role:'bot', content:cleanReply, id:(Date.now()+1).toString() }
       setMsgs(p => [...p, botMsg])
-      msgsRef.current = [...msgsRef.current, { role:'bot', content:reply }]
-      if (convId) await addMessage(convId, 'bot', reply, !isFallback).catch(console.error)
+      msgsRef.current = [...msgsRef.current, { role:'bot', content:cleanReply }]
+      if (convId) await addMessage(convId, 'bot', cleanReply, !isFallback).catch(console.error)
 
  // If fallback, create knowledge gap and start polling
       if (isFallback && convId) {
