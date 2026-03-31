@@ -60,7 +60,7 @@ export default function AdminView() {
   return (
     <div className="app">
       <nav className="topnav">
-        <div className="topnav-logo"><div className="topnav-logo-mark">🥪</div>Lunch Bots</div>
+        <div className="topnav-logo"><img src="/Bot_Brunch_Logo.png" alt="Bot Brunch" style={{ height: 40 }} /></div>
         <div className="topnav-pill">
           {['overview','subscribers','bots'].map(t => (
             <button key={t} className={`pill-item ${tab===t?'active':''}`} onClick={() => setTab(t)} style={{ textTransform:'capitalize' }}>{t}</button>

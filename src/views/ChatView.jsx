@@ -264,7 +264,7 @@ function ActiveChat({ bot }) {
       <div style={{ position:'relative', zIndex:1, padding:'6px 16px', textAlign:'center', fontSize:11, color: bgImage?'rgba(255,255,255,0.4)':'var(--ink5)', background: bgImage?'rgba(0,0,0,0.1)':'transparent', flexShrink:0 }}>
         {bot.cta_text && bot.cta_url
           ? <a href={bot.cta_url} target="_blank" rel="noreferrer" style={{ color:primary, textDecoration:'none', fontWeight:500 }}>{bot.cta_text}</a>
-          : 'Powered by Lunch Bots'}
+         : 'Powered by Bot Brunch'}
       </div>
     </div>
   )
@@ -384,7 +384,7 @@ function LandingScreen({ bot, onChat, onFeedback }) {
         <div style={{ fontSize:sz*0.75, color: bgImage?'rgba(255,255,255,0.4)':'var(--ink5)', animation:'fadeUp 0.5s 0.24s cubic-bezier(0.22,1,0.36,1) both' }}>
           {bot.cta_text && bot.cta_url
             ? <a href={bot.cta_url} target="_blank" rel="noreferrer" style={{ color:primary, textDecoration:'none' }}>{bot.cta_text}</a>
-            : 'Powered by Lunch Bots'}
+            : 'Powered by Bot Brunch'}
         </div>
       </div>
     </div>

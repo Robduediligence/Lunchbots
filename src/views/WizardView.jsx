@@ -256,7 +256,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:'var(--surface)', flexShrink:0 }}>
           <div className="flex ic g8">
             <div style={{ fontSize:18 }}>🥪</div>
-            <span className="serif" style={{ fontSize:15, fontWeight:600, color:'var(--coffee-0)' }}>Lunch Bots</span>
+            <img src="/Bot_Brunch_Logo.png" alt="Bot Brunch" style={{ height: 32 }} />
           </div>
           <div className="flex ic g12">
             {/* Step name */}
@@ -378,7 +378,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
                 {['#FF5F57','#FEBC2E','#28C840'].map((c,i) => <div key={i} style={{ width:7, height:7, borderRadius:'50%', background:c }} />)}
               </div>
               <div style={{ flex:1, height:14, background:'white', borderRadius:3, marginLeft:5, display:'flex', alignItems:'center', padding:'0 7px', border:'1px solid rgba(0,0,0,0.07)' }}>
-                <span style={{ fontSize:8, color:'#9A8A7A', fontFamily:'monospace' }}>lunchbots.app/chat</span>
+                <span style={{ fontSize:8, color:'#9A8A7A', fontFamily:'monospace' }}>botbrunch.com/chat</span>
               </div>
             </div>
             {/* Chat at natural size — 340px wide, 500px tall */}
