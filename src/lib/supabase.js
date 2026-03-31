@@ -446,3 +446,68 @@ export function renderMarkdown(text) {
   close()
   return html
 }
+
+// ── Billing helpers ───────────────────────────────────────────────────────────
+export const PLAN_LIMITS = {
+  trial:    { bots: 1,  messages: 500 },
+  solo:     { bots: 1,  messages: 500 },
+  squadron: { bots: 3,  messages: 2000 },
+  fleet:    { bots: 10, messages: 6000 },
+  cancelled:     { bots: 0, messages: 0 },
+  payment_failed: { bots: 0, messages: 0 },
+}
+
+export function getPlanLimits(sub) {
+  return PLAN_LIMITS[sub?.plan] || PLAN_LIMITS.trial
+}
+
+export function isTrialActive(sub) {
+  if (!sub?.trial_ends_at) return true
+  return new Date(sub.trial_ends_at) > new Date()
+}
+
+export function canCreateBot(sub, currentBotCount) {
+  if (isTrialActive(sub)) return true
+  const limits = getPlanLimits(sub)
+  return currentBotCount < limits.bots
+}
+
+export function canSendMessage(sub) {
+  if (isTrialActive(sub)) return true
+  if (!sub?.plan || sub.plan === 'cancelled' || sub.plan === 'payment_failed') return false
+  const limits = getPlanLimits(sub)
+  return (sub.messages_used || 0) < limits.messages
+}
+
+export async function incrementMessageCount(userId) {
+  const { data } = await supabase
+    .from('subscribers')
+    .select('messages_used, messages_reset_at')
+    .eq('id', userId)
+    .single()
+  if (!data) return
+  // Reset counter if new month
+  const resetAt = new Date(data.messages_reset_at)
+  const now = new Date()
+  if (now.getMonth() !== resetAt.getMonth() || now.getFullYear() !== resetAt.getFullYear()) {
+    await supabase.from('subscribers').update({
+      messages_used: 1,
+      messages_reset_at: now.toISOString(),
+    }).eq('id', userId)
+  } else {
+    await supabase.from('subscribers').update({
+      messages_used: (data.messages_used || 0) + 1,
+    }).eq('id', userId)
+  }
+}
+
+export async function startCheckout(plan, userId, email) {
+  const res = await fetch('/api/stripe-checkout', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan, userId, email }),
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Checkout failed')
+  window.location.href = data.url
+}
