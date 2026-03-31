@@ -633,7 +633,59 @@ function StepKnowledge({ bot, f }) {
     setAdding(true)
   }
 
-  const [entryError, setEntryError] = useState('')
+  const [entryError,   setEntryError]   = useState('')
+  const [scraping,     setScraping]     = useState(false)
+  const [scrapeUrl,    setScrapeUrl]    = useState('')
+  const [scrapeLoading,setScrapeLoading]= useState(false)
+  const [scrapeError,  setScrapeError]  = useState('')
+
+  async function handleScrape() {
+    if (!scrapeUrl.trim()) return
+    setScrapeLoading(true)
+    setScrapeError('')
+    try {
+      const res = await fetch('/api/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: scrapeUrl.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Failed to import')
+      if (!data.text || data.text.length < 50) throw new Error('Not enough content found on that page.')
+
+      // Use AI to clean and structure the content
+      const { callClaude } = await import('../lib/supabase.js')
+      const result = await callClaude({
+        system: `You are extracting knowledge base content from a website. 
+Clean the text, remove navigation/footer/cookie notices, and return a JSON array of knowledge entries:
+[{ "title": "concise title", "type": "faq|products|policies|support", "content": "clean content" }]
+Maximum 5 entries. Each entry should be a distinct topic. Return ONLY valid JSON.`,
+        messages: [],
+        userMessage: `Extract knowledge from this website content:\n\n${data.text.slice(0, 8000)}`,
+      })
+
+      const cleaned = result.replace(/```json|```/g, '').trim()
+      const entries = JSON.parse(cleaned)
+
+      const newEntries = entries.map(e => ({
+        id: Date.now().toString() + Math.random(),
+        title: e.title,
+        type: e.type || 'faq',
+        priority: 'primary',
+        content: e.content,
+        enabled: true,
+        source: 'website',
+        created_at: new Date().toISOString(),
+      }))
+
+      f('knowledge_entries', [...(bot.knowledge_entries || []), ...newEntries])
+      setScraping(false)
+      setScrapeUrl('')
+    } catch(e) {
+      setScrapeError(e.message || 'Failed to import. Try a different URL.')
+    }
+    setScrapeLoading(false)
+  }
 
 function saveEntry() {
     if (!form.content.trim()) { setEntryError('Please add some content for this entry.'); return }
@@ -790,7 +842,8 @@ function saveEntry() {
           </div>
         </div>
       ) : (
-        <div style={{ display:'flex', gap:8, marginBottom:16 }}>
+        <>
+        <div style={{ display:'flex', gap:8, marginBottom:16, flexWrap:'wrap' }}>
           <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>
             <I.Plus width={13} height={13} /> Add entry
           </button>
@@ -798,7 +851,31 @@ function saveEntry() {
           <button className="btn btn-secondary btn-sm" onClick={() => fileRef.current?.click()}>
             ↑ Upload file <span style={{ fontSize:11, color:'var(--ink4)' }}>(PDF, Word, TXT)</span>
           </button>
+          <button className="btn btn-secondary btn-sm" onClick={() => setScraping(true)}>
+            🌐 Import from website
+          </button>
         </div>
+
+        {scraping && (
+          <div style={{ border:'1px solid var(--line)', borderRadius:'var(--r-md)', padding:'18px', background:'var(--surface)', marginBottom:16 }}>
+            <div style={{ fontFamily:'var(--font-display)', fontSize:14, fontWeight:600, color:'var(--coffee-0)', marginBottom:10 }}>
+              Import from website
+            </div>
+            <div style={{ fontSize:13, color:'var(--ink3)', marginBottom:12, lineHeight:1.6 }}>
+              Paste your website URL and we'll automatically pull the content into your knowledge base.
+            </div>
+            <div className="flex ic g8 mb-12">
+              <input className="input input-sm" style={{ flex:1 }} placeholder="https://yourwebsite.com" value={scrapeUrl} onChange={e => setScrapeUrl(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleScrape()} />
+              <button className="btn btn-primary btn-sm" onClick={handleScrape} disabled={!scrapeUrl.trim() || scrapeLoading}>
+                {scrapeLoading ? '⟳ Importing…' : 'Import'}
+              </button>
+            </div>
+            {scrapeError && <div className="alert alert-error mb-8" style={{ fontSize:12.5 }}>{scrapeError}</div>}
+            <button className="btn btn-ghost btn-sm" onClick={() => { setScraping(false); setScrapeUrl(''); setScrapeError('') }}>Cancel</button>
+          </div>
+        )}
+        </>
       )}
 
       {entries.length === 0 && !adding && (
