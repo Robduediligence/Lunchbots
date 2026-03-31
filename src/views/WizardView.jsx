@@ -659,13 +659,20 @@ function StepKnowledge({ bot, f }) {
 
       // Use AI to clean and structure the content
       const { callClaude } = await import('../lib/supabase.js')
+      const existingTitles = (bot.knowledge_entries || []).map(e => e.title).join(', ')
+      const existingContent = (bot.knowledge_entries || []).map(e => `${e.title}: ${e.content.slice(0, 200)}`).join('\n')
       const result = await callClaude({
-        system: `You are extracting knowledge base content from a website. 
+        system: `You are extracting knowledge base content from a website.
 Clean the text, remove navigation/footer/cookie notices, and return a JSON array of knowledge entries:
 [{ "title": "concise title", "type": "faq|products|policies|support", "content": "clean content" }]
-Maximum 5 entries. Each entry should be a distinct topic. Return ONLY valid JSON.`,
+Create as many entries as needed to capture all distinct topics on the page.
+Do NOT duplicate topics already in the knowledge base unless the context is meaningfully different.
+Return ONLY valid JSON.`,
         messages: [],
-        userMessage: `Extract knowledge from this website content:\n\n${data.text.slice(0, 8000)}`,
+        userMessage: `Extract knowledge from this website content:\n\n${data.text.slice(0, 8000)}
+
+Existing knowledge base entries (do not duplicate these unless context differs):
+${existingContent || 'None yet'}`,
       })
 
       const cleaned = result.replace(/```json|```/g, '').trim()
