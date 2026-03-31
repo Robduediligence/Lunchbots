@@ -70,13 +70,14 @@ export default function App() {
   async function handleWizardDone(savedBot) {
     setBot(savedBot)
     setEditing(false)
-    // Update localStorage cache so dashboard shows fresh data
+    // Update localStorage cache and initialBots so dashboard shows fresh data instantly
     try {
       const cached = JSON.parse(localStorage.getItem('lb_bots') || '[]')
       const updated = cached.some(b => b.id === savedBot.id)
         ? cached.map(b => b.id === savedBot.id ? savedBot : b)
         : [...cached, savedBot]
       localStorage.setItem('lb_bots', JSON.stringify(updated))
+      setBots(updated)
     } catch(e) {}
     setRoute('dashboard')
   }
