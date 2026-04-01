@@ -18,9 +18,10 @@ export default function App() {
     const params = new URLSearchParams(window.location.search)
     const botId  = params.get('bot')
     const mode   = params.get('mode')
-    if (mode === 'admin') { setRoute('admin'); return }
+    
+if (mode === 'admin') { setRoute('admin'); return }
     if (botId)            { setRoute({ type:'chat', botId }); return }
-
+    if (params.get('signup') === 'true') { setRoute('auth'); return }
     // Wake up Supabase immediately in background
     supabase.from('bots').select('id').limit(1).then(() => {})
 
@@ -57,6 +58,11 @@ export default function App() {
     setBot(b)
     setBots(allBots)
     setRoute('dashboard')
+    const plan = new URLSearchParams(window.location.search).get('plan')
+    if (plan) {
+      const { startCheckout } = await import('./lib/supabase.js')
+      startCheckout(plan)
+    }
   }
 
   async function handleLogout() {
