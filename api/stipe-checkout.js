@@ -20,8 +20,8 @@ export default async function handler(req, res) {
       payment_method_types: ['card'],
       customer_email: email,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `https://botbrunch.com?checkout=success`,
-      cancel_url: `https://botbrunch.com?checkout=cancelled`,
+      success_url: `https://botbrunch.com/dashboard?checkout=success`,
+      cancel_url: `https://botbrunch.com/dashboard?checkout=cancelled`,
       metadata: { userId, plan },
       subscription_data: { metadata: { userId, plan } },
     })
