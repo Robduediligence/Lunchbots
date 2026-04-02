@@ -1,7 +1,11 @@
 {
-  "rewrites": [
-    { "source": "/dashboard", "destination": "/index.html" },
-    { "source": "/dashboard/(.*)", "destination": "/index.html" },
-    { "source": "/", "destination": "/api/root" }
+  "routes": [
+    { "src": "/dashboard", "dest": "/index.html" },
+    { "src": "/dashboard/(.*)", "dest": "/index.html" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*\\.(js|css|png|jpg|svg|ico|woff|woff2|ttf))", "dest": "/$1" },
+    { "src": "/", "dest": "/api/root" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
