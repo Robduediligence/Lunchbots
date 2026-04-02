@@ -6,7 +6,6 @@ export default defineConfig({
   publicDir: 'public',
   build: {
     rollupOptions: {
-      input: 'app.html',
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
