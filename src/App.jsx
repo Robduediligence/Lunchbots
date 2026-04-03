@@ -61,7 +61,7 @@ if (mode === 'admin') { setRoute('admin'); return }
     const plan = new URLSearchParams(window.location.search).get('plan')
     if (plan) {
       const { startCheckout } = await import('./lib/supabase.js')
-      startCheckout(plan)
+      startCheckout(plan, user.id, user.email)
     }
   }
 
