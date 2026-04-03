@@ -141,7 +141,7 @@ function ActiveChat({ bot }) {
 
       // Detect if it's a fallback
       const isFallback = reply.trimStart().startsWith('[FALLBACK]')
-      const cleanReply = reply.replace('[FALLBACK]', '').trimStart()
+      const cleanReply = reply.replace(/\[FALLBACK\]/g, '').trimStart()
 
       const botMsg = { role:'bot', content:cleanReply, id:(Date.now()+1).toString() }
       setMsgs(p => [...p, botMsg])

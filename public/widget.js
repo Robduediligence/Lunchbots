@@ -76,7 +76,7 @@
 
   const frame = document.createElement('iframe')
   frame.id = 'bb-widget-frame'
-  frame.src = `${BASE}?bot=${botId}&widget=true`
+  frame.src = `${BASE}/dashboard?bot=${botId}&widget=true`
   frame.allow = 'microphone'
   document.body.appendChild(frame)
 
