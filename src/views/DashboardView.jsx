@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut, getActivityLog } from '../lib/supabase.js'
+import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut, getActivityLog, getPlanLimits } from '../lib/supabase.js'
 import { I, Spinner } from '../components/UI.jsx'
 
 const NAV = [
@@ -110,7 +110,14 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
               {b.bot_type === 'internal' ? '🔒' : '🌐'} {b.name || 'Unnamed bot'}
             </button>
           ))}
-          <button onClick={() => onEditBot(null)}
+          <button onClick={() => {
+  const limits = getPlanLimits(sub)
+  if (allBots.length >= limits.bots) {
+    alert(`Your ${sub?.plan || 'trial'} plan allows ${limits.bots} bot${limits.bots === 1 ? '' : 's'}. Upgrade to add more.`)
+    return
+  }
+  onEditBot(null)
+}}
             style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20, border:'1.5px dashed var(--line)', background:'transparent', color:'var(--ink4)', fontSize:12, cursor:'pointer', marginLeft:4 }}>
             + New bot
           </button>
@@ -131,7 +138,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
         </div>
       ) : (
         <>
-          {page === 'dashboard' && <DashPage bot={activeBot} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} activity={activity} setActivity={setActivity} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} />}
+          {page === 'dashboard' && <DashPage bot={activeBot} sub={sub} allBots={allBots} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} activity={activity} setActivity={setActivity} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} onNewBot={() => onEditBot(null)} />}
           {page === 'inbox'     && <InboxPage bot={activeBot} gaps={gaps} setGaps={setGaps} />}
           {page === 'feedback'  && <FeedbackAdminPage bot={activeBot} feedback={feedback} setFeedback={setFeedback} />}
           {page === 'insights'  && <InsightsPage bot={activeBot} convs={convs} />}
@@ -144,7 +151,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
 }
 
 // ── Dashboard page ────────────────────────────────────────────────────────────
-function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity, setActivity }) {
+function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onNewBot, setGaps, activity, setActivity }) {
   const [copied, setCopied] = useState(false)
 
   if (!bot) {
@@ -154,7 +161,7 @@ function DashPage({ bot, stats, convs, gaps, shareUrl, onEdit, setGaps, activity
         <p style={{ fontSize: 13.5, color: 'var(--ink3)', textAlign: 'center', maxWidth: 340, lineHeight: 1.7 }}>
           Turn your knowledge into a branded AI assistant in about 5 minutes.
         </p>
-        <button className="btn btn-accent btn-lg" onClick={onEdit}>
+        <button className="btn btn-accent btn-lg" onClick={onNewBot}>
           <I.Rocket /> Launch setup →
         </button>
       </div>
