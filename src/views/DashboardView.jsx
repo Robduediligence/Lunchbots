@@ -68,10 +68,10 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
       {/* Top nav pill */}
       <div>
       <nav className="topnav">
-        <div className="topnav-logo">
-          <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" />
-        </div>
         <div className="topnav-bottom-row">
+          <div className="topnav-logo">
+            <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" />
+          </div>
           <div className="topnav-pill" id="main-nav-pill">
             {NAV.map(({ id, label, Icon }) => {
               let count = null

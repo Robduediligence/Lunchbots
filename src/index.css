@@ -1189,3 +1189,25 @@ input:focus, textarea:focus, select:focus {
 input::placeholder, textarea::placeholder {
   color: #4a4a6a !important;
 }
+.topnav {
+  flex-direction: row !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  gap: 24px !important;
+  padding: 8px 24px !important;
+}
+
+.topnav-logo {
+  margin-bottom: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.topnav-logo img {
+  height: 80px !important;
+}
+
+.topnav-bottom-row {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+}
