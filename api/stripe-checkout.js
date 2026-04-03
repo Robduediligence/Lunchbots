@@ -3,9 +3,9 @@ import Stripe from 'stripe'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
 const PRICE_IDS = {
-  solo:     'price_1THBXHL44h2epxDziROsvCIj',
-  squadron: 'price_1THBXGL44h2epxDzeyQ0RmKa',
-  fleet:    'price_1THBXGL44h2epxDzlHKCNwvy',
+  solo:     'price_1THvx0L44h2epxDzfqMJhpEy',
+  squadron: 'price_1THvyTL44h2epxDznvXKqMNk',
+  fleet:    'price_1THvzDL44h2epxDzUQwdMF9U',
 }
 
 export default async function handler(req, res) {
