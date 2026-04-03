@@ -21,7 +21,11 @@ export default function App() {
     
 if (mode === 'admin') { setRoute('admin'); return }
     if (botId)            { setRoute({ type:'chat', botId }); return }
-    if (params.get('signup') === 'true') { setRoute('auth'); return }
+    if (params.get('signup') === 'true') {
+  if (params.get('plan')) localStorage.setItem('bb_pending_plan', params.get('plan'))
+  setRoute('auth')
+  return
+}
     // Wake up Supabase immediately in background
     supabase.from('bots').select('id').limit(1).then(() => {})
 
@@ -59,9 +63,11 @@ if (mode === 'admin') { setRoute('admin'); return }
     setBots(allBots)
     setRoute('dashboard')
     const plan = new URLSearchParams(window.location.search).get('plan')
-    if (plan) {
+    const savedPlan = plan || localStorage.getItem('bb_pending_plan')
+    if (savedPlan) {
+      localStorage.removeItem('bb_pending_plan')
       const { startCheckout } = await import('./lib/supabase.js')
-      startCheckout(plan, user.id, user.email)
+      startCheckout(savedPlan, user.id, user.email)
     }
   }
 

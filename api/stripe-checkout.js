@@ -23,7 +23,10 @@ export default async function handler(req, res) {
       success_url: `https://botbrunch.com/dashboard?checkout=success`,
       cancel_url: `https://botbrunch.com/dashboard?checkout=cancelled`,
       metadata: { userId, plan },
-      subscription_data: { metadata: { userId, plan } },
+      subscription_data: { 
+        metadata: { userId, plan },
+        trial_period_days: 14,
+      },
     })
     res.status(200).json({ url: session.url })
   } catch(e) {
