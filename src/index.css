@@ -822,3 +822,370 @@ input[type='range']::-moz-range-thumb {
   backdrop-filter: blur(12px);
   border: 1px solid var(--line);
 }
+/* ═══════════════════════════════════════════════════════════════════
+   BOT BRUNCH DASHBOARD — PIXEL ART DARK THEME
+   Drop these changes into src/index.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── FONT ── Add this at the very top of index.css, before @import */
+@font-face {
+  font-family: 'LLPixel';
+  src: url('/fonts/LLPIXEL3.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ── REPLACE existing @import with this ── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+/* ── REPLACE entire :root {} block ── */
+:root {
+  /* Landing page exact colours */
+  --black:      #09090e;
+  --black2:     #0f0f18;
+  --black3:     #161622;
+  --purple:     #7c3aed;
+  --purple2:    #9d5cf6;
+  --purple3:    #c4b5fd;
+  --purple-dim: #2d1b69;
+  --amber:      #f59e0b;
+  --amber2:     #fbbf24;
+  --amber-dim:  rgba(245,158,11,0.15);
+  --white:      #f0f0ff;
+  --white2:     #c0c0d8;
+  --white3:     #7878a0;
+  --green:      #39ff14;
+
+  /* Mapped to dashboard vars so components still work */
+  --espresso:   #f59e0b;
+  --gold:       #f59e0b;
+  --sage:       #39ff14;
+
+  --parch-0:    #f0f0ff;
+  --parch-1:    #09090e;
+  --parch-2:    #0f0f18;
+  --parch-3:    #161622;
+  --parch-4:    #f59e0b;
+
+  --coffee-0:   #f59e0b;
+  --coffee-1:   #f59e0b;
+  --coffee-2:   #d97706;
+  --coffee-3:   #7c3aed;
+  --coffee-4:   #9d5cf6;
+  --coffee-5:   #2d1b69;
+
+  --ink:        #f0f0ff;
+  --ink2:       #c0c0d8;
+  --ink3:       #7878a0;
+  --ink4:       #4a4a6a;
+  --ink5:       #2a2a4a;
+
+  --accent:     #f59e0b;
+  --accent2:    #7c3aed;
+  --accent-bg:  rgba(245,158,11,0.1);
+
+  --success:    #39ff14;
+  --success-bg: rgba(57,255,20,0.08);
+  --warn:       #f59e0b;
+  --warn-bg:    rgba(245,158,11,0.1);
+  --danger:     #ef4444;
+  --danger-bg:  rgba(239,68,68,0.1);
+
+  --surface:    #0f0f18;
+  --surface2:   #09090e;
+  --surface3:   #161622;
+  --line:       rgba(124,58,237,0.18);
+  --line2:      rgba(245,158,11,0.15);
+
+  --font-display: 'LLPixel', monospace;
+  --font-body:    'DM Mono', monospace;
+  --font-serif:   'Playfair Display', Georgia, serif;
+
+  /* Pixel-sharp radii */
+  --r-xs: 0px;
+  --r-sm: 0px;
+  --r:    2px;
+  --r-md: 2px;
+  --r-lg: 4px;
+  --r-xl: 4px;
+  --r-2xl:6px;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.6);
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,58,237,0.1);
+  --shadow:    0 4px 12px rgba(0,0,0,0.8), 0 0 0 1px rgba(124,58,237,0.15);
+  --shadow-md: 0 8px 20px rgba(0,0,0,0.8), 0 0 20px rgba(245,158,11,0.05);
+  --shadow-lg: 0 16px 32px rgba(0,0,0,0.9), 0 0 40px rgba(124,58,237,0.08);
+  --shadow-xl: 0 24px 48px rgba(0,0,0,0.95), 0 0 60px rgba(124,58,237,0.1);
+}
+
+/* ── REPLACE body block ── */
+body {
+  background-color: #09090e;
+  color: #c0c0d8;
+  font-family: 'DM Mono', monospace;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  font-size: 13px;
+}
+
+/* ── REPLACE body::before (remove parchment texture, add pixel grid) ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.03;
+  background-image:
+    linear-gradient(rgba(124,58,237,0.5) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,0.5) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ── TOPNAV ── */
+.topnav {
+  background: rgba(9,9,14,0.95);
+  border-bottom: 1px solid rgba(124,58,237,0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 28px 10px;
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topnav-logo img {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.topnav-logo {
+  margin-bottom: 0;
+}
+
+/* ── PILL NAV ── */
+.topnav-pill {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(15,15,24,0.8);
+  border: 1px solid rgba(124,58,237,0.25);
+  border-radius: 4px;
+  padding: 3px;
+}
+
+.pill-item {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 2px;
+  border: none;
+  background: transparent;
+  color: #7878a0;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.pill-item:hover {
+  color: #c0c0d8;
+  background: rgba(124,58,237,0.1);
+}
+
+.pill-item.active {
+  background: #f59e0b;
+  color: #09090e;
+  font-weight: 500;
+  box-shadow: 0 0 20px rgba(245,158,11,0.3);
+}
+
+/* ── BOT SWITCHER ── */
+.bot-switcher {
+  background: rgba(9,9,14,0.6);
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+  padding: 8px 20px !important;
+  margin-top: 0 !important;
+}
+
+/* ── CARDS ── */
+.card {
+  background: #0f0f18 !important;
+  border: 1px solid rgba(124,58,237,0.2) !important;
+  border-radius: 4px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  position: relative;
+}
+
+.card::before {
+  display: none;
+}
+
+.card:nth-child(1),
+.card:nth-child(2),
+.card:nth-child(3),
+.card:nth-child(4),
+.card:nth-child(5),
+.card:nth-child(6),
+.card:nth-child(7),
+.card:nth-child(8) {
+  background: #0f0f18 !important;
+}
+
+.card-head {
+  background: rgba(124,58,237,0.08) !important;
+  border-bottom: 1px solid rgba(124,58,237,0.2) !important;
+}
+
+.card-title {
+  font-family: 'LLPixel', monospace !important;
+  color: #f59e0b !important;
+  font-size: 13px !important;
+  letter-spacing: 2px;
+}
+
+/* ── STAT CARDS ── */
+.stat-card {
+  background: #0f0f18 !important;
+  border: 1px solid rgba(124,58,237,0.2) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5) !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+
+.stat-card:hover {
+  border-color: rgba(245,158,11,0.4) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.6), 0 0 20px rgba(245,158,11,0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+.stat-card::after {
+  display: none;
+}
+
+.stat-label {
+  color: #7878a0 !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 2px !important;
+}
+
+.stat-num {
+  font-family: 'LLPixel', monospace !important;
+  color: #f59e0b !important;
+  font-size: 2rem !important;
+  text-shadow: 0 0 20px rgba(245,158,11,0.4) !important;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  font-family: 'DM Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  border-radius: 2px !important;
+  transition: all 0.15s !important;
+}
+
+.btn-primary, .btn-accent {
+  background: #f59e0b !important;
+  color: #09090e !important;
+  border: 1px solid #f59e0b !important;
+  font-weight: 500 !important;
+}
+
+.btn-primary:hover, .btn-accent:hover {
+  background: #fbbf24 !important;
+  box-shadow: 0 0 20px rgba(245,158,11,0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-secondary {
+  background: transparent !important;
+  color: #7878a0 !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.btn-secondary:hover {
+  border-color: #9d5cf6 !important;
+  color: #c4b5fd !important;
+  background: rgba(124,58,237,0.08) !important;
+}
+
+/* ── PAGE TITLES ── */
+.page-title {
+  font-family: 'LLPixel', monospace !important;
+  color: #f59e0b !important;
+  font-size: 1.4rem !important;
+  letter-spacing: 3px !important;
+  text-shadow: 0 0 30px rgba(245,158,11,0.3) !important;
+}
+
+.page-sub {
+  color: #7878a0 !important;
+  font-family: 'DM Mono', monospace !important;
+}
+
+/* ── TABLE ── */
+.tbl th {
+  color: #7878a0 !important;
+  border-bottom: 1px solid rgba(124,58,237,0.2) !important;
+  font-family: 'DM Mono', monospace !important;
+  letter-spacing: 2px !important;
+}
+
+.tbl td {
+  border-bottom: 1px solid rgba(124,58,237,0.08) !important;
+  color: #c0c0d8 !important;
+}
+
+.tbl tbody tr:hover td {
+  background: rgba(124,58,237,0.06) !important;
+}
+
+/* ── BADGES ── */
+.badge-green {
+  background: rgba(57,255,20,0.1) !important;
+  color: #39ff14 !important;
+  border: 1px solid rgba(57,255,20,0.2) !important;
+  font-family: 'DM Mono', monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #09090e; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.4); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+
+/* ── SELECTION ── */
+::selection { background: rgba(245,158,11,0.3); color: #f0f0ff; }
+
+/* ── FORM INPUTS ── */
+input, textarea, select {
+  background: #09090e !important;
+  border: 1px solid rgba(124,58,237,0.25) !important;
+  color: #c0c0d8 !important;
+  border-radius: 2px !important;
+  font-family: 'DM Mono', monospace !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #f59e0b !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(245,158,11,0.1) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #4a4a6a !important;
+}

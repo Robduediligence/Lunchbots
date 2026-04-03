@@ -69,7 +69,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
       <div>
       <nav className="topnav">
         <div className="topnav-logo">
-          <img src="/Bot_Brunch_Logo.png" alt="Bot Brunch" />
+          <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" />
         </div>
         <div className="topnav-bottom-row">
           <div className="topnav-pill" id="main-nav-pill">
