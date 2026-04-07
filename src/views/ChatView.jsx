@@ -189,7 +189,7 @@ function ActiveChat({ bot }) {
           {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color:'var(--ink)', lineHeight:1.2 }}>{bot.name}</div>
+          <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color:'#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
           {bot.descriptor && <div style={{ fontSize:sz*0.78, color:'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
           <div style={{ fontSize:sz*0.75, color:'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
             <span style={{ width:5, height:5, borderRadius:'50%', background:'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
@@ -225,7 +225,7 @@ function ActiveChat({ bot }) {
               style={{
                 padding:'10px 14px', fontFamily:font, fontSize:sz*0.92, lineHeight:1.65,
                 borderRadius: m.role==='bot' ? `3px ${rr} ${rr} ${rr}` : `${rr} 3px ${rr} ${rr}`,
-                ...(m.role==='user' ? userBubble : { background: bgImage?'rgba(255,255,255,0.93)':'white', border:'1px solid rgba(0,0,0,0.07)', color:'var(--ink)', boxShadow:'var(--shadow-xs)' }),
+                ...(m.role==='user' ? userBubble : { background: bgImage?'rgba(255,255,255,0.93)':'white', border:'1px solid rgba(0,0,0,0.07)', color:'#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
               }}
               dangerouslySetInnerHTML={m.role==='bot' ? { __html:renderMarkdown(m.content) } : undefined}
             >{m.role==='user' ? m.content : undefined}</div>
@@ -254,7 +254,7 @@ function ActiveChat({ bot }) {
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
         <textarea ref={inputRef}
-          style={{ flex:1, background: bgImage?'rgba(255,255,255,0.9)':'var(--surface2)', border:'1px solid rgba(0,0,0,0.08)', color:'var(--ink)', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
+          style={{ flex:1, background: bgImage?'rgba(255,255,255,0.9)':'var(--surface2)', border:'1px solid rgba(0,0,0,0.08)', color:'#2F2F2F', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
           placeholder="Send a message…"
           value={input} rows={1}
           onChange={e => setInput(e.target.value.slice(0, 2000))}
