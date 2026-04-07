@@ -1211,3 +1211,35 @@ input::placeholder, textarea::placeholder {
   align-items: center !important;
   width: 100% !important;
 }
+
+/* ── WIDGET CHAT RESET — restores light theme for embedded widget ── */
+body.widget-mode,
+body.widget-mode input,
+body.widget-mode textarea,
+body.widget-mode select,
+body.widget-mode button {
+  font-family: 'Inter', system-ui, sans-serif !important;
+  color: #2F2F2F !important;
+}
+
+body.widget-mode {
+  background: transparent !important;
+  color: #2F2F2F !important;
+  --ink: #2F2F2F !important;
+  --ink2: #2F2F2F !important;
+  --ink3: #7A7A7A !important;
+  --ink4: #7A7A7A !important;
+  --surface: #FFFFFF !important;
+  --surface2: #FBF7EF !important;
+  --parch-1: #F6F1E7 !important;
+  --line: #E6DFD4 !important;
+  --coffee-0: #3B2B23 !important;
+  --font-body: 'Inter', system-ui, sans-serif !important;
+  --black: #2F2F2F !important;
+  --white: #2F2F2F !important;
+  --white2: #2F2F2F !important;
+}
+
+body.widget-mode body::before {
+  display: none !important;
+}

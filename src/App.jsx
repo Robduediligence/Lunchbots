@@ -20,7 +20,11 @@ export default function App() {
     const mode   = params.get('mode')
     
 if (mode === 'admin') { setRoute('admin'); return }
-    if (botId)            { setRoute({ type:'chat', botId }); return }
+    if (botId) {
+      document.body.classList.add('widget-mode')
+      setRoute({ type:'chat', botId })
+      return
+    }
     if (params.get('signup') === 'true') {
   if (params.get('plan')) localStorage.setItem('bb_pending_plan', params.get('plan'))
   setRoute('auth')

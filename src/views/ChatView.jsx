@@ -142,7 +142,7 @@ function ActiveChat({ bot }) {
       const reply = await callClaude({ system: buildBotSystem(bot), messages: history, userMessage: t, allowWeb: bot.allow_web })
 
       // Detect if it's a fallback
-      const isFallback = reply.trimStart().startsWith('[FALLBACK]')
+      const isFallback = reply.includes('[FALLBACK]')
       const cleanReply = reply.replace(/\[FALLBACK\]/g, '').trimStart()
 
       const botMsg = { role:'bot', content:cleanReply, id:(Date.now()+1).toString() }
@@ -151,11 +151,14 @@ function ActiveChat({ bot }) {
       if (convId) await addMessage(convId, 'bot', cleanReply, !isFallback).catch(console.error)
 
  // If fallback, create knowledge gap and start polling
-      if (isFallback && convId) {
-        const gap = await createKnowledgeGap(bot.id, convId, t).catch(console.error)
-        if (gap) {
-          setPendingGap(gap.id)
-          setMsgs(p => [...p, { role:'bot', content:'⏳ I\'ve flagged this for the team. I\'ll let you know as soon as they respond — usually within a few hours.', id:'waiting', isWaiting:true }])
+      if (isFallback) {
+        const activeConvId = convId || await createConversation(bot.id, sessionId).then(c => { setConvId(c.id); return c.id }).catch(() => null)
+        if (activeConvId) {
+          const gap = await createKnowledgeGap(bot.id, activeConvId, t).catch(console.error)
+          if (gap) {
+            setPendingGap(gap.id)
+            setMsgs(p => [...p, { role:'bot', content:'⏳ I\'ve flagged this for the team. I\'ll let you know as soon as they respond — usually within a few hours.', id:'waiting', isWaiting:true }])
+          }
         }
       }
     } catch {
