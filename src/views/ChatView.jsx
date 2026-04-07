@@ -127,6 +127,11 @@ function ActiveChat({ bot }) {
     const { sanitiseMessage } = await import('../lib/supabase.js')
     const t = sanitiseMessage((text || input).trim())
     if (!t || thinking) return
+    // Ensure conversation exists before proceeding
+    if (!convId) {
+      const newConv = await createConversation(bot.id, sessionId).catch(() => null)
+      if (newConv) setConvId(newConv.id)
+    }
     setInput('')
     inputRef.current?.focus()
 
