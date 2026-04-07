@@ -168,13 +168,22 @@ function ActiveChat({ bot }) {
 
  // If fallback, create knowledge gap and start polling
       if (isFallback) {
-        const activeConvId = convId || await createConversation(bot.id, sessionId).then(c => { setConvId(c.id); return c.id }).catch(() => null)
+        const activeConvId = convId || await fetch('/api/create-conversation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ botId: bot.id, sessionId })
+        }).then(r => r.json()).then(c => { if (c.id) { setConvId(c.id); return c.id } }).catch(() => null)
+        console.log('activeConvId:', activeConvId)
         if (activeConvId) {
-          const gap = await fetch('/api/create-gap', {
+          console.log('Creating gap with convId:', activeConvId)
+          const gapRes = await fetch('/api/create-gap', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ botId: bot.id, conversationId: activeConvId, question: t })
-          }).then(r => r.json()).catch(console.error)
+          })
+          console.log('Gap response status:', gapRes.status)
+          const gap = await gapRes.json().catch(console.error)
+          console.log('Gap result:', gap)
           if (gap) {
             setPendingGap(gap.id)
             setMsgs(p => [...p, { role:'bot', content:'⏳ I\'ve flagged this for the team. I\'ll let you know as soon as they respond — usually within a few hours.', id:'waiting', isWaiting:true }])
