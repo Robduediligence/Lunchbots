@@ -115,6 +115,8 @@ function ActiveChat({ bot }) {
     const greeting = bot.greeting || `Hi! I'm ${bot.name}. How can I help you today?`
     setMsgs([{ role:'bot', content:greeting, id:'greeting' }])
     msgsRef.current = []
+    setConvId(null)
+    setPendingGap(null)
     // Create conversation record
     createConversation(bot.id, sessionId).then(c => setConvId(c.id)).catch(console.error)
   }, [bot.id])

@@ -719,7 +719,15 @@ function saveEntry() {
     aiClassifyEntry(entry, bot, f, editIdx !== null ? editIdx : (entries.length))
   }
 
-  function removeEntry(idx) { f('knowledge_entries', entries.filter((_,i) => i !== idx)) }
+  async function removeEntry(idx) {
+  const updated = entries.filter((_,i) => i !== idx)
+  f('knowledge_entries', updated)
+  // Immediately save to Supabase so deleted entries don't linger
+  try {
+    const { supabase } = await import('../lib/supabase.js')
+    await supabase.from('bots').update({ knowledge_entries: updated }).eq('id', bot.id)
+  } catch(e) { console.error('Failed to delete entry:', e) }
+}
   function toggleEntry(idx) {
     const updated = [...entries]; updated[idx] = { ...updated[idx], enabled: updated[idx].enabled === false ? true : false }
     f('knowledge_entries', updated)
