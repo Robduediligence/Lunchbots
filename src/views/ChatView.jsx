@@ -142,7 +142,11 @@ function ActiveChat({ bot }) {
     const userMsg = { role:'user', content:t, id:Date.now().toString() }
     setMsgs(p => [...p, userMsg])
     msgsRef.current = [...msgsRef.current, { role:'user', content:t }]
-    if (convId) await addMessage(convId, 'user', t).catch(console.error)
+    if (convId) await fetch('/api/add-message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conversationId: convId, role: 'user', content: t })
+    }).catch(console.error)
     setThinking(true)
 
     const history = msgsRef.current.slice(0,-1).map(m => ({ role: m.role==='bot'?'assistant':'user', content:m.content }))
@@ -160,7 +164,11 @@ function ActiveChat({ bot }) {
       const botMsg = { role:'bot', content:cleanReply, id:(Date.now()+1).toString() }
       setMsgs(p => [...p, botMsg])
       msgsRef.current = [...msgsRef.current, { role:'bot', content:cleanReply }]
-      if (convId) await addMessage(convId, 'bot', cleanReply, !isFallback).catch(console.error)
+      if (convId) await fetch('/api/add-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: convId, role: 'bot', content: cleanReply, answered: !isFallback })
+      }).catch(console.error)
 
  // If fallback, create knowledge gap and start polling
       if (isFallback) {
