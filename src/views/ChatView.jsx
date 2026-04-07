@@ -162,7 +162,11 @@ function ActiveChat({ bot }) {
       if (isFallback) {
         const activeConvId = convId || await createConversation(bot.id, sessionId).then(c => { setConvId(c.id); return c.id }).catch(() => null)
         if (activeConvId) {
-          const gap = await createKnowledgeGap(bot.id, activeConvId, t).catch(console.error)
+          const gap = await fetch('/api/create-gap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ botId: bot.id, conversationId: activeConvId, question: t })
+          }).then(r => r.json()).catch(console.error)
           if (gap) {
             setPendingGap(gap.id)
             setMsgs(p => [...p, { role:'bot', content:'⏳ I\'ve flagged this for the team. I\'ll let you know as soon as they respond — usually within a few hours.', id:'waiting', isWaiting:true }])
