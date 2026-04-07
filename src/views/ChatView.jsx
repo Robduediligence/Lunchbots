@@ -73,12 +73,8 @@ function ActiveChat({ bot }) {
     if (!pendingGap) return
     pollRef.current = setInterval(async () => {
       try {
-        const { supabase } = await import('../lib/supabase.js')
-        const { data } = await supabase
-          .from('knowledge_gaps')
-          .select('admin_answer, resolved')
-          .eq('id', pendingGap)
-          .single()
+        const data = await fetch(`/api/check-gap?id=${pendingGap}`)
+          .then(r => r.json()).catch(() => null)
         if (data?.resolved && data?.admin_answer) {
           clearInterval(pollRef.current)
           setPendingGap(null)
