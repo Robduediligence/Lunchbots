@@ -118,7 +118,11 @@ function ActiveChat({ bot }) {
     setConvId(null)
     setPendingGap(null)
     // Create conversation record
-    createConversation(bot.id, sessionId).then(c => setConvId(c.id)).catch(console.error)
+    fetch('/api/create-conversation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ botId: bot.id, sessionId })
+    }).then(r => r.json()).then(c => { if (c.id) setConvId(c.id) }).catch(console.error)
   }, [bot.id])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [msgs, thinking])
@@ -129,8 +133,12 @@ function ActiveChat({ bot }) {
     if (!t || thinking) return
     // Ensure conversation exists before proceeding
     if (!convId) {
-      const newConv = await createConversation(bot.id, sessionId).catch(() => null)
-      if (newConv) setConvId(newConv.id)
+      const newConv = await fetch('/api/create-conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ botId: bot.id, sessionId })
+      }).then(r => r.json()).catch(() => null)
+      if (newConv?.id) setConvId(newConv.id)
     }
     setInput('')
     inputRef.current?.focus()
