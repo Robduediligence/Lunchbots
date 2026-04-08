@@ -1123,6 +1123,33 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
 
   return (
     <div className="page fade-up" style={{ maxWidth: 520 }}>
+      {showPlanModal && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }} onClick={() => setShowPlanModal(false)}>
+          <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.3)', borderRadius:4, padding:32, width:480, maxWidth:'90vw', boxShadow:'0 24px 48px rgba(0,0,0,0.9)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ fontFamily:'LLPixel, monospace', fontSize:18, color:'#f59e0b', marginBottom:8, letterSpacing:3 }}>CHANGE PLAN</div>
+            <p style={{ fontSize:13, color:'#7878a0', marginBottom:24 }}>Select a plan. You'll be taken to a secure checkout page.</p>
+            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+              {[
+                { id:'solo', label:'SOLO', price:'$9/mo', desc:'1 bot · 500 messages/month' },
+                { id:'squadron', label:'SQUADRON', price:'$19/mo', desc:'3 bots · 2,000 messages/month' },
+                { id:'fleet', label:'FLEET', price:'$39/mo', desc:'10 bots · 6,000 messages/month' },
+              ].map(p => (
+                <button key={p.id} onClick={() => {
+                  setShowPlanModal(false)
+                  import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(p.id, user.id, user.email))
+                }} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 18px', border:`1px solid ${sub?.plan === p.id ? '#f59e0b' : 'rgba(124,58,237,0.2)'}`, borderRadius:4, background: sub?.plan === p.id ? 'rgba(245,158,11,0.1)' : '#161622', cursor:'pointer' }}>
+                  <div style={{ textAlign:'left' }}>
+                    <div style={{ fontFamily:'LLPixel, monospace', fontSize:13, color:'#f59e0b', letterSpacing:2 }}>{p.label}</div>
+                    <div style={{ fontSize:12, color:'#7878a0', marginTop:2 }}>{p.desc}</div>
+                  </div>
+                  <div style={{ fontSize:16, fontWeight:700, color:'#f0f0ff' }}>{p.price}</div>
+                </button>
+              ))}
+            </div>
+            <button className="btn btn-secondary btn-sm" onClick={() => setShowPlanModal(false)}>Close</button>
+          </div>
+        </div>
+      )}
       <div className="mb-28">
         <h1 className="page-title">Settings</h1>
       </div>
@@ -1136,33 +1163,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
       <div className="card mb-12">
         <div className="card-head"><div className="card-title">Subscription</div></div>
         <div className="card-body">
-          {showPlanModal && (
-            <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <div style={{ background:'var(--surface)', border:'1px solid var(--line)', borderRadius:'var(--r-lg)', padding:32, width:480, maxWidth:'90vw', boxShadow:'var(--shadow-xl)' }}>
-                <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:700, color:'var(--accent)', marginBottom:8, letterSpacing:2 }}>CHANGE PLAN</div>
-                <p style={{ fontSize:13, color:'var(--ink3)', marginBottom:24 }}>Select a plan below. You'll be taken to a secure checkout page.</p>
-                <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
-                  {[
-                    { id:'solo', label:'SOLO', price:'$9/mo', desc:'1 bot · 500 messages/month' },
-                    { id:'squadron', label:'SQUADRON', price:'$19/mo', desc:'3 bots · 2,000 messages/month' },
-                    { id:'fleet', label:'FLEET', price:'$39/mo', desc:'10 bots · 6,000 messages/month' },
-                  ].map(p => (
-                    <button key={p.id} onClick={() => {
-                      setShowPlanModal(false)
-                      import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(p.id, user.id, user.email))
-                    }} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 18px', border:`1px solid ${sub?.plan === p.id ? 'var(--accent)' : 'var(--line)'}`, borderRadius:'var(--r)', background: sub?.plan === p.id ? 'var(--accent-bg)' : 'var(--surface2)', cursor:'pointer', transition:'all 0.15s' }}>
-                      <div style={{ textAlign:'left' }}>
-                        <div style={{ fontFamily:'var(--font-display)', fontSize:13, fontWeight:700, color:'var(--accent)', letterSpacing:2 }}>{p.label}</div>
-                        <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>{p.desc}</div>
-                      </div>
-                      <div style={{ fontSize:16, fontWeight:700, color:'var(--ink)' }}>{p.price}</div>
-                    </button>
-                  ))}
-                </div>
-                <button className="btn btn-secondary btn-sm" onClick={() => setShowPlanModal(false)}>Cancel</button>
-              </div>
-            </div>
-          )}
+          
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
             <div>
               <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>
