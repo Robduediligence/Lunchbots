@@ -45,7 +45,7 @@ export default function AuthView({ onAuth }) {
     return (
       <div className="auth-wrap">
         <div className="auth-card fade-up tc">
-          <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 120, marginBottom: 12 }} />
+          <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 120, marginBottom: 12, display: 'block', margin: '0 auto 12px' }} />
           <h2 className="serif mb-8" style={{ fontSize: '1.4rem', color: 'var(--coffee-0)' }}>Check your inbox</h2>
           <p style={{ fontSize: 13.5, color: 'var(--ink3)', lineHeight: 1.7, marginBottom: 24 }}>
             We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account, then come back here to sign in.
@@ -81,7 +81,7 @@ export default function AuthView({ onAuth }) {
       {(mode === 'register' || mode === 'login') && (
         <div className="auth-card fade-up">
           <div className="mb-24">
-            <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 120, marginBottom: 12 }} />
+            <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 120, marginBottom: 12, display: 'block', margin: '0 auto 12px' }} />
             <h2 className="serif mb-4" style={{ fontSize: '1.3rem', color: 'var(--coffee-0)' }}>
               {mode === 'register' ? 'Create your account' : 'Welcome back'}
             </h2>
