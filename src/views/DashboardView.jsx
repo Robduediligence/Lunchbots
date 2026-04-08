@@ -1090,6 +1090,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
   const [msg, setMsg] = useState('')
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [showPlanModal, setShowPlanModal] = useState(false)
 
   async function handleDeleteBot() {
     if (!activeBot) return
@@ -1135,6 +1136,33 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
       <div className="card mb-12">
         <div className="card-head"><div className="card-title">Subscription</div></div>
         <div className="card-body">
+          {showPlanModal && (
+            <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <div style={{ background:'var(--surface)', border:'1px solid var(--line)', borderRadius:'var(--r-lg)', padding:32, width:480, maxWidth:'90vw', boxShadow:'var(--shadow-xl)' }}>
+                <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:700, color:'var(--accent)', marginBottom:8, letterSpacing:2 }}>CHANGE PLAN</div>
+                <p style={{ fontSize:13, color:'var(--ink3)', marginBottom:24 }}>Select a plan below. You'll be taken to a secure checkout page.</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+                  {[
+                    { id:'solo', label:'SOLO', price:'$9/mo', desc:'1 bot · 500 messages/month' },
+                    { id:'squadron', label:'SQUADRON', price:'$19/mo', desc:'3 bots · 2,000 messages/month' },
+                    { id:'fleet', label:'FLEET', price:'$39/mo', desc:'10 bots · 6,000 messages/month' },
+                  ].map(p => (
+                    <button key={p.id} onClick={() => {
+                      setShowPlanModal(false)
+                      import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(p.id, user.id, user.email))
+                    }} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 18px', border:`1px solid ${sub?.plan === p.id ? 'var(--accent)' : 'var(--line)'}`, borderRadius:'var(--r)', background: sub?.plan === p.id ? 'var(--accent-bg)' : 'var(--surface2)', cursor:'pointer', transition:'all 0.15s' }}>
+                      <div style={{ textAlign:'left' }}>
+                        <div style={{ fontFamily:'var(--font-display)', fontSize:13, fontWeight:700, color:'var(--accent)', letterSpacing:2 }}>{p.label}</div>
+                        <div style={{ fontSize:12, color:'var(--ink3)', marginTop:2 }}>{p.desc}</div>
+                      </div>
+                      <div style={{ fontSize:16, fontWeight:700, color:'var(--ink)' }}>{p.price}</div>
+                    </button>
+                  ))}
+                </div>
+                <button className="btn btn-secondary btn-sm" onClick={() => setShowPlanModal(false)}>Cancel</button>
+              </div>
+            </div>
+          )}
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
             <div>
               <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>
@@ -1147,13 +1175,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
               </div>
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              <button className="btn btn-primary btn-sm" onClick={() => {
-                const plan = prompt('Choose a plan to switch to:\n\n1. Solo — $9/mo (1 bot, 500 msg)\n2. Squadron — $19/mo (3 bots, 2000 msg)\n3. Fleet — $39/mo (10 bots, 6000 msg)\n\nType: solo, squadron, or fleet')
-                if (!plan) return
-                const valid = ['solo','squadron','fleet']
-                if (!valid.includes(plan.toLowerCase().trim())) return alert('Invalid plan. Please type solo, squadron, or fleet.')
-                import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(plan.toLowerCase().trim(), user.id, user.email))
-              }}>
+              <button className="btn btn-primary btn-sm" onClick={() => setShowPlanModal(true)}>
                 Change plan
               </button>
               {sub?.stripe_subscription_id && sub?.plan !== 'cancelled' && (
