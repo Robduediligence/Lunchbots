@@ -1243,3 +1243,29 @@ body.widget-mode {
 body.widget-mode body::before {
   display: none !important;
 }
+
+/* ── AUTH PAGE — dark theme ── */
+.auth-wrap {
+  background: #09090e !important;
+  min-height: 100vh !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.auth-card {
+  background: #0f0f18 !important;
+  border: 1px solid rgba(124,58,237,0.25) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+}
+
+.auth-card h2 {
+  color: #f59e0b !important;
+  font-family: 'LLPixel', monospace !important;
+  letter-spacing: 2px !important;
+}
+
+.auth-card p, .auth-card label {
+  color: #7878a0 !important;
+}
