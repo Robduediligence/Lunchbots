@@ -1175,7 +1175,9 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
               </div>
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              
+              <button className="btn btn-primary btn-sm" onClick={() => setShowPlanModal(true)}>
+                Change plan
+              </button>
               {sub?.stripe_subscription_id && sub?.plan !== 'cancelled' && (
                 <button className="btn btn-secondary btn-sm" onClick={async () => {
                   if (!confirm('Are you sure you want to cancel your subscription?')) return
