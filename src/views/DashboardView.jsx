@@ -1138,7 +1138,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
             <div>
               <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>
-                {sub?.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Trial'} Plan
+                {sub?.plan && sub.plan !== 'trial' ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Free Trial'} Plan
               </div>
               <div style={{ fontSize:12, color:'var(--ink3)' }}>
                 {sub?.trial_ends_at && new Date(sub.trial_ends_at) > new Date()
@@ -1147,7 +1147,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
               </div>
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              {(!sub?.plan || sub.plan === 'trial' || sub.plan === 'solo' || sub.plan === 'squadron') && (
+              {(sub?.plan !== 'fleet') && (
                 <button className="btn btn-primary btn-sm" onClick={() => {
                   const next = !sub?.plan || sub.plan === 'trial' ? 'solo' : sub.plan === 'solo' ? 'squadron' : 'fleet'
                   import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(next, user.id, user.email))
@@ -1155,7 +1155,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
                   Upgrade
                 </button>
               )}
-              {sub?.stripe_subscription_id && (
+              {sub?.stripe_subscription_id && sub?.plan !== 'cancelled' && (
                 <button className="btn btn-secondary btn-sm" onClick={async () => {
                   if (!confirm('Are you sure you want to cancel your subscription?')) return
                   const res = await fetch('/api/cancel-subscription', {
