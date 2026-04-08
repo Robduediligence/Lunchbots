@@ -1137,7 +1137,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
         <div className="card-head"><div className="card-title">Subscription</div></div>
         <div className="card-body">
           {showPlanModal && (
-            <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.7)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
               <div style={{ background:'var(--surface)', border:'1px solid var(--line)', borderRadius:'var(--r-lg)', padding:32, width:480, maxWidth:'90vw', boxShadow:'var(--shadow-xl)' }}>
                 <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:700, color:'var(--accent)', marginBottom:8, letterSpacing:2 }}>CHANGE PLAN</div>
                 <p style={{ fontSize:13, color:'var(--ink3)', marginBottom:24 }}>Select a plan below. You'll be taken to a secure checkout page.</p>
@@ -1175,9 +1175,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
               </div>
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              <button className="btn btn-primary btn-sm" onClick={() => setShowPlanModal(true)}>
-                Change plan
-              </button>
+              
               {sub?.stripe_subscription_id && sub?.plan !== 'cancelled' && (
                 <button className="btn btn-secondary btn-sm" onClick={async () => {
                   if (!confirm('Are you sure you want to cancel your subscription?')) return
