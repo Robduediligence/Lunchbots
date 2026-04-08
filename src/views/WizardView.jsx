@@ -256,7 +256,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         {/* Top bar */}
         <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:'var(--surface)', flexShrink:0 }}>
           <div className="flex ic g8">
-            <div style={{ fontSize:18 }}>🥪</div>
+          
             <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 32 }} />
           </div>
           <div className="flex ic g12">

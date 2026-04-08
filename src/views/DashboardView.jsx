@@ -92,7 +92,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
             </button>
           </div>
           <div className="topnav-right">
-            <span style={{ fontSize: 12, color: 'var(--ink4)' }}>{sub?.business_name || user?.email}</span>
+            
             <button className="btn btn-ghost btn-sm" onClick={onLogout}>Sign out</button>
           </div>
         </div>
@@ -1132,6 +1132,57 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
           {sub?.business_name && <div className="field" style={{ marginBottom: 0 }}><label className="label">Business name</label><input className="input" value={sub.business_name} disabled style={{ opacity: 0.6 }} /></div>}
         </div>
       </div>
+      <div className="card mb-12">
+        <div className="card-head"><div className="card-title">Subscription</div></div>
+        <div className="card-body">
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>
+                {sub?.plan ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Trial'} Plan
+              </div>
+              <div style={{ fontSize:12, color:'var(--ink3)' }}>
+                {sub?.trial_ends_at && new Date(sub.trial_ends_at) > new Date()
+                  ? `Trial ends ${new Date(sub.trial_ends_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short', year:'numeric' })}`
+                  : sub?.stripe_subscription_id ? 'Active subscription' : 'No active subscription'}
+              </div>
+            </div>
+            <div style={{ display:'flex', gap:8 }}>
+              {(!sub?.plan || sub.plan === 'trial' || sub.plan === 'solo' || sub.plan === 'squadron') && (
+                <button className="btn btn-primary btn-sm" onClick={() => {
+                  const next = !sub?.plan || sub.plan === 'trial' ? 'solo' : sub.plan === 'solo' ? 'squadron' : 'fleet'
+                  import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(next, user.id, user.email))
+                }}>
+                  Upgrade
+                </button>
+              )}
+              {sub?.stripe_subscription_id && (
+                <button className="btn btn-secondary btn-sm" onClick={async () => {
+                  if (!confirm('Are you sure you want to cancel your subscription?')) return
+                  const res = await fetch('/api/cancel-subscription', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subscriptionId: sub.stripe_subscription_id })
+                  })
+                  if (res.ok) alert('Subscription cancelled. You\'ll retain access until the end of your billing period.')
+                  else alert('Something went wrong. Please try again.')
+                }}>
+                  Cancel subscription
+                </button>
+              )}
+            </div>
+          </div>
+          <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+            {['solo','squadron','fleet'].map(plan => (
+              <div key={plan} style={{ flex:1, minWidth:120, padding:'12px 14px', borderRadius:'var(--r)', border:`1px solid ${sub?.plan === plan ? 'var(--accent)' : 'var(--line)'}`, background: sub?.plan === plan ? 'var(--accent-bg)' : 'var(--surface2)' }}>
+                <div style={{ fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:1, color: sub?.plan === plan ? 'var(--accent)' : 'var(--ink3)', marginBottom:4 }}>{plan}</div>
+                <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)' }}>{plan === 'solo' ? '$9' : plan === 'squadron' ? '$19' : '$39'}<span style={{ fontSize:10, color:'var(--ink3)', fontWeight:400 }}>/mo</span></div>
+                <div style={{ fontSize:11, color:'var(--ink4)', marginTop:2 }}>{plan === 'solo' ? '1 bot · 500 msg' : plan === 'squadron' ? '3 bots · 2000 msg' : '10 bots · 6000 msg'}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="card mb-12">
         <div className="card-head"><div className="card-title">Change password</div></div>
         <div className="card-body">
