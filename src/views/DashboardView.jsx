@@ -1147,14 +1147,15 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
               </div>
             </div>
             <div style={{ display:'flex', gap:8 }}>
-              {(sub?.plan !== 'fleet') && (
-                <button className="btn btn-primary btn-sm" onClick={() => {
-                  const next = !sub?.plan || sub.plan === 'trial' ? 'solo' : sub.plan === 'solo' ? 'squadron' : 'fleet'
-                  import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(next, user.id, user.email))
-                }}>
-                  Upgrade
-                </button>
-              )}
+              <button className="btn btn-primary btn-sm" onClick={() => {
+                const plan = prompt('Choose a plan to switch to:\n\n1. Solo — $9/mo (1 bot, 500 msg)\n2. Squadron — $19/mo (3 bots, 2000 msg)\n3. Fleet — $39/mo (10 bots, 6000 msg)\n\nType: solo, squadron, or fleet')
+                if (!plan) return
+                const valid = ['solo','squadron','fleet']
+                if (!valid.includes(plan.toLowerCase().trim())) return alert('Invalid plan. Please type solo, squadron, or fleet.')
+                import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(plan.toLowerCase().trim(), user.id, user.email))
+              }}>
+                Change plan
+              </button>
               {sub?.stripe_subscription_id && sub?.plan !== 'cancelled' && (
                 <button className="btn btn-secondary btn-sm" onClick={async () => {
                   if (!confirm('Are you sure you want to cancel your subscription?')) return
