@@ -1249,7 +1249,7 @@ function StepTest({ bot }) {
 // ── Step 8: Publish ───────────────────────────────────────────────────────────
 function StepPublish({ bot, sub }) {
   const [copied, setCopied] = useState(false)
-  const url = `${window.location.origin}?bot=${bot.id||'preview'}`
+  const url = `${window.location.origin}/dashboard?bot=${bot.id||'preview'}&widget=true`
   const ucName = USE_CASES.find(u=>u.id===bot.use_case)?.label||'—'
   const entryCount = (bot.knowledge_entries||[]).filter(e=>e.enabled!==false).length
   const checks = [
