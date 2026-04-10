@@ -61,7 +61,7 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
     }).finally(() => setLoading(false))
   }, [activeBot?.id])
 
-  const shareUrl = activeBot ? `${window.location.origin}?bot=${activeBot.id}` : ''
+  const shareUrl = activeBot ? `${window.location.origin}/dashboard?bot=${activeBot.id}&widget=true` : ''
 
   return (
     <div className="app">
