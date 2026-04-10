@@ -287,7 +287,7 @@ function ActiveChat({ bot }) {
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
         <textarea ref={inputRef}
-          style={{ flex:1, background: bgImage?'rgba(255,255,255,0.9)':'var(--surface2)', border:'1px solid rgba(0,0,0,0.08)', color:'#2F2F2F', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
+          style={{ flex:1, background:'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
           placeholder="Send a message…"
           value={input} rows={1}
           onChange={e => setInput(e.target.value.slice(0, 2000))}
