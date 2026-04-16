@@ -1197,7 +1197,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
   const [type, text] = (msg || ':').split(':')
 
   return (
-    <div className="page fade-up" style={{ maxWidth: 520 }}>
+    <div className="page fade-up" style={{ maxWidth: 800 }}>
       {showPlanModal && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }} onClick={() => setShowPlanModal(false)}>
           <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.3)', borderRadius:4, padding:32, width:480, maxWidth:'90vw', boxShadow:'0 24px 48px rgba(0,0,0,0.9)' }} onClick={e => e.stopPropagation()}>
@@ -1239,16 +1239,14 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
         <div className="card-head"><div className="card-title">Subscription</div></div>
         <div className="card-body">
           
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:'var(--ink)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>
-                {sub?.plan && sub.plan !== 'trial' ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Free Trial'} Plan
-              </div>
-              <div style={{ fontSize:12, color:'var(--ink3)' }}>
-                {sub?.trial_ends_at && new Date(sub.trial_ends_at) > new Date()
-                  ? `Trial ends ${new Date(sub.trial_ends_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short', year:'numeric' })}`
-                  : sub?.stripe_subscription_id ? 'Active subscription' : 'No active subscription'}
-              </div>
+          <div style={{ marginBottom:16 }}>
+            <div style={{ fontSize:15, fontWeight:600, color:'var(--ink)', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>
+              {sub?.plan && sub.plan !== 'trial' ? sub.plan.charAt(0).toUpperCase() + sub.plan.slice(1) : 'Free Trial'} Plan
+            </div>
+            <div style={{ fontSize:12, color:'var(--ink3)', marginBottom:14 }}>
+              {sub?.trial_ends_at && new Date(sub.trial_ends_at) > new Date()
+                ? `Trial ends ${new Date(sub.trial_ends_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short', year:'numeric' })}`
+                : sub?.stripe_subscription_id ? 'Active subscription' : 'No active subscription'}
             </div>
             <div style={{ display:'flex', gap:8 }}>
               <button className="btn btn-primary btn-sm" onClick={() => setShowPlanModal(true)}>
