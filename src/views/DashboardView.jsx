@@ -460,6 +460,20 @@ function InboxPage({ bot, gaps, setGaps }) {
       setGaps(p => p.filter(g => g.id !== gap.id))
       setSelected(null)
       setAnswer('')
+
+      // Notify user by email if they left one
+      if (gap.user_email) {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: gap.user_email,
+            question: gap.question,
+            answer: answer.trim(),
+            botName: bot.name,
+          }),
+        }).catch(console.error)
+      }
       const toast = document.createElement('div')
 toast.textContent = '✓ Answer saved to knowledge base'
 toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2C1810;color:#FDF9F4;padding:12px 24px;border-radius:8px;font-size:13.5px;font-weight:500;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.18);transition:opacity 0.4s;'
