@@ -1336,6 +1336,11 @@ body.widget-mode body::before {
   .dash-top-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Stack insights grid vertically */
+  .insights-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* Bottom tab bar — only on mobile */
