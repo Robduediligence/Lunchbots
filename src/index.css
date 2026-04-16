@@ -708,8 +708,9 @@ textarea.input { resize: vertical; min-height: 120px; line-height: 1.65; }
   .chat-messages { padding: 12px; }
   .chat-input-bar { padding: 8px 10px; }
 
-  /* Bot switcher — scroll horizontally */
-  .bot-switcher { overflow-x: auto; flex-wrap: nowrap !important; }
+  /* Bot switcher — dropdown on mobile */
+  .bot-switcher { flex-wrap: wrap !important; gap: 6px !important; }
+  .bot-switcher span { display: none; }
 }
 
 @media (max-width: 480px) {
@@ -1318,6 +1319,18 @@ body.widget-mode body::before {
   .stat-grid {
     grid-template-columns: repeat(2, 1fr) !important;
   }
+
+  /* Centre all page titles and subtitles */
+  .page-title, .page-sub { text-align: center !important; }
+  .card-title, .card-sub { text-align: center !important; }
+  .card-head { justify-content: center !important; flex-direction: column !important; align-items: center !important; gap: 6px !important; }
+
+  /* Bot switcher — wrap on mobile */
+  .bot-switcher { flex-wrap: wrap !important; gap: 6px !important; }
+  .bot-switcher span { display: none; }
+
+  /* Badge centre */
+  .badge { align-self: center; }
 }
 
 /* Bottom tab bar — only on mobile */

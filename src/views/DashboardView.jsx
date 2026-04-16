@@ -210,7 +210,7 @@ useEffect(() => {
         {[
           { id: 'dashboard', label: 'Home', icon: '⌂' },
           { id: 'inbox', label: 'Inbox', icon: '✉' },
-          { id: 'feedback', label: 'Feed', icon: '✦' },
+          { id: 'feedback', label: 'Feedback', icon: '✦' },
           { id: 'insights', label: 'Insights', icon: '◈' },
           { id: 'share', label: 'Share', icon: '⊕' },
           { id: 'settings', label: 'Settings', icon: '⚙' },
@@ -326,11 +326,9 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
 
       {/* ── Middle: Questions needing attention ── */}
       <div className="card">
-        <div className="card-head">
-          <div>
-            <div className="card-title">Questions that need your attention</div>
-            <div className="card-sub">Answer to help your customers and improve your bot</div>
-          </div>
+        <div className="card-head" style={{ flexDirection:'column', alignItems:'center', textAlign:'center', gap:6 }}>
+          <div className="card-title">Questions that need your attention</div>
+          <div className="card-sub">Answer to help your customers and improve your bot</div>
           {inboxCount > 0 && <span className="badge badge-amber">{inboxCount} unresolved</span>}
         </div>
         {gaps.length === 0 ? (
@@ -579,7 +577,7 @@ setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 4
 
   return (
     <div className="page-wide fade-up">
-      <div className="mb-24">
+      <div className="mb-24" style={{ textAlign:'center' }}>
         <h1 className="page-title">Inbox</h1>
         <p className="page-sub">Questions your bot couldn't answer. Reply to answer them — your response gets added to your knowledge base automatically.</p>
       </div>
@@ -925,11 +923,9 @@ Return ONLY valid JSON, no markdown, no explanation.`,
 
   return (
     <div className="page fade-up">
-      <div className="flex ic jb mb-28">
-        <div>
-          <h1 className="page-title">Insights</h1>
-          <p className="page-sub">AI-generated analysis of your conversation history.</p>
-        </div>
+      <div className="mb-28" style={{ textAlign:'center' }}>
+        <h1 className="page-title">Insights</h1>
+        <p className="page-sub" style={{ marginBottom:16 }}>AI-generated analysis of your conversation history.</p>
         <button className="btn btn-primary" onClick={generateInsights} disabled={loading || messages.length === 0}>
           {loading ? <><Spinner size={14} color="white" /> Analysing…</> : '✦ Generate insights'}
         </button>
@@ -967,7 +963,7 @@ Return ONLY valid JSON, no markdown, no explanation.`,
             </div>
           </div>
 
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12, alignItems:'start' }}>
             {/* Top topics */}
             <div className="card fade-up d1">
               <div className="card-head"><div className="card-title">Top topics</div></div>
