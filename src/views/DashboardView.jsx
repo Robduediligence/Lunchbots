@@ -153,8 +153,9 @@ useEffect(() => {
           <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginRight:4 }}>Active bot:</span>
           {allBots.map(b => (
             <button key={b.id} onClick={() => { setActiveBot(b) }}
-              style={{ display:'flex', alignItems:'center', gap:6, padding:'5px 12px', borderRadius:20, border:`1.5px solid ${activeBot?.id===b.id?'var(--coffee-0)':'var(--line)'}`, background: activeBot?.id===b.id?'var(--coffee-0)':'var(--surface)', color: activeBot?.id===b.id?'var(--parch-1)':'var(--ink3)', fontSize:12.5, fontWeight:500, cursor:'pointer', transition:'all 0.12s' }}>
-              {b.bot_type === 'internal' ? '🔒' : '🌐'} {b.name || 'Unnamed bot'}
+              style={{ display:'flex', alignItems:'center', gap:6, padding:'5px 12px', borderRadius:20, border:`1.5px solid ${activeBot?.id===b.id?'var(--coffee-0)':'var(--line)'}`, background: activeBot?.id===b.id?'var(--coffee-0)':'var(--surface)', color: activeBot?.id===b.id?'var(--parch-1)':'var(--ink3)', fontSize:12.5, fontWeight:500, cursor:'pointer', transition:'all 0.12s', opacity: b.disabled ? 0.5 : 1 }}>
+              {b.disabled ? '🔐' : b.bot_type === 'internal' ? '🔒' : '🌐'} {b.name || 'Unnamed bot'}
+              {b.disabled && <span style={{ fontSize:10, color:'var(--danger)', fontWeight:600 }}>LOCKED</span>}
             </button>
           ))}
           <button onClick={() => {
@@ -185,7 +186,18 @@ useEffect(() => {
         </div>
       ) : (
         <>
-          {page === 'dashboard' && <DashPage bot={activeBot} sub={sub} allBots={allBots} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} activity={activity} setActivity={setActivity} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} onNewBot={() => onEditBot(null)} />}
+          {page === 'dashboard' && (activeBot?.disabled ? (
+  <div className="flex ic jc" style={{ height:'calc(100vh - 54px)', flexDirection:'column', gap:16 }}>
+    <div style={{ fontSize:32 }}>🔐</div>
+    <h2 className="serif" style={{ fontSize:'1.4rem', color:'var(--coffee-0)' }}>This bot is locked</h2>
+    <p style={{ fontSize:13.5, color:'var(--ink3)', textAlign:'center', maxWidth:340, lineHeight:1.7 }}>
+      This bot was disabled when you changed to a lower plan. Upgrade your plan to unlock it and all its data.
+    </p>
+    <button className="btn btn-accent btn-lg" onClick={() => setPage('settings')}>
+      Upgrade plan →
+    </button>
+  </div>
+) : <DashPage bot={activeBot} sub={sub} allBots={allBots} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} activity={activity} setActivity={setActivity} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} onNewBot={() => onEditBot(null)} />)}
           {page === 'inbox'     && <InboxPage bot={activeBot} gaps={gaps} setGaps={setGaps} />}
           {page === 'feedback'  && <FeedbackAdminPage bot={activeBot} feedback={feedback} setFeedback={setFeedback} />}
           {page === 'insights'  && <InsightsPage bot={activeBot} convs={convs} />}

@@ -59,6 +59,20 @@ export default async function handler(req, res) {
         const status = sub.status
         if (status === 'active' && plan) {
           await supabase.from('subscribers').update({ plan }).eq('id', userId)
+          // Check if user has more bots than new plan allows
+          const planLimits = { solo: 1, squadron: 3, fleet: 10 }
+          const limit = planLimits[plan] || 1
+          const { data: bots } = await supabase
+            .from('bots')
+            .select('id, created_at')
+            .eq('owner_id', userId)
+            .eq('disabled', false)
+            .order('created_at', { ascending: false })
+          if (bots && bots.length > limit) {
+            // Disable the most recently created bots over the limit
+            const toDisable = bots.slice(0, bots.length - limit).map(b => b.id)
+            await supabase.from('bots').update({ disabled: true }).in('id', toDisable)
+          }
         }
         break
       }
