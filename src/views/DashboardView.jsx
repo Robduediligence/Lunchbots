@@ -10,10 +10,11 @@ const NAV = [
   { id: 'share',     label: 'Share',     Icon: I.Eye },
 ]
 
-export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialBots }) {
+export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialBots, showPlanOnLoad }) {
   const saved = (() => { try { return JSON.parse(localStorage.getItem('lb_dash') || '{}') } catch { return {} } })()
   const cachedBots = (() => { try { return JSON.parse(localStorage.getItem('lb_bots') || '[]') } catch { return [] } })()
   const [page, setPage] = useState(saved.page || 'dashboard')
+  const [showWelcomePlan, setShowWelcomePlan] = useState(showPlanOnLoad || false)
   const [stats,     setStats]     = useState(null)
   const [gaps,      setGaps]      = useState([])
   const [convs,     setConvs]     = useState([])
@@ -78,6 +79,39 @@ useEffect(() => {
 
   return (
     <div className="app">
+      {showWelcomePlan && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
+          <div style={{ background:'white', borderRadius:12, padding:32, width:480, maxWidth:'90vw', boxShadow:'0 24px 48px rgba(0,0,0,0.2)' }}>
+            <h2 className="serif mb-4" style={{ fontSize:'1.4rem', color:'var(--coffee-0)' }}>Choose your plan</h2>
+            <p style={{ fontSize:13.5, color:'var(--ink3)', marginBottom:24, lineHeight:1.7 }}>
+              You're on a 14-day free trial. Pick a plan now — you won't be charged until your trial ends.
+            </p>
+            <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:24 }}>
+              {[
+                { id:'solo',     label:'Solo',     price:'$9/mo',  desc:'1 bot · 500 messages/month' },
+                { id:'squadron', label:'Squadron', price:'$19/mo', desc:'3 bots · 2,000 messages/month' },
+                { id:'fleet',    label:'Fleet',    price:'$39/mo', desc:'10 bots · 6,000 messages/month' },
+              ].map(p => (
+                <button key={p.id} onClick={() => {
+                  setShowWelcomePlan(false)
+                  import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(p.id, user.id, user.email))
+                }} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 18px', border:'1.5px solid var(--line)', borderRadius:'var(--r-md)', background:'var(--surface)', cursor:'pointer', transition:'all 0.12s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor='var(--coffee-0)'}
+                onMouseLeave={e => e.currentTarget.style.borderColor='var(--line)'}>
+                  <div style={{ textAlign:'left' }}>
+                    <div style={{ fontSize:14, fontWeight:600, color:'var(--ink)', marginBottom:2 }}>{p.label}</div>
+                    <div style={{ fontSize:12, color:'var(--ink3)' }}>{p.desc}</div>
+                  </div>
+                  <div style={{ fontSize:15, fontWeight:700, color:'var(--coffee-0)' }}>{p.price}</div>
+                </button>
+              ))}
+            </div>
+            <button className="btn btn-ghost btn-sm" style={{ width:'100%', color:'var(--ink4)' }} onClick={() => setShowWelcomePlan(false)}>
+              I'll do this later
+            </button>
+          </div>
+        </div>
+      )}
       {/* Top nav pill */}
       <div>
       <nav className="topnav">

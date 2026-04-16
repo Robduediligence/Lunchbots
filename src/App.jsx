@@ -127,6 +127,7 @@ if (mode === 'admin') { setRoute('admin'); return }
       initialBots={bots}
       onEditBot={handleEditBot}
       onLogout={handleLogout}
+      showPlanOnLoad={!sub?.stripe_subscription_id && sub?.plan === 'trial'}
     />
   )
 
