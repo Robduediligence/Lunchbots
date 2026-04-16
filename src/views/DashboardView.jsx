@@ -106,9 +106,9 @@ useEffect(() => {
                 </button>
               ))}
             </div>
-            <button className="btn btn-ghost btn-sm" style={{ width:'100%', color:'var(--ink4)' }} onClick={() => setShowWelcomePlan(false)}>
-              I'll do this later
-            </button>
+            <p style={{ fontSize:11.5, color:'var(--ink4)', textAlign:'center', marginTop:8 }}>
+              You won't be charged until your 14-day trial ends. Cancel anytime.
+            </p>
           </div>
         </div>
       )}
