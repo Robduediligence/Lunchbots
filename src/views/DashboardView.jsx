@@ -1223,7 +1223,8 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
               ].map(p => (
                 <button key={p.id} onClick={async () => {
                   setShowPlanModal(false)
-                  if (sub?.stripe_subscription_id) {
+                  console.log('sub:', sub)
+if (sub?.stripe_subscription_id) {
                     // Existing subscriber — update subscription directly
                     const res = await fetch('/api/change-plan', {
                       method: 'POST',
