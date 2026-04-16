@@ -63,6 +63,9 @@ function ActiveChat({ bot }) {
   const [convId,    setConvId]    = useState(null)
   const [sessionId] = useState(() => Math.random().toString(36).slice(2,10))
   const [pendingGap, setPendingGap] = useState(null) // gap id waiting for admin answer
+const [awaitingEmail, setAwaitingEmail] = useState(false)
+const [userEmail, setUserEmail] = useState('')
+const [emailInput, setEmailInput] = useState('')
   const pollRef = useRef(null)
   const msgsRef  = useRef([])
   const bottomRef= useRef(null)
@@ -190,7 +193,8 @@ function ActiveChat({ bot }) {
           console.log('Gap result:', gap)
           if (gap) {
             setPendingGap(gap.id)
-            setMsgs(p => [...p, { role:'bot', content:'⏳ I\'ve flagged this for the team. I\'ll let you know as soon as they respond — usually within a few hours.', id:'waiting', isWaiting:true }])
+            setAwaitingEmail(true)
+            setMsgs(p => [...p, { role:'bot', content:'⏳ I\'ve flagged this for the team. If you\'d like to be notified when they respond, drop your email below.', id:'waiting', isWaiting:true }])
           }
         }
       }
@@ -286,17 +290,67 @@ function ActiveChat({ bot }) {
         background: bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.97)',
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
-        <textarea ref={inputRef}
-          style={{ flex:1, background:'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
-          placeholder="Send a message…"
-          value={input} rows={1}
-          onChange={e => setInput(e.target.value.slice(0, 2000))}
-          onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
-        />
-        <button onClick={() => send()} disabled={!input.trim()||thinking}
-          style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, background:primary, border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:input.trim()&&!thinking?'pointer':'not-allowed', opacity:input.trim()&&!thinking?1:0.4, alignSelf:'flex-end', transition:'all 0.12s', boxShadow:`0 2px 8px ${primary}44` }}>
-          {thinking ? <Spinner size={15} color="white" /> : <I.Send width={15} height={15} style={{ color:'white' }} />}
-        </button>
+        {awaitingEmail ? (
+          <div style={{ display:'flex', gap:8, flex:1, alignItems:'center' }}>
+            <input
+              style={{ flex:1, background:'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none' }}
+              placeholder="your@email.com (optional)"
+              value={emailInput}
+              onChange={e => setEmailInput(e.target.value)}
+              onKeyDown={async e => {
+                if (e.key === 'Enter') {
+                  setAwaitingEmail(false)
+                  if (emailInput.trim() && pendingGap) {
+                    await fetch('/api/update-gap-email', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ gapId: pendingGap, email: emailInput.trim() })
+                    }).catch(console.error)
+                  }
+                  setMsgs(p => p.map(m => m.id === 'waiting' ? { ...m, content: emailInput.trim() ? '✅ Got it! We\'ll email you at ' + emailInput.trim() + ' when we have an answer.' : '✅ No problem — we\'ll have an answer ready next time you visit.' } : m))
+                }
+              }}
+              autoFocus
+            />
+            <button
+              onClick={async () => {
+                setAwaitingEmail(false)
+                if (emailInput.trim() && pendingGap) {
+                  await fetch('/api/update-gap-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ gapId: pendingGap, email: emailInput.trim() })
+                  }).catch(console.error)
+                }
+                setMsgs(p => p.map(m => m.id === 'waiting' ? { ...m, content: emailInput.trim() ? '✅ Got it! We\'ll email you at ' + emailInput.trim() + ' when we have an answer.' : '✅ No problem — we\'ll have an answer ready next time you visit.' } : m))
+              }}
+              style={{ padding:'9px 16px', borderRadius:`${Math.min(radius,12)}px`, background:primary, border:'none', color:'white', fontSize:sz*0.9, fontWeight:500, cursor:'pointer', whiteSpace:'nowrap' }}>
+              Notify me
+            </button>
+            <button
+              onClick={() => {
+                setAwaitingEmail(false)
+                setMsgs(p => p.map(m => m.id === 'waiting' ? { ...m, content: '✅ No problem — we\'ll have an answer ready next time you visit.' } : m))
+              }}
+              style={{ padding:'9px 12px', borderRadius:`${Math.min(radius,12)}px`, background:'transparent', border:'1px solid rgba(0,0,0,0.1)', color:'var(--ink3)', fontSize:sz*0.85, cursor:'pointer', whiteSpace:'nowrap' }}>
+              Skip
+            </button>
+          </div>
+        ) : (
+          <>
+            <textarea ref={inputRef}
+              style={{ flex:1, background:'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
+              placeholder="Send a message…"
+              value={input} rows={1}
+              onChange={e => setInput(e.target.value.slice(0, 2000))}
+              onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
+            />
+            <button onClick={() => send()} disabled={!input.trim()||thinking}
+              style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, background:primary, border:'none', display:'flex', alignItems:'center', justifyContent:'center', cursor:input.trim()&&!thinking?'pointer':'not-allowed', opacity:input.trim()&&!thinking?1:0.4, alignSelf:'flex-end', transition:'all 0.12s', boxShadow:`0 2px 8px ${primary}44` }}>
+              {thinking ? <Spinner size={15} color="white" /> : <I.Send width={15} height={15} style={{ color:'white' }} />}
+            </button>
+          </>
+        )}
       </div>
 
       {/* Footer */}
