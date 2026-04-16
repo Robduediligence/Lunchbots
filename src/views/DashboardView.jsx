@@ -460,7 +460,11 @@ function InboxPage({ bot, gaps, setGaps }) {
       setGaps(p => p.filter(g => g.id !== gap.id))
       setSelected(null)
       setAnswer('')
-      alert('✓ Answer saved to knowledge base and sent to user.')
+      const toast = document.createElement('div')
+toast.textContent = '✓ Answer saved to knowledge base'
+toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#2C1810;color:#FDF9F4;padding:12px 24px;border-radius:8px;font-size:13.5px;font-weight:500;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.18);transition:opacity 0.4s;'
+document.body.appendChild(toast)
+setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400) }, 2500)
     } catch (e) { console.error(e) }
     setSaving(false)
   }
