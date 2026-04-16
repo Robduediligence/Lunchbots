@@ -1331,6 +1331,11 @@ body.widget-mode body::before {
 
   /* Badge centre */
   .badge { align-self: center; }
+
+  /* Stack bot status and quick actions vertically */
+  .dash-top-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 /* Bottom tab bar — only on mobile */

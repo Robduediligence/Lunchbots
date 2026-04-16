@@ -282,7 +282,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
       </div>
 
       {/* ── Top: Bot Status + Quick Actions ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:16, alignItems:'start', marginBottom:20 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:16, alignItems:'start', marginBottom:20 }} className="dash-top-grid">
 
         {/* Bot Status */}
         <div className="card" style={{ padding:'20px 20px' }}>
@@ -712,14 +712,15 @@ Return ONLY valid JSON, no markdown.`,
 
   return (
     <div className="page-wide fade-up">
-      <div className="flex ic jb mb-24">
-        <div>
-          <h1 className="page-title">Feedback</h1>
-          <p className="page-sub">{feedback.length} total · {feedback.filter(f => !f.resolved).length} unresolved</p>
-        </div>
-        <button className="btn btn-secondary" onClick={generateSummary} disabled={summarising || feedback.length === 0}>
+      <div className="mb-24" style={{ textAlign:'center' }}>
+        <h1 className="page-title">Feedback</h1>
+        <button className="btn btn-secondary btn-sm" style={{ margin:'8px auto 12px' }} onClick={generateSummary} disabled={summarising || feedback.length === 0}>
           {summarising ? <><Spinner size={13} color="var(--ink3)" /> Analysing…</> : '✦ AI Summary'}
         </button>
+        <div style={{ display:'flex', justifyContent:'space-between', fontSize:12, color:'var(--ink3)', padding:'0 4px' }}>
+          <span>{feedback.length} total</span>
+          <span>{feedback.filter(f => !f.resolved).length} unresolved</span>
+        </div>
       </div>
 
     {feedback.length === 0 ? (
@@ -926,7 +927,7 @@ Return ONLY valid JSON, no markdown, no explanation.`,
       <div className="mb-28" style={{ textAlign:'center' }}>
         <h1 className="page-title">Insights</h1>
         <p className="page-sub" style={{ marginBottom:16 }}>AI-generated analysis of your conversation history.</p>
-        <button className="btn btn-primary" onClick={generateInsights} disabled={loading || messages.length === 0}>
+        <button className="btn btn-primary" onClick={generateInsights} disabled={loading || messages.length === 0} style={{ marginBottom:20 }}>
           {loading ? <><Spinner size={14} color="white" /> Analysing…</> : '✦ Generate insights'}
         </button>
       </div>
@@ -966,8 +967,8 @@ Return ONLY valid JSON, no markdown, no explanation.`,
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12, alignItems:'start' }}>
             {/* Top topics */}
             <div className="card fade-up d1">
-              <div className="card-head"><div className="card-title">Top topics</div></div>
-              <div className="card-body">
+              <div className="card-head" style={{ minHeight:48 }}><div className="card-title">Top topics</div></div>
+              <div className="card-body" style={{ paddingTop:16 }}>
                 <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
                   {insights.topTopics?.map((topic, i) => (
                     <div key={i} style={{ display:'flex', alignItems:'center', gap:10 }}>
