@@ -51,6 +51,19 @@ export default async function handler(req, res) {
         }).eq('id', userId)
         break
       }
+
+      case 'customer.subscription.created': {
+        const sub = event.data.object
+        const userId = sub.metadata?.userId
+        if (!userId) break
+        const plan = sub.metadata?.plan
+        await supabase.from('subscribers').update({
+          stripe_subscription_id: sub.id,
+          stripe_customer_id: sub.customer,
+          plan: plan || 'trial',
+        }).eq('id', userId)
+        break
+      }
       case 'customer.subscription.updated': {
         const sub = event.data.object
         const userId = sub.metadata?.userId
