@@ -635,7 +635,7 @@ function StepKnowledge({ bot, f }) {
     if (file.type === 'application/pdf') {
       try {
         const pdfjsLib = await import('pdfjs-dist')
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`
+        pdfjsLib.GlobalWorkerOptions.workerSrc = ''
         const arrayBuffer = await file.arrayBuffer()
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
         const pages = []
