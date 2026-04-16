@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut, getActivityLog, getPlanLimits } from '../lib/supabase.js'
+import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut, getActivityLog, getPlanLimits, renderMarkdown } from '../lib/supabase.js'
 import { I, Spinner } from '../components/UI.jsx'
 
 const NAV = [
@@ -1287,7 +1287,7 @@ function ConversationContext({ convId }) {
   const [open,    setOpen]    = useState(false)
 
   useEffect(() => {
-    import('../lib/supabase.js').then(({ supabase, renderMarkdown }) => {
+    import('../lib/supabase.js').then(({ supabase }) => {
       supabase.from('messages').select('*').eq('conversation_id', convId)
         .order('created_at', { ascending: true })
         .then(({ data }) => { setMsgs(data || []); setLoading(false) })
