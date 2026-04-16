@@ -420,7 +420,7 @@ function InboxPage({ bot, gaps, setGaps }) {
       const { getKnowledgeGaps } = await import('../lib/supabase.js')
       const fresh = await getKnowledgeGaps(bot.id)
       setGaps(fresh)
-    }, 15000)
+    }, 5000)
     return () => clearInterval(interval)
   }, [bot?.id])
 
