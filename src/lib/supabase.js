@@ -68,7 +68,14 @@ export async function getSubscriber(userId) {
 export async function createSubscriber(userId, email, businessName = '') {
   const { data, error } = await supabase
     .from('subscribers')
-    .insert({ id: userId, email, business_name: businessName, active: true })
+    .insert({ 
+      id: userId, 
+      email, 
+      business_name: businessName, 
+      active: true,
+      plan: 'trial',
+      trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString()
+    })
     .select()
     .single()
   if (error) throw error
