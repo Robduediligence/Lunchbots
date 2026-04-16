@@ -1197,7 +1197,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
   const [type, text] = (msg || ':').split(':')
 
   return (
-    <div className="page fade-up" style={{ maxWidth: 800 }}>
+    <div className="page fade-up" style={{ maxWidth: '100%', textAlign:'center' }}>
       {showPlanModal && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }} onClick={() => setShowPlanModal(false)}>
           <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.3)', borderRadius:4, padding:32, width:480, maxWidth:'90vw', boxShadow:'0 24px 48px rgba(0,0,0,0.9)' }} onClick={e => e.stopPropagation()}>
