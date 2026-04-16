@@ -1315,8 +1315,8 @@ function ConversationContext({ convId }) {
               <span style={{ fontSize:10, fontWeight:600, color: m.role==='user'?'var(--coffee-1)':'var(--ink4)', textTransform:'uppercase', letterSpacing:'0.06em', whiteSpace:'nowrap', marginTop:2, minWidth:28 }}>
                 {m.role === 'user' ? 'User' : 'Bot'}
               </span>
-              {m.role === 'bot'
-                ? <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }} dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }} />
+              {m.role === 'bot'? <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }} dangerouslySetInnerHTML={{ __html: (() => { const r = renderMarkdown(m.content.replace(/\[FALLBACK\]/g, '')); console.log('renderMarkdown output:', r); return r; })() }} />
+                
                 : <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }}>{m.content}</span>
               }
             </div>
