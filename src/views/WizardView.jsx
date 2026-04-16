@@ -634,18 +634,10 @@ function StepKnowledge({ bot, f }) {
 
     if (file.type === 'application/pdf') {
       try {
-        const pdfjsLib = await import('pdfjs-dist')
-        pdfjsLib.GlobalWorkerOptions.workerSrc = ''
+        const { extractText } = await import('unpdf')
         const arrayBuffer = await file.arrayBuffer()
-        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
-        const pages = []
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i)
-          const content = await page.getTextContent()
-          const pageText = content.items.map(item => item.str).join(' ')
-          pages.push(pageText)
-        }
-        text = pages.join('\n\n')
+        const { text: extracted } = await extractText(new Uint8Array(arrayBuffer), { mergePages: true })
+        text = extracted
       } catch (err) {
         console.error('PDF parse error:', err)
         text = await file.text()
