@@ -1341,6 +1341,14 @@ body.widget-mode body::before {
   .insights-grid {
     grid-template-columns: 1fr !important;
   }
+
+  /* Fix card spacing in insights grid */
+  .insights-grid .card + .card {
+    margin-top: 0 !important;
+  }
+  .insights-grid {
+    gap: 12px !important;
+  }
 }
 
 /* Bottom tab bar — only on mobile */
