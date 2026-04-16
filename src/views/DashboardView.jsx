@@ -205,9 +205,34 @@ useEffect(() => {
           {page === 'settings'  && <SettingsPage user={user} sub={sub} onLogout={onLogout} activeBot={activeBot} onBotDeleted={() => { setAllBots(p => p.filter(b => b.id !== activeBot?.id)); setActiveBot(null); setPage('dashboard') }} />}
         </>
       )}
+    {/* Mobile bottom nav */}
+      <nav className="mobile-bottom-nav">
+        {[
+          { id: 'dashboard', label: 'Home', icon: '⌂' },
+          { id: 'inbox', label: 'Inbox', icon: '✉' },
+          { id: 'feedback', label: 'Feed', icon: '✦' },
+          { id: 'insights', label: 'Insights', icon: '◈' },
+          { id: 'share', label: 'Share', icon: '⊕' },
+          { id: 'settings', label: 'Settings', icon: '⚙' },
+        ].map(({ id, label, icon }) => {
+          let badge = null
+          if (id === 'inbox') badge = Math.max(0, (stats?.unresolvedGaps ?? 0) - resolvedCount)
+          if (id === 'feedback') badge = feedback.filter(f => !f.resolved).length
+          return (
+            <button key={id} className={`mobile-nav-item ${page === id ? 'active' : ''}`}
+              onClick={() => setPage(id)}>
+              {badge > 0 && <span className="mobile-nav-badge">{badge}</span>}
+              <span className="nav-icon">{icon}</span>
+              <span>{label}</span>
+            </button>
+          )
+        })}
+      </nav>
     </div>
   )
 }
+
+
 
 // ── Dashboard page ────────────────────────────────────────────────────────────
 function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onNewBot, setGaps, activity, setActivity }) {

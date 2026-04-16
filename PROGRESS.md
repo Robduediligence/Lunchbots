@@ -749,3 +749,189 @@ git push origin main   # triggers Vercel auto-deploy
 On new computer: git clone https://github.com/Robduediligence/Lunchbots
 Use GitHub Personal Access Token as password
 Run: rm -rf node_modules && npm install
+
+
+# Bot Brunch — Progress Tracker
+
+## Project
+- Name: Bot Brunch
+- Domain: botbrunch.com
+- Stack: React + Vite + Supabase + Anthropic API + Vercel + Resend + Sentry
+- Supabase URL: https://vklbfvfrfcncpsslnivm.supabase.co
+- Live URL: https://botbrunch.com
+- GitHub: https://github.com/Robduediligence/Lunchbots
+- Local dev: http://localhost:5175
+
+## Admin password: admin (changeable in AdminView.jsx line 4)
+
+---
+
+## Phase 1: Foundation ✅ COMPLETE
+## Phase 2: Infrastructure ✅ COMPLETE
+## Phase 3: Billing ✅ COMPLETE
+## Phase 4: Creator Experience ✅ MOSTLY COMPLETE
+## Phase 5: Legal ✅ COMPLETE
+## Phase 6: Marketing ❌ NOT STARTED
+## Phase 7: Launch ❌ NOT STARTED
+
+---
+
+## Priority 1 Fixes ✅ COMPLETE (Apr 16 2026)
+
+- ✅ Email confirmation redirect goes to sign in page
+  - Supabase redirect URL set to https://botbrunch.com/?signin=true
+  - AuthView.jsx reads ?signin=true param and opens login tab directly
+
+- ✅ PDF upload extracts real readable text
+  - Installed unpdf library for text extraction
+  - Claude cleans and restructures extracted text for any PDF format
+
+- ✅ Browser alert replaced with toast notification
+  - Inbox answer confirmation now shows polished dark toast
+
+- ✅ Chat asks for email on fallback
+  - When bot hits [FALLBACK], input area switches to email capture
+  - Email saved to knowledge_gaps.user_email via /api/update-gap-email
+
+- ✅ Email notification when admin answers inbox question
+  - Created /api/send-email using Resend
+  - Sends branded email from hello@botbrunch.com with bot name as sender
+  - Only fires if user_email is present on the gap
+
+- ✅ Markdown renders properly in conversation panel
+  - ConversationContext uses renderMarkdown for bot messages
+  - renderMarkdown imported at top level of DashboardView.jsx
+
+- ✅ Bot messages now saving to database
+  - Added answered (bool, nullable) column to messages table
+  - Was causing silent insert failures before
+
+- ✅ Knowledge base security locked down
+  - bots_public_read RLS policy updated to exclude internal bots
+  - Only customer bots with published=true are publicly readable
+  - Internal bots only accessible to authenticated owner
+
+- ✅ Inbox auto-refresh every 15 seconds
+  - Polls getKnowledgeGaps and getBotStats at DashboardView level
+  - Badge counts update automatically without page refresh
+
+---
+
+## Priority 2 Fixes ✅ COMPLETE (Apr 16 2026)
+
+- ✅ Plan name fixed — shows Solo/Squadron/Fleet not "Starter"
+  - createSubscriber now defaults to plan: 'trial'
+  - Supabase subscribers table default changed from 'starter' to 'trial'
+
+- ✅ Cancel subscription working
+  - Button shows only when stripe_subscription_id exists
+  - Uses cancel_at_period_end so access continues until billing period ends
+
+- ✅ Plan selection required on signup
+  - New trial users see plan selection modal on first dashboard load
+  - Must select a plan before accessing dashboard (no skip option)
+  - Reassurance message: "Won't be charged until trial ends"
+
+- ✅ Plan changes update existing subscription (no new checkout)
+  - /api/stripe-checkout now handles both new and existing subscribers
+  - If subscriptionId present: updates subscription via Stripe API directly
+  - If no subscriptionId: creates new checkout session as before
+  - Eliminates duplicate subscription problem
+
+- ✅ Bot disable modal on plan downgrade
+  - disabled (bool) column added to bots table
+  - When user has more bots than plan allows, modal appears on dashboard load
+  - User chooses which bots to disable (keeps data, blocks usage)
+  - Locked bots show 🔐 LOCKED in bot switcher
+  - Clicking locked bot shows upgrade prompt
+
+- ✅ stripe_subscription_id now saves correctly
+  - Added customer.subscription.created webhook handler
+  - Saves subscription ID and customer ID to subscribers table
+
+---
+
+## Priority 3: Mobile / Usability ❌ NOT STARTED
+- [ ] Mobile friendly
+- [ ] Widget feels more premium (like Renti)
+- [ ] Widget on admin page goes to super admin chat
+- [ ] All Conversations section in admin area
+- [ ] Tabs for Home, Messages, Feedback in widget (for signed-in users)
+
+## Priority 4: Wizard UX ❌ NOT STARTED
+- [ ] Use Case panel: Customer Facing / Internal Team as main options with dropdown
+- [ ] Remove emojis from Use Case panel
+- [ ] Rename "Descriptor" to "What is this bot's focus?"
+- [ ] Remove Suggested Prompts OR rename to "Common Questions"
+- [ ] Remove Welcome Message from wizard
+- [ ] Knowledge panel order: Import from Website, Upload File, Add Text Entry
+- [ ] All 3 knowledge options coloured yellow
+
+## Priority 5: Branding Panel ❌ NOT STARTED
+- [ ] Logo replaces avatar letter if no avatar uploaded
+- [ ] Avatar uploaded replaces avatar letter
+- [ ] Bot avatar not shown in header
+- [ ] Full colour control for all UI surfaces
+- [ ] Header colour and text colour editable
+- [ ] Header fade/gradient into background
+- [ ] Stronger texture overlay with intensity fader
+- [ ] More texture options
+- [ ] Typography defaults to Inter
+- [ ] Font colour sits next to font selector
+- [ ] Fill/Outline/Minimal actually change preview
+- [ ] Remove text opacity option
+- [ ] Panel opacity: 0=transparent, 100=solid (doesn't affect text/logos)
+
+---
+
+## Remaining Phase 4 items
+- [ ] Edit Bot should stay within dashboard layout
+- [ ] Onboarding flow (new signup → wizard immediately)
+- [ ] Duplicate / archive bots
+- [ ] Rate limiting per end user per bot
+
+---
+
+## Key Infrastructure
+
+### API Endpoints (12 — Vercel free plan limit reached)
+- /api/add-message
+- /api/cancel-subscription
+- /api/check-gap
+- /api/claude
+- /api/create-conversation
+- /api/create-gap
+- /api/landing
+- /api/scrape
+- /api/send-email
+- /api/stripe-checkout (handles both new checkout AND plan changes)
+- /api/stripe-webhook
+- /api/update-gap-email
+
+### Supabase Tables & Key Columns
+- subscribers: plan, trial_ends_at, stripe_customer_id, stripe_subscription_id, messages_used, messages_reset_at
+- bots: owner_id, published, bot_type, disabled, knowledge_entries, knowledge_text
+- knowledge_gaps: user_email, resolved, admin_answer, conversation_id
+- messages: role, content, conversation_id, answered
+
+### Plan Limits
+- Solo: 1 bot, 500 messages/month — $9/mo
+- Squadron: 3 bots, 2,000 messages/month — $19/mo
+- Fleet: 10 bots, 6,000 messages/month — $39/mo
+
+### Key Patterns
+- PDF upload: unpdf extracts text → Claude cleans and structures it
+- Plan changes: POST /api/stripe-checkout with subscriptionId = update in place
+- Bot security: RLS bots_public_read only returns published customer bots
+- Inbox refresh: polls every 15 seconds at DashboardView level
+- Email notifications: Resend via /api/send-email, from hello@botbrunch.com
+
+### Git Workflow
+git add .
+git commit -m "description"
+git push origin main
+
+### Warning: Vercel free plan limit
+At 12/12 serverless functions. Any new API endpoints require either:
+- Merging into existing files
+- Upgrading Vercel to Pro ($20/mo)

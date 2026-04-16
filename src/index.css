@@ -1269,3 +1269,120 @@ body.widget-mode body::before {
 .auth-card p, .auth-card label {
   color: #7878a0 !important;
 }
+
+/* ── MOBILE BOTTOM NAV ── */
+@media (max-width: 600px) {
+
+  /* Hide the top pill on mobile */
+  .topnav-pill {
+    display: none !important;
+  }
+
+  /* Hide sign out button — accessible via settings */
+  .topnav-right {
+    display: none !important;
+  }
+
+  /* Shrink logo on mobile */
+  .topnav-logo img {
+    height: 60px !important;
+  }
+
+  .topnav {
+    padding: 8px 16px !important;
+  }
+
+  /* Add padding at bottom so content doesn't hide behind tab bar */
+  .app {
+    padding-bottom: 64px;
+  }
+
+  /* Bot switcher becomes a horizontal scroll */
+  .bot-switcher {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Page padding */
+  .page, .page-wide {
+    padding: 16px 12px !important;
+  }
+
+  /* Stack grids */
+  .grid2, .grid3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Stat grid 2 cols */
+  .stat-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* Bottom tab bar — only on mobile */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(9,9,14,0.98);
+    border-top: 1px solid rgba(124,58,237,0.25);
+    backdrop-filter: blur(12px);
+    z-index: 200;
+    align-items: stretch;
+  }
+
+  .mobile-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #7878a0;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    padding: 0;
+    position: relative;
+  }
+
+  .mobile-nav-item.active {
+    color: #f59e0b;
+  }
+
+  .mobile-nav-item .nav-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .mobile-nav-badge {
+    position: absolute;
+    top: 8px;
+    right: calc(50% - 14px);
+    background: #ef4444;
+    color: white;
+    font-size: 9px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+  }
+}
