@@ -414,6 +414,16 @@ function InboxPage({ bot, gaps, setGaps }) {
   const [answer,   setAnswer]   = useState('')
   const [saving,   setSaving]   = useState(false)
 
+  useEffect(() => {
+    if (!bot?.id) return
+    const interval = setInterval(async () => {
+      const { getKnowledgeGaps } = await import('../lib/supabase.js')
+      const fresh = await getKnowledgeGaps(bot.id)
+      setGaps(fresh)
+    }, 15000)
+    return () => clearInterval(interval)
+  }, [bot?.id])
+
   if (!bot) return <EmptyBot label="Inbox" />
 
   async function handleAnswer(gap) {
@@ -1315,7 +1325,7 @@ function ConversationContext({ convId }) {
               <span style={{ fontSize:10, fontWeight:600, color: m.role==='user'?'var(--coffee-1)':'var(--ink4)', textTransform:'uppercase', letterSpacing:'0.06em', whiteSpace:'nowrap', marginTop:2, minWidth:28 }}>
                 {m.role === 'user' ? 'User' : 'Bot'}
               </span>
-              {m.role === 'bot'? <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }} dangerouslySetInnerHTML={{ __html: (() => { const r = renderMarkdown(m.content.replace(/\[FALLBACK\]/g, '')); console.log('renderMarkdown output:', r); return r; })() }} />
+              {m.role === 'bot'? <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }} dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content.replace(/\[FALLBACK\]/g, '')) }} />
                 
                 : <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }}>{m.content}</span>
               }
