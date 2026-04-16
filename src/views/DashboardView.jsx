@@ -1226,7 +1226,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
                   console.log('sub:', sub)
 if (sub?.stripe_subscription_id) {
                     // Existing subscriber — update subscription directly
-                    const res = await fetch('/api/change-plan', {
+                    const res = await fetch('/api/stripe-checkout', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({ plan: p.id, userId: user.id, subscriptionId: sub.stripe_subscription_id })
