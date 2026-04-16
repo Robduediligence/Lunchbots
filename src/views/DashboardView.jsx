@@ -1221,9 +1221,22 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
                 { id:'squadron', label:'SQUADRON', price:'$19/mo', desc:'3 bots · 2,000 messages/month' },
                 { id:'fleet', label:'FLEET', price:'$39/mo', desc:'10 bots · 6,000 messages/month' },
               ].map(p => (
-                <button key={p.id} onClick={() => {
+                <button key={p.id} onClick={async () => {
                   setShowPlanModal(false)
-                  import('../lib/supabase.js').then(({ startCheckout }) => startCheckout(p.id, user.id, user.email))
+                  if (sub?.stripe_subscription_id) {
+                    // Existing subscriber — update subscription directly
+                    const res = await fetch('/api/change-plan', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ plan: p.id, userId: user.id, subscriptionId: sub.stripe_subscription_id })
+                    })
+                    if (res.ok) window.location.reload()
+                    else alert('Something went wrong. Please try again.')
+                  } else {
+                    // New subscriber — go through checkout
+                    const { startCheckout } = await import('../lib/supabase.js')
+                    startCheckout(p.id, user.id, user.email)
+                  }
                 }} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 18px', border:`1px solid ${sub?.plan === p.id ? '#f59e0b' : 'rgba(124,58,237,0.2)'}`, borderRadius:4, background: sub?.plan === p.id ? 'rgba(245,158,11,0.1)' : '#161622', cursor:'pointer' }}>
                   <div style={{ textAlign:'left' }}>
                     <div style={{ fontFamily:'LLPixel, monospace', fontSize:13, color:'#f59e0b', letterSpacing:2 }}>{p.label}</div>
