@@ -1248,26 +1248,7 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
                 ? `Trial ends ${new Date(sub.trial_ends_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short', year:'numeric' })}`
                 : sub?.stripe_subscription_id ? 'Active subscription' : 'No active subscription'}
             </div>
-            <div style={{ display:'flex', gap:8 }}>
-              <button className="btn btn-primary btn-sm" onClick={() => setShowPlanModal(true)}>
-                Change plan
-              </button>
-              {sub?.stripe_subscription_id && sub?.plan !== 'cancelled' && (
-                <button className="btn btn-secondary btn-sm" onClick={async () => {
-                  if (!confirm('Are you sure you want to cancel your subscription?')) return
-                  const res = await fetch('/api/cancel-subscription', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ subscriptionId: sub.stripe_subscription_id })
-                  })
-                  if (res.ok) alert('Subscription cancelled. You\'ll retain access until the end of your billing period.')
-                  else alert('Something went wrong. Please try again.')
-                }}>
-                  Cancel subscription
-                </button>
-              )}
             </div>
-          </div>
           <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
             {['solo','squadron','fleet'].map(plan => (
               <div key={plan} style={{ flex:1, minWidth:120, padding:'12px 14px', borderRadius:'var(--r)', border:`1px solid ${sub?.plan === plan ? 'var(--accent)' : 'var(--line)'}`, background: sub?.plan === plan ? 'var(--accent-bg)' : 'var(--surface2)' }}>
@@ -1276,6 +1257,25 @@ function SettingsPage({ user, sub, onLogout, activeBot, onBotDeleted }) {
                 <div style={{ fontSize:11, color:'var(--ink4)', marginTop:2 }}>{plan === 'solo' ? '1 bot · 500 msg' : plan === 'squadron' ? '3 bots · 2000 msg' : '10 bots · 6000 msg'}</div>
               </div>
             ))}
+          </div>
+          <div style={{ display:'flex', gap:8, justifyContent:'center', marginTop:16 }}>
+            <button className="btn btn-primary btn-sm" onClick={() => setShowPlanModal(true)}>
+              Change plan
+            </button>
+            {sub?.stripe_subscription_id && sub?.plan !== 'cancelled' && (
+              <button className="btn btn-secondary btn-sm" onClick={async () => {
+                if (!confirm('Are you sure you want to cancel your subscription?')) return
+                const res = await fetch('/api/cancel-subscription', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ subscriptionId: sub.stripe_subscription_id })
+                })
+                if (res.ok) alert('Subscription cancelled. You\'ll retain access until the end of your billing period.')
+                else alert('Something went wrong. Please try again.')
+              }}>
+                Cancel subscription
+              </button>
+            )}
           </div>
         </div>
       </div>
