@@ -61,6 +61,19 @@ export default function DashboardView({ user, sub, bot, onEditBot, onLogout, ini
     }).finally(() => setLoading(false))
   }, [activeBot?.id])
 
+useEffect(() => {
+    if (!activeBot?.id) return
+    const interval = setInterval(async () => {
+      const [freshGaps, freshStats] = await Promise.all([
+        getKnowledgeGaps(activeBot.id),
+        getBotStats(activeBot.id),
+      ])
+      setGaps(freshGaps)
+      setStats(freshStats)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [activeBot?.id])
+
   const shareUrl = activeBot ? `${window.location.origin}/dashboard?bot=${activeBot.id}&widget=true` : ''
 
   return (
