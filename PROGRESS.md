@@ -642,13 +642,13 @@ Run: rm -rf node_modules && npm install
 - Supabase Pro upgraded
 - Selective column fetching to reduce egress
 
-## Phase 3: Billing ❌ NOT STARTED
-- [ ] Stripe integration
-- [ ] Starter / Creator / Pro tiers
-- [ ] Message limits per plan
-- [ ] Billing page in dashboard
-- [ ] Upgrade prompts when limits hit
-- [ ] Webhooks for subscription events
+## Phase 3: Billing ✅
+- ✅ Stripe integration
+- ✅ Starter / Creator / Pro tiers
+- ✅ Message limits per plan
+- ✅ Billing page in dashboard
+- (Im not sure, can we chaeck this) Upgrade prompts when limits hit
+- ✅ Webhooks for subscription events
 
 ## Phase 4: Creator Experience ✅ MOSTLY COMPLETE
 - Wizard with 8 steps and live preview
@@ -678,7 +678,7 @@ Run: rm -rf node_modules && npm install
 - Termly Pro — auto-updates, no branding
 
 ## Phase 6: Marketing ❌ NOT STARTED
-- [ ] Landing page (separate from app)
+- ✅ Landing page (separate from app)
 - [ ] Waitlist
 - [ ] Find first 10 creators manually
 - [ ] Soft launch to waitlist
@@ -703,9 +703,7 @@ Run: rm -rf node_modules && npm install
 - Page title updated to Bot Brunch
 
 ### Remaining rebrand:
-- [ ] Wizard page (still shows Lunch Bots branding)
 - [ ] Chat/bot view
-- [ ] Remove all remaining "Lunch Bots" references in code
 - [ ] Add favicon
 
 ---

@@ -1287,7 +1287,7 @@ function ConversationContext({ convId }) {
   const [open,    setOpen]    = useState(false)
 
   useEffect(() => {
-    import('../lib/supabase.js').then(({ supabase }) => {
+    import('../lib/supabase.js').then(({ supabase, renderMarkdown }) => {
       supabase.from('messages').select('*').eq('conversation_id', convId)
         .order('created_at', { ascending: true })
         .then(({ data }) => { setMsgs(data || []); setLoading(false) })
@@ -1315,7 +1315,10 @@ function ConversationContext({ convId }) {
               <span style={{ fontSize:10, fontWeight:600, color: m.role==='user'?'var(--coffee-1)':'var(--ink4)', textTransform:'uppercase', letterSpacing:'0.06em', whiteSpace:'nowrap', marginTop:2, minWidth:28 }}>
                 {m.role === 'user' ? 'User' : 'Bot'}
               </span>
-              <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }}>{m.content}</span>
+              {m.role === 'bot'
+                ? <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }} dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }} />
+                : <span style={{ fontSize:12.5, color:'var(--ink)', lineHeight:1.55 }}>{m.content}</span>
+              }
             </div>
           ))}
         </div>
