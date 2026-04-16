@@ -3,7 +3,8 @@ import { signUp, signIn, ensureSubscriber } from '../lib/supabase.js'
 import { Spinner } from '../components/UI.jsx'
 
 export default function AuthView({ onAuth }) {
-  const [mode,    setMode]    = useState('choice')
+  const params = new URLSearchParams(window.location.search)
+const [mode,    setMode]    = useState(params.get('signin') === 'true' ? 'login' : 'choice')
   const [email,   setEmail]   = useState('')
   const [pw,      setPw]      = useState('')
   const [pw2,     setPw2]     = useState('')
