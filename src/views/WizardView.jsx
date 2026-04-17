@@ -254,37 +254,19 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
       <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
 
         {/* Top bar */}
-        <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:'var(--surface)', flexShrink:0 }}>
+        <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
           <div className="flex ic g8">
-          
-            <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 32 }} />
+            <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 28 }} />
+            {bot.name && <span style={{ fontSize:12, fontWeight:500, color:'var(--ink3)' }}>{bot.name}</span>}
           </div>
-          <div className="flex ic g12">
-            {/* Step name */}
-            <span style={{ fontSize:12.5, fontWeight:500, color:'var(--ink3)' }}>
-              {STEPS[step]?.label} · {step + 1}/{STEPS.length}
-            </span>
+          <div className="flex ic g8">
             <button onClick={handleSave}
-              style={{ background:'none', border:'none', cursor:'pointer', fontSize:13, color:'var(--ink3)', display:'flex', alignItems:'center', gap:5, padding:'5px 10px', borderRadius:'var(--r)', transition:'background 0.12s' }}
-              onMouseEnter={e => e.currentTarget.style.background='var(--surface2)'}
-              onMouseLeave={e => e.currentTarget.style.background='none'}>
-              <I.Check width={13} height={13} /> Save
+              style={{ background:'none', border:'none', cursor:'pointer', fontSize:12, color:'var(--ink3)', display:'flex', alignItems:'center', gap:4, padding:'4px 8px', borderRadius:'var(--r)' }}>
+              <I.Check width={12} height={12} /> Save
             </button>
-            <div className="flex ic g8">
-              {bot.use_case && (
-                <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                  <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, background:'var(--surface2)', border:'1px solid var(--line)', color:'var(--ink3)', fontWeight:500 }}>
-                    {bot.bot_type === 'internal' ? '🔒 Internal' : '🌐 Customer'}
-                  </span>
-                  <span style={{ fontSize:11, padding:'3px 10px', borderRadius:20, background:'var(--surface2)', border:'1px solid var(--line)', color:'var(--ink3)', fontWeight:500 }}>
-                    {USE_CASES.find(u => u.id === bot.use_case)?.label || bot.use_case}
-                  </span>
-                </div>
-              )}
-              {existingBot && (
-                <button className="btn btn-ghost btn-sm" onClick={() => onDone(existingBot)}>← Back to dashboard</button>
-              )}
-            </div>
+            {existingBot && (
+              <button className="btn btn-ghost btn-sm" onClick={() => onDone(existingBot)}>← Back</button>
+            )}
           </div>
         </div>
 
@@ -359,7 +341,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
       {/* ── Right: pinned live preview ── */}
       <div className="wizard-mobile-right" style={{ width:400, minWidth:400, borderLeft:'1px solid var(--line)', display:'flex', flexDirection:'column', background:'var(--surface2)', flexShrink:0 }}>
         {/* Header */}
-        <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
+        <div className="wizard-preview-header" style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
           <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)' }}>Live Preview</span>
           <span style={{ fontSize:11, color:'var(--ink4)' }}>Updates as you edit</span>
         </div>
@@ -383,12 +365,12 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
               </div>
             </div>
             {/* Chat at natural size — 340px wide, 500px tall */}
-            <div style={{ height:500, overflow:'hidden' }}>
+            <div className="wizard-preview-frame" style={{ height:500, overflow:'hidden' }}>
               <BotPreview bot={bot} />
             </div>
           </div>
         </div>
-        <div style={{ padding:'8px', fontSize:10, color:'var(--ink4)', textAlign:'center', background:'var(--surface)', borderTop:'1px solid var(--line)', flexShrink:0 }}>
+        <div className="wizard-preview-footer" style={{ padding:'8px', fontSize:10, color:'var(--ink4)', textAlign:'center', background:'var(--surface)', borderTop:'1px solid var(--line)', flexShrink:0 }}>
           Live preview · updates as you edit
         </div>
       </div>

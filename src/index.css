@@ -1384,6 +1384,49 @@ body.widget-mode body::before {
     padding: 0 16px !important;
     height: 56px !important;
   }
+
+  /* Wizard step tabs — fit all on screen */
+  .wizard-mobile-left button[style*="height:42"] {
+    padding: 0 6px !important;
+    font-size: 10px !important;
+    flex: 1 !important;
+  }
+  .wizard-mobile-left button[style*="height:42"] span {
+    width: 14px !important;
+    height: 14px !important;
+    font-size: 8px !important;
+  }
+
+  /* Hide live preview header and footer on mobile */
+  .wizard-preview-header {
+    display: none !important;
+  }
+
+  .wizard-preview-footer {
+    display: none !important;
+  }
+
+  /* Preview frame fills mobile preview area */
+  .wizard-preview-frame {
+    height: 100% !important;
+  }
+
+  /* Preview frame fills mobile preview area */
+  .wizard-preview-frame {
+    height: 100% !important;
+  }
+
+  /* Hide browser chrome bar in mobile preview */
+  .wizard-mobile-right div[style*="height:26"] {
+    display: none !important;
+  }
+
+  /* Make preview fill full width */
+  .wizard-mobile-right > div > div > div[style*="width:340"] {
+    width: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
 }
 
 /* Bottom tab bar — only on mobile */
