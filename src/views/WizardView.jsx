@@ -248,10 +248,10 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
   const progress = ((step + 1) / STEPS.length) * 100
 
   return (
-    <div style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden' }}>
+    <div className="wizard-mobile-wrap" style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden' }}>
 
       {/* ── Left: full content area ── */}
-      <div style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
+      <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
 
         {/* Top bar */}
         <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 28px', background:'var(--surface)', flexShrink:0 }}>
@@ -339,7 +339,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         </div>
 
         {/* Footer */}
-        <div style={{ height:56, borderTop:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 48px', background:'var(--surface)', flexShrink:0 }}>
+        <div className="wizard-mobile-footer" style={{ height:56, borderTop:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 48px', background:'var(--surface)', flexShrink:0 }}>
           <button onClick={back} disabled={step === 0}
             style={{ background:'none', border:'none', cursor:step===0?'default':'pointer', opacity:step===0?0:1, color:'var(--ink3)', fontSize:13 }}>
             ← Back
@@ -357,7 +357,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
       </div>
 
       {/* ── Right: pinned live preview ── */}
-      <div style={{ width:400, minWidth:400, borderLeft:'1px solid var(--line)', display:'flex', flexDirection:'column', background:'var(--surface2)', flexShrink:0 }}>
+      <div className="wizard-mobile-right" style={{ width:400, minWidth:400, borderLeft:'1px solid var(--line)', display:'flex', flexDirection:'column', background:'var(--surface2)', flexShrink:0 }}>
         {/* Header */}
         <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
           <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)' }}>Live Preview</span>
