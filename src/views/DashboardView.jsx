@@ -964,7 +964,7 @@ Return ONLY valid JSON, no markdown, no explanation.`,
             </div>
           </div>
 
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12, alignItems:'start' }} className="insights-grid">
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:12, marginTop:12, alignItems:'start' }} className="insights-grid">
             {/* Top topics */}
             <div className="card fade-up d1">
               <div className="card-head" style={{ minHeight:48 }}><div className="card-title">Top topics</div></div>
