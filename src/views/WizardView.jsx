@@ -381,7 +381,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
               </div>
             </div>
             {/* Chat at natural size — 340px wide, 500px tall */}
-            <div className="wizard-preview-frame" style={{ height:500, overflow:'hidden' }}>
+            <div className="wizard-preview-frame" style={{ height:420, overflow:'hidden' }}>
               <BotPreview bot={bot} />
             </div>
           </div>
