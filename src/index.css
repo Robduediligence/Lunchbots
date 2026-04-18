@@ -1402,6 +1402,18 @@ body.widget-mode body::before {
     display: none !important;
   }
 
+  /* Remove padding around preview window on mobile */
+  .wizard-preview-inner {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .wizard-preview-inner > div {
+    width: 100% !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
   .wizard-preview-footer {
     display: none !important;
   }
