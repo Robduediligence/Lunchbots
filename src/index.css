@@ -1429,10 +1429,10 @@ body.widget-mode body::before {
 
   /* Scale down preview content to fit */
   .wizard-preview-frame > div {
-    transform: scale(0.75) !important;
+    transform: scale(0.55) !important;
     transform-origin: top left !important;
-    width: 133% !important;
-    height: 133% !important;
+    width: 182% !important;
+    height: 182% !important;
   }
 
   .wizard-preview-footer {
