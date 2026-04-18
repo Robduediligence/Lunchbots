@@ -248,10 +248,10 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
   const progress = ((step + 1) / STEPS.length) * 100
 
   return (
-    <div className="wizard-mobile-wrap" style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden' }}>
+    <div className="wizard-mobile-wrap" style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden', position:'fixed', width:'100%', top:0, left:0 }}>
 
       {/* ── Left: full content area ── */}
-      <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden', height:'calc(100vh - 32vh)' }}>
+      <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden', height:'calc(68vh - 56px)', maxHeight:'calc(68vh - 56px)' }}>
 
         {/* Top bar */}
         <div className="wizard-topbar" style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
