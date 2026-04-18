@@ -1462,22 +1462,25 @@ body.widget-mode body::before {
   }
 
   /* Top bar, progress bar and step tabs all sticky on mobile */
-  .wizard-step-tabs {
-    position: sticky !important;
-    top: 96px !important;
-    z-index: 50 !important;
-  }
-
-  .wizard-mobile-left > div:first-child {
+  .wizard-topbar {
     position: sticky !important;
     top: 0 !important;
     z-index: 52 !important;
+    flex-shrink: 0 !important;
   }
 
-  .wizard-mobile-left > div:nth-child(2) {
+  .wizard-progress-bar {
     position: sticky !important;
     top: 52px !important;
     z-index: 51 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .wizard-step-tabs {
+    position: sticky !important;
+    top: 55px !important;
+    z-index: 50 !important;
+    flex-shrink: 0 !important;
   }
 }
 

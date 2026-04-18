@@ -254,7 +254,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
       <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
 
         {/* Top bar */}
-        <div style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
+        <div className="wizard-topbar" style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
           <div className="flex ic g8">
             <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 28 }} />
             {bot.name && <span style={{ fontSize:12, fontWeight:500, color:'var(--ink3)' }}>{bot.name}</span>}
@@ -271,7 +271,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         </div>
 
         {/* Progress bar */}
-        <div style={{ height:3, background:'var(--line)', flexShrink:0 }}>
+        <div className="wizard-progress-bar" style={{ height:3, background:'var(--line)', flexShrink:0 }}>
           <div style={{ height:'100%', background:'var(--coffee-0)', width:`${progress}%`, transition:'width 0.4s cubic-bezier(0.22,1,0.36,1)' }} />
         </div>
 
