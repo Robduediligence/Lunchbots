@@ -500,7 +500,7 @@ function StepUseCase({ bot, f }) {
       <SH n={1} title="What kind of bot are you building?" sub="Choose the use case and who it's for. This pre-configures personality and knowledge structure — adjust everything afterwards." />
 
       {/* Bot type selector */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:10, marginBottom:20 }}>
+      <div style={{ display:'flex', gap:10, marginBottom:20 }}>
         {[
           { id:'customer', label:'Customer facing', icon:'🌐', desc:'Public link for your customers' },
           { id:'internal', label:'Internal team',   icon:'🔒', desc:'Password protected for your team' },
@@ -523,7 +523,7 @@ function StepUseCase({ bot, f }) {
         </div>
       )}
 
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:10 }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
         {USE_CASES.map(uc => (
           <button key={uc.id} onClick={() => select(uc.id)}
             style={{ padding:'14px 14px', borderRadius:'var(--r-md)', textAlign:'left', border:`1.5px solid ${bot.use_case===uc.id?'var(--coffee-0)':'var(--line)'}`, background: bot.use_case===uc.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', transition:'all 0.12s' }}>

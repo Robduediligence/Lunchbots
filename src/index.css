@@ -1350,6 +1350,11 @@ body.widget-mode body::before {
     gap: 12px !important;
   }
 
+ /* Force wizard step grids to single column */
+  .wizard-step-content div[style*="gridTemplateColumns"] {
+    grid-template-columns: 1fr !important;
+  }
+
   /* ── WIZARD MOBILE ── */
   .wizard-mobile-wrap {
     flex-direction: column !important;
