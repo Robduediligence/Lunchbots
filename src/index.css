@@ -1466,11 +1466,9 @@ body.widget-mode body::before {
   /* Scale down preview content to fit */
   .wizard-preview-frame > div {
     transform: scale(0.55) !important;
-    transform-origin: top center !important;
+    transform-origin: top left !important;
     width: 182% !important;
     height: 182% !important;
-    display: flex !important;
-    flex-direction: column !important;
   }
 
   /* Hide browser chrome bar in mobile preview */
