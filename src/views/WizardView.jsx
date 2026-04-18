@@ -208,6 +208,17 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
 
   const f = (k, v) => setBot(p => ({ ...p, [k]: v }))
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.width = '100%'
+    return () => {
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.width = ''
+    }
+  }, [])
+
   const canNext = step === 0 ? !!bot.use_case
     : step === 1 ? bot.name.trim().length > 0
     : true
