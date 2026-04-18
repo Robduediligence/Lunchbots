@@ -1461,11 +1461,23 @@ body.widget-mode body::before {
     box-shadow: none !important;
   }
 
-  /* Step tabs sticky on mobile */
+  /* Top bar, progress bar and step tabs all sticky on mobile */
   .wizard-step-tabs {
     position: sticky !important;
-    top: 0 !important;
+    top: 96px !important;
     z-index: 50 !important;
+  }
+
+  .wizard-mobile-left > div:first-child {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 52 !important;
+  }
+
+  .wizard-mobile-left > div:nth-child(2) {
+    position: sticky !important;
+    top: 52px !important;
+    z-index: 51 !important;
   }
 }
 
