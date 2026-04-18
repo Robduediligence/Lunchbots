@@ -1420,6 +1420,7 @@ body.widget-mode body::before {
     width: 100% !important;
     min-width: 0 !important;
     height: 32vh !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
     border-left: none !important;
     border-top: 1px solid var(--line) !important;
     z-index: 100 !important;
