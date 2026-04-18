@@ -207,15 +207,20 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
   const [error,   setError]   = useState('')
 
   const f = (k, v) => setBot(p => ({ ...p, [k]: v }))
+  const scrollRef = useRef(null)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     document.body.style.position = 'fixed'
     document.body.style.width = '100%'
+    const el = scrollRef.current
+    const allowScroll = e => e.stopPropagation()
+    if (el) el.addEventListener('touchmove', allowScroll, { passive: true })
     return () => {
       document.body.style.overflow = ''
       document.body.style.position = ''
       document.body.style.width = ''
+      if (el) el.removeEventListener('touchmove', allowScroll)
     }
   }, [])
 
@@ -317,7 +322,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         </div>
 
         {/* Step content — scrollable */}
-        <div className="wizard-step-content" style={{ flex:1, overflowY:'scroll', overflowX:'hidden', minHeight:0, WebkitOverflowScrolling:'touch', touchAction:'pan-y' }} key={step}>
+        <div ref={scrollRef} className="wizard-step-content" style={{ flex:1, overflowY:'scroll', overflowX:'hidden', minHeight:0, WebkitOverflowScrolling:'touch', touchAction:'pan-y' }} key={step}>
           <div className="fade-in" style={{ padding:'24px 20px 160px 20px', maxWidth:820, margin:'0 auto' }}>
             {error && <div className="alert alert-error mb-16">{error}</div>}
             {step === 0 && <StepUseCase      bot={bot} f={f} />}
