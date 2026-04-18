@@ -1364,11 +1364,23 @@ body.widget-mode body::before {
     flex-shrink: 0 !important;
   }
 
+  .wizard-topbar {
+    flex-shrink: 0 !important;
+  }
+
+  .wizard-progress-bar {
+    flex-shrink: 0 !important;
+  }
+
+  .wizard-step-tabs {
+    flex-shrink: 0 !important;
+  }
+
   /* Only the step content scrolls */
   .wizard-step-content {
     overflow-y: auto !important;
     flex: 1 !important;
-    padding-bottom: calc(32vh + 56px + 40px) !important;
+    padding-bottom: 20px !important;
     -webkit-overflow-scrolling: touch !important;
     min-height: 0 !important;
   }

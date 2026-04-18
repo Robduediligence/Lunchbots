@@ -250,25 +250,25 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
   return (
     <div className="wizard-mobile-wrap" style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden' }}>
 
-      {/* ── Sticky top bar — outside scroll area ── */}
-      <div className="wizard-topbar" style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
-        <div className="flex ic g8">
-          <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 28 }} />
-          {bot.name && <span style={{ fontSize:12, fontWeight:500, color:'var(--ink3)' }}>{bot.name}</span>}
-        </div>
-        <div className="flex ic g8">
-          <button onClick={handleSave}
-            style={{ background:'none', border:'none', cursor:'pointer', fontSize:12, color:'var(--ink3)', display:'flex', alignItems:'center', gap:4, padding:'4px 8px', borderRadius:'var(--r)' }}>
-            <I.Check width={12} height={12} /> Save
-          </button>
-          {existingBot && (
-            <button className="btn btn-ghost btn-sm" onClick={() => onDone(existingBot)}>← Back</button>
-          )}
-        </div>
-      </div>
-
       {/* ── Left: full content area ── */}
       <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
+
+        {/* Top bar */}
+        <div className="wizard-topbar" style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
+          <div className="flex ic g8">
+            <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height: 28 }} />
+            {bot.name && <span style={{ fontSize:12, fontWeight:500, color:'var(--ink3)' }}>{bot.name}</span>}
+          </div>
+          <div className="flex ic g8">
+            <button onClick={handleSave}
+              style={{ background:'none', border:'none', cursor:'pointer', fontSize:12, color:'var(--ink3)', display:'flex', alignItems:'center', gap:4, padding:'4px 8px', borderRadius:'var(--r)' }}>
+              <I.Check width={12} height={12} /> Save
+            </button>
+            {existingBot && (
+              <button className="btn btn-ghost btn-sm" onClick={() => onDone(existingBot)}>← Back</button>
+            )}
+          </div>
+        </div>
 
         {/* Progress bar */}
         <div className="wizard-progress-bar" style={{ height:3, background:'var(--line)', flexShrink:0 }}>
