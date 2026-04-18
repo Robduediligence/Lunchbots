@@ -1373,29 +1373,6 @@ body.widget-mode body::before {
     border-left: none !important;
     border-top: 1px solid var(--line) !important;
     z-index: 100 !important;
-    overflow: hidden !important;
-  }
-
-  /* Remove padding around preview on mobile */
-  .wizard-mobile-right > div {
-    padding: 0 !important;
-    background: transparent !important;
-  }
-
-  /* Make the floating window fill the preview completely */
-  .wizard-mobile-right > div > div {
-    width: 100% !important;
-    height: 100% !important;
-    padding: 0 !important;
-    align-items: stretch !important;
-    justify-content: stretch !important;
-  }
-
-  .wizard-mobile-right > div > div > div {
-    width: 100% !important;
-    height: 100% !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
   }
 
   .wizard-mobile-footer {
