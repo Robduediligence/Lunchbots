@@ -306,7 +306,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         </div>
 
         {/* Step content — scrollable */}
-        <div className="wizard-step-content" style={{ flex:1, overflowY:'auto', overflowX:'hidden', minHeight:0, WebkitOverflowScrolling:'touch', overscrollBehavior:'contain' }} key={step}>
+        <div className="wizard-step-content" style={{ flex:1, overflowY:'scroll', overflowX:'hidden', minHeight:0, WebkitOverflowScrolling:'touch', touchAction:'pan-y' }} key={step}>
           <div className="fade-in" style={{ padding:'24px 20px 160px 20px', maxWidth:820, margin:'0 auto' }}>
             {error && <div className="alert alert-error mb-16">{error}</div>}
             {step === 0 && <StepUseCase      bot={bot} f={f} />}
