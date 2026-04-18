@@ -1358,7 +1358,7 @@ body.widget-mode body::before {
   }
 
   .wizard-mobile-left {
-    height: calc(100vh - 32vh) !important;
+    height: calc(68vh - 56px) !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1388,7 +1388,7 @@ body.widget-mode body::before {
     overflow-x: hidden !important;
     flex: 1 !important;
     min-height: 0 !important;
-    padding-bottom: 16px !important;
+    padding-bottom: 60px !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
