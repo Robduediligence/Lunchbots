@@ -1357,9 +1357,25 @@ body.widget-mode body::before {
   }
 
   .wizard-mobile-left {
-    height: 100vh !important;
+    height: calc(68vh - 56px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* Only the step content scrolls */
+  .wizard-mobile-left > div[style*="flex:1"][style*="overflowY"] {
     overflow-y: auto !important;
-    padding-bottom: calc(32vh + 56px + 20px) !important;
+    flex: 1 !important;
+    padding-bottom: 20px !important;
+  }
+
+  /* Top bar, progress, step tabs all fixed — don't scroll */
+  .wizard-mobile-left > div[style*="height:52"],
+  .wizard-mobile-left > div[style*="height:3"],
+  .wizard-step-tabs {
+    flex-shrink: 0 !important;
+    overflow: visible !important;
   }
 
   .wizard-mobile-right {
