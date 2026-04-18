@@ -1364,7 +1364,7 @@ body.widget-mode body::before {
   }
 
   .wizard-mobile-left {
-    height: calc(68vh - 56px) !important;
+    height: calc(81vh - 56px) !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
@@ -1419,7 +1419,7 @@ body.widget-mode body::before {
     right: 0 !important;
     width: 100% !important;
     min-width: 0 !important;
-    height: 32vh !important;
+    height: 45vh !important;
     padding-bottom: env(safe-area-inset-bottom) !important;
     border-left: none !important;
     border-top: 1px solid var(--line) !important;
