@@ -1355,6 +1355,12 @@ body.widget-mode body::before {
     flex-direction: column !important;
     overflow: hidden !important;
     height: 100vh !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
   }
 
   .wizard-mobile-left {
