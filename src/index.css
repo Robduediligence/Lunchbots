@@ -1365,11 +1365,12 @@ body.widget-mode body::before {
   }
 
   /* Only the step content scrolls */
-  .wizard-mobile-left > div[style*="flex:1"][style*="overflowY"] {
+  .wizard-step-content {
     overflow-y: auto !important;
     flex: 1 !important;
     padding-bottom: 20px !important;
     -webkit-overflow-scrolling: touch !important;
+    min-height: 0 !important;
   }
 
   .wizard-mobile-right {
