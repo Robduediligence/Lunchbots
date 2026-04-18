@@ -1357,9 +1357,9 @@ body.widget-mode body::before {
   }
 
   .wizard-mobile-left {
-    height: calc(58vh - 56px) !important;
+    height: 100vh !important;
     overflow-y: auto !important;
-    padding-bottom: 20px !important;
+    padding-bottom: calc(40vh + 56px + 20px) !important;
   }
 
   .wizard-mobile-right {
