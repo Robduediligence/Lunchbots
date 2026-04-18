@@ -1368,7 +1368,7 @@ body.widget-mode body::before {
   .wizard-step-content {
     overflow-y: auto !important;
     flex: 1 !important;
-    padding-bottom: 20px !important;
+    padding-bottom: calc(32vh + 56px + 40px) !important;
     -webkit-overflow-scrolling: touch !important;
     min-height: 0 !important;
   }
