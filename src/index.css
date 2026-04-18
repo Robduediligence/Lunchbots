@@ -1356,16 +1356,22 @@ body.widget-mode body::before {
     overflow: hidden !important;
   }
 
+  .wizard-mobile-wrap {
+    flex-direction: column !important;
+  }
+
   .wizard-mobile-left {
     height: calc(100vh - 32vh - 56px) !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
     flex-shrink: 0 !important;
+    position: relative !important;
   }
 
   .wizard-topbar {
     flex-shrink: 0 !important;
+    z-index: 10 !important;
   }
 
   .wizard-progress-bar {
@@ -1374,17 +1380,33 @@ body.widget-mode body::before {
 
   .wizard-step-tabs {
     flex-shrink: 0 !important;
+    overflow-x: auto !important;
   }
 
   /* Only the step content scrolls */
   .wizard-step-content {
     overflow-y: auto !important;
+    overflow-x: hidden !important;
     flex: 1 !important;
-    padding-bottom: calc(32vh + 56px + 40px) !important;
-    -webkit-overflow-scrolling: touch !important;
     min-height: 0 !important;
+    padding-bottom: 40px !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
+  /* Footer sits at bottom of left panel */
+  .wizard-mobile-footer {
+    flex-shrink: 0 !important;
+    position: static !important;
+    height: 56px !important;
+    padding: 0 16px !important;
+    border-top: 1px solid var(--line) !important;
+    background: var(--surface) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+
+  /* Preview fixed at bottom */
   .wizard-mobile-right {
     position: fixed !important;
     bottom: 0 !important;
@@ -1400,30 +1422,20 @@ body.widget-mode body::before {
     pointer-events: none !important;
   }
 
-  .wizard-mobile-footer {
-    position: fixed !important;
-    bottom: 32vh !important;
-    left: 0 !important;
-    right: 0 !important;
-    z-index: 101 !important;
-    padding: 0 16px !important;
-    height: 56px !important;
-  }
-
   /* Wizard step tabs — fit all on screen */
-  .wizard-mobile-left button[style*="height:42"] {
+  .wizard-step-tabs button {
     padding: 0 6px !important;
     font-size: 10px !important;
     flex: 1 !important;
-  }
-  .wizard-mobile-left button[style*="height:42"] span {
-    width: 14px !important;
-    height: 14px !important;
-    font-size: 8px !important;
+    flex-shrink: 0 !important;
   }
 
   /* Hide live preview header and footer on mobile */
   .wizard-preview-header {
+    display: none !important;
+  }
+
+  .wizard-preview-footer {
     display: none !important;
   }
 
@@ -1439,26 +1451,18 @@ body.widget-mode body::before {
     box-shadow: none !important;
   }
 
+  /* Preview frame fills mobile preview area */
+  .wizard-preview-frame {
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
   /* Scale down preview content to fit */
   .wizard-preview-frame > div {
     transform: scale(0.55) !important;
     transform-origin: top left !important;
     width: 182% !important;
     height: 182% !important;
-  }
-
-  .wizard-preview-footer {
-    display: none !important;
-  }
-
-  /* Preview frame fills mobile preview area */
-  .wizard-preview-frame {
-    height: 100% !important;
-  }
-
-  /* Preview frame fills mobile preview area */
-  .wizard-preview-frame {
-    height: 100% !important;
   }
 
   /* Hide browser chrome bar in mobile preview */
@@ -1471,26 +1475,6 @@ body.widget-mode body::before {
     width: 100% !important;
     border-radius: 0 !important;
     box-shadow: none !important;
-  }
-
-  /* Top bar, progress bar and step tabs all sticky on mobile */
-  .wizard-topbar {
-    flex-shrink: 0 !important;
-    z-index: 52 !important;
-  }
-
-  .wizard-progress-bar {
-    position: sticky !important;
-    top: 52px !important;
-    z-index: 51 !important;
-    flex-shrink: 0 !important;
-  }
-
-  .wizard-step-tabs {
-    position: sticky !important;
-    top: 55px !important;
-    z-index: 50 !important;
-    flex-shrink: 0 !important;
   }
 }
 
