@@ -1354,33 +1354,32 @@ body.widget-mode body::before {
   .wizard-mobile-wrap {
     flex-direction: column !important;
     overflow: hidden !important;
-  }
-
-  .wizard-mobile-wrap {
-    flex-direction: column !important;
+    height: 100vh !important;
   }
 
   .wizard-mobile-left {
-    height: calc(100vh - 32vh - 56px) !important;
+    height: calc(100vh - 32vh) !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
     flex-shrink: 0 !important;
-    position: relative !important;
   }
 
   .wizard-topbar {
     flex-shrink: 0 !important;
     z-index: 10 !important;
+    height: 52px !important;
   }
 
   .wizard-progress-bar {
     flex-shrink: 0 !important;
+    height: 3px !important;
   }
 
   .wizard-step-tabs {
     flex-shrink: 0 !important;
     overflow-x: auto !important;
+    height: 42px !important;
   }
 
   /* Only the step content scrolls */
@@ -1389,11 +1388,11 @@ body.widget-mode body::before {
     overflow-x: hidden !important;
     flex: 1 !important;
     min-height: 0 !important;
-    padding-bottom: 40px !important;
+    padding-bottom: 16px !important;
     -webkit-overflow-scrolling: touch !important;
   }
 
-  /* Footer sits at bottom of left panel */
+  /* Footer pinned at bottom of left panel */
   .wizard-mobile-footer {
     flex-shrink: 0 !important;
     position: static !important;
