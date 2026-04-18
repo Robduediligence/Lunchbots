@@ -467,7 +467,7 @@ function BotPreview({ bot }) {
       </div>
 
       {/* Input */}
-      <div style={{ position:'relative', zIndex:2, padding:`${spacing/2}px`, borderTop:'1px solid rgba(0,0,0,0.07)', display:'flex', gap:6, background:`rgba(253,250,244,${panelOp})`, flexShrink:0 }}>
+      <div style={{ position:'relative', zIndex:2, padding:`${spacing/2}px`, borderTop:'1px solid rgba(0,0,0,0.07)', display:'flex', gap:6, background:`rgba(253,250,244,${panelOp})`, flexShrink:0, marginTop:'auto' }}>
         <div style={{ flex:1, background:'rgba(0,0,0,0.04)', borderRadius:`${Math.min(bot.border_radius??12,10)}px`, padding:'5px 9px', fontSize:sz*0.85, color:'#C9AD8E', opacity:textOp }}>Send a message…</div>
         <div style={{ width:26, height:26, borderRadius:`${Math.min(bot.border_radius??12,9)}px`, background:primary, display:'flex', alignItems:'center', justifyContent:'center' }}>
           <I.Send width={10} height={10} style={{ color:'white' }} />
