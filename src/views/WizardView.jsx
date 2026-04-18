@@ -276,7 +276,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         </div>
 
         {/* Step tabs */}
-        <div style={{ display:'flex', borderBottom:'1px solid var(--line)', background:'var(--surface)', flexShrink:0, overflowX:'auto' }}>
+        <div className="wizard-step-tabs" style={{ display:'flex', borderBottom:'1px solid var(--line)', background:'var(--surface)', flexShrink:0, overflowX:'auto' }}>
           {STEPS.map((s, i) => (
             <button key={s.id}
               onClick={() => i <= maxStep && setStep(i)}

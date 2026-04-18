@@ -1439,6 +1439,13 @@ body.widget-mode body::before {
     border-radius: 0 !important;
     box-shadow: none !important;
   }
+
+  /* Step tabs sticky on mobile */
+  .wizard-step-tabs {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 50 !important;
+  }
 }
 
 /* Bottom tab bar — only on mobile */
