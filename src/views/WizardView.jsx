@@ -251,7 +251,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
     <div className="wizard-mobile-wrap" style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden' }}>
 
       {/* ── Left: full content area ── */}
-      <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
+      <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden', height:'calc(100vh - 32vh)' }}>
 
         {/* Top bar */}
         <div className="wizard-topbar" style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
@@ -306,7 +306,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         </div>
 
         {/* Step content — scrollable */}
-        <div className="wizard-step-content" style={{ flex:1, overflowY:'auto' }} key={step}>
+        <div className="wizard-step-content" style={{ flex:1, overflowY:'auto', overflowX:'hidden', minHeight:0, WebkitOverflowScrolling:'touch' }} key={step}>
           <div className="fade-in" style={{ padding:'36px 60px', maxWidth:820, margin:'0 auto' }}>
             {error && <div className="alert alert-error mb-16">{error}</div>}
             {step === 0 && <StepUseCase      bot={bot} f={f} />}
