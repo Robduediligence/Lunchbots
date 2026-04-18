@@ -362,7 +362,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
           <span style={{ fontSize:11, color:'var(--ink4)' }}>Updates as you edit</span>
         </div>
         {/* Floating desktop window centred in panel */}
-        <div className="wizard-preview-inner" style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', padding:'28px 24px' }}>
+        <div className="wizard-preview-inner" style={{ flex:1, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:'16px 24px 0 24px' }}>
           <div style={{
             width:340,
             borderRadius:10,
