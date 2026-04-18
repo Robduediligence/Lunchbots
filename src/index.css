@@ -1463,10 +1463,8 @@ body.widget-mode body::before {
 
   /* Top bar, progress bar and step tabs all sticky on mobile */
   .wizard-topbar {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 52 !important;
     flex-shrink: 0 !important;
+    z-index: 52 !important;
   }
 
   .wizard-progress-bar {
