@@ -363,30 +363,9 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
           <span style={{ fontSize:11, color:'var(--ink4)' }}>Updates as you edit</span>
         </div>
         {/* Floating desktop window centred in panel */}
-        <div className="wizard-preview-inner" style={{ flex:1, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:'16px 24px 0 24px' }}>
-          <div style={{
-            width:340,
-            borderRadius:10,
-            overflow:'hidden',
-            boxShadow:'0 8px 32px rgba(44,24,16,0.18), 0 0 0 1px rgba(44,24,16,0.08)',
-            background:'white',
-            flexShrink:0,
-          }}>
-            {/* Browser chrome bar */}
-            <div style={{ height:26, background:'#EDE8E0', display:'flex', alignItems:'center', gap:5, padding:'0 10px', borderBottom:'1px solid rgba(0,0,0,0.08)' }}>
-              <div style={{ display:'flex', gap:4 }}>
-                {['#FF5F57','#FEBC2E','#28C840'].map((c,i) => <div key={i} style={{ width:7, height:7, borderRadius:'50%', background:c }} />)}
-              </div>
-              <div style={{ flex:1, height:14, background:'white', borderRadius:3, marginLeft:5, display:'flex', alignItems:'center', padding:'0 7px', border:'1px solid rgba(0,0,0,0.07)' }}>
-                <span style={{ fontSize:8, color:'#9A8A7A', fontFamily:'monospace' }}>botbrunch.com/chat</span>
-              </div>
-            </div>
-            {/* iPhone preview */}
-            <div className="wizard-preview-frame" style={{ height:380, overflow:'hidden', position:'relative', isolation:'isolate' }}>
-              <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:'scale(0.435)', transformOrigin:'top left', pointerEvents:'none' }}>
-                <ActiveChat bot={bot} previewMode={true} />
-              </div>
-            </div>
+        <div className="wizard-preview-inner" style={{ flex:1, overflow:'hidden', position:'relative', isolation:'isolate' }}>
+          <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:`scale(${(window.innerHeight * 0.75) / 844})`, transformOrigin:'top left', pointerEvents:'none' }}>
+            <ActiveChat bot={bot} previewMode={true} />
           </div>
         </div>
         <div className="wizard-preview-footer" style={{ padding:'8px', fontSize:10, color:'var(--ink4)', textAlign:'center', background:'var(--surface)', borderTop:'1px solid var(--line)', flexShrink:0 }}>
