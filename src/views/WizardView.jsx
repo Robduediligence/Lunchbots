@@ -381,12 +381,10 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
                 <span style={{ fontSize:8, color:'#9A8A7A', fontFamily:'monospace' }}>botbrunch.com/chat</span>
               </div>
             </div>
-            {/* Chat at natural size — 340px wide, 500px tall */}
-            <div className="wizard-preview-frame" style={{ height:420, overflow:'hidden', position:'relative', isolation:'isolate' }}>
-              <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
-                <div style={{ transform:'scale(0.55)', transformOrigin:'top left', width:'182%', height:'182%' }}>
-                  <ActiveChat bot={bot} previewMode={true} />
-                </div>
+            {/* iPhone preview */}
+            <div className="wizard-preview-frame" style={{ height:380, overflow:'hidden', position:'relative', isolation:'isolate' }}>
+              <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:'scale(0.435)', transformOrigin:'top left', pointerEvents:'none' }}>
+                <ActiveChat bot={bot} previewMode={true} />
               </div>
             </div>
           </div>
