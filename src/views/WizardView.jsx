@@ -552,7 +552,7 @@ function StepIdentity({ bot, f }) {
           <input className="input" placeholder="e.g. Aria, Max, Scout…" value={bot.name} onChange={e => f('name', e.target.value)} autoFocus />
         </div>
         <div className="field" style={{ marginBottom:0 }}>
-          <label className="label">Descriptor</label>
+          <label className="label">What is this bot's focus?</label>
           <input className="input" placeholder="Your support specialist" value={bot.descriptor} onChange={e => f('descriptor', e.target.value)} />
         </div>
       </div>
