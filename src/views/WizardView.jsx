@@ -898,6 +898,26 @@ function saveEntry() {
           <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>
             <I.Plus width={13} height={13} /> Add text entry
           </button>
+          <button className="btn btn-primary btn-sm" onClick={() => {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+              alert('Speech recognition not supported in this browser.')
+              return
+            }
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+            const recognition = new SR()
+            recognition.continuous = true
+            recognition.interimResults = false
+            recognition.lang = 'en-US'
+            recognition.onresult = e => {
+              const transcript = Array.from(e.results).map(r => r[0].transcript).join(' ')
+              setForm(p => ({ ...p, content: p.content ? p.content + ' ' + transcript : transcript }))
+            }
+            recognition.start()
+            setAdding(true)
+            setTimeout(() => recognition.stop(), 120000)
+          }}>
+            🎤 Dictate
+          </button>
         </div>
 
         {scraping && (
