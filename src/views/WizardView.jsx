@@ -15,12 +15,12 @@ const STEPS = [
 ]
 
 const USE_CASES = [
-  { id: 'support',    label: 'Support Bot',           icon: '🎧', desc: 'Answer customer questions, resolve issues, reduce support load.' },
-  { id: 'sales',      label: 'Sales Bot',             icon: '💼', desc: 'Qualify leads, explain offerings, guide towards a conversation.' },
-  { id: 'onboarding', label: 'Onboarding Bot',        icon: '🚀', desc: 'Guide new customers or team members through getting started.' },
-  { id: 'knowledge',  label: 'Internal Knowledge Bot',icon: '📚', desc: 'Give your team instant access to SOPs, policies, and processes.' },
-  { id: 'training',   label: 'Training & Education',  icon: '🎓', desc: 'Deliver course material, answer student questions, reinforce learning.' },
-  { id: 'intake',     label: 'Intake & Triage Bot',   icon: '📋', desc: 'Collect information, qualify requests, route to the right person.' },
+  { id: 'support',    label: 'Support Bot',           desc: 'Answer customer questions, resolve issues, reduce support load.' },
+  { id: 'sales',      label: 'Sales Bot',             desc: 'Qualify leads, explain offerings, guide towards a conversation.' },
+  { id: 'onboarding', label: 'Onboarding Bot',        desc: 'Guide new customers or team members through getting started.' },
+  { id: 'knowledge',  label: 'Internal Knowledge Bot',desc: 'Give your team instant access to SOPs, policies, and processes.' },
+  { id: 'training',   label: 'Training & Education',  desc: 'Deliver course material, answer student questions, reinforce learning.' },
+  { id: 'intake',     label: 'Intake & Triage Bot',   desc: 'Collect information, qualify requests, route to the right person.' },
 ]
 
 const KB_TYPES_CUSTOMER = [
@@ -527,7 +527,7 @@ function StepUseCase({ bot, f }) {
         {USE_CASES.map(uc => (
           <button key={uc.id} onClick={() => select(uc.id)}
             style={{ padding:'14px 14px', borderRadius:'var(--r-md)', textAlign:'left', border:`1.5px solid ${bot.use_case===uc.id?'var(--coffee-0)':'var(--line)'}`, background: bot.use_case===uc.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', transition:'all 0.12s' }}>
-            <div style={{ fontSize:20, marginBottom:6 }}>{uc.icon}</div>
+          
             <div style={{ fontSize:13, fontWeight:600, color: bot.use_case===uc.id?'var(--parch-1)':'var(--ink)', marginBottom:4 }}>{uc.label}</div>
             <div style={{ fontSize:11.5, color: bot.use_case===uc.id?'rgba(253,250,244,0.7)':'var(--ink4)', lineHeight:1.5 }}>{uc.desc}</div>
           </button>
