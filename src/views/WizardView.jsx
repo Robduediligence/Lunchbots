@@ -908,9 +908,14 @@ function saveEntry() {
             recognition.continuous = true
             recognition.interimResults = false
             recognition.lang = 'en-US'
+            let lastResultIndex = 0
             recognition.onresult = e => {
-              const transcript = Array.from(e.results).map(r => r[0].transcript).join(' ')
-              setForm(p => ({ ...p, content: p.content ? p.content + ' ' + transcript : transcript }))
+              const newTranscript = Array.from(e.results)
+                .slice(lastResultIndex)
+                .map(r => r[0].transcript)
+                .join(' ')
+              lastResultIndex = e.results.length
+              setForm(p => ({ ...p, content: p.content ? p.content + ' ' + newTranscript : newTranscript }))
             }
             recognition.start()
             setAdding(true)
