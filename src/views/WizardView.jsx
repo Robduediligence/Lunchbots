@@ -363,16 +363,8 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
           <span style={{ fontSize:11, color:'var(--ink4)' }}>Updates as you edit</span>
         </div>
        {/* Floating desktop window centred in panel */}
-        <div className="wizard-preview-inner" style={{ flex:1, overflow:'hidden', position:'relative', isolation:'isolate' }}
-          ref={el => {
-            if (!el) return
-            const scaleX = el.offsetWidth / 390
-            const scaleY = el.offsetHeight / 844
-            const scale = Math.max(scaleX, scaleY)
-            const inner = el.querySelector('.preview-inner-chat')
-            if (inner) inner.style.transform = `scale(${scale})`
-          }}>
-          <div className="preview-inner-chat" style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transformOrigin:'top left', pointerEvents:'none' }}>
+        <div className="wizard-preview-inner" style={{ flex:1, overflow:'hidden', position:'relative', isolation:'isolate', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--surface2)' }}>
+          <div style={{ width:'390px', height:'844px', transform:'scale(0.47)', transformOrigin:'center center', pointerEvents:'none', flexShrink:0 }}>
             <ActiveChat bot={bot} previewMode={true} />
           </div>
         </div>
