@@ -565,15 +565,7 @@ function StepIdentity({ bot, f }) {
         <label className="label">Welcome message</label>
         <textarea className="input" style={{ minHeight:80 }} placeholder="Briefly describe what your assistant helps with. Appears above the suggested prompts." value={bot.welcome_message} onChange={e => f('welcome_message', e.target.value)} />
       </div>
-      <div className="field">
-        <label className="label">Common Questions <span className="label-sub">(up to 4)</span></label>
-        {[0,1,2,3].map(i => (
-          <input key={i} className="input input-sm" style={{ marginBottom:7 }}
-            placeholder={`Prompt ${i+1}…`}
-            value={(bot.suggested_prompts||[])[i]||''}
-            onChange={e => { const a=[...(bot.suggested_prompts||['','','',''])]; a[i]=e.target.value; f('suggested_prompts',a) }} />
-        ))}
-      </div>
+    
     </>
   )
 }async function aiClassifyEntry(entry, bot, f, idx) {
