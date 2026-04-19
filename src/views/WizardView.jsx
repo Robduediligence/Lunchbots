@@ -888,15 +888,15 @@ function saveEntry() {
       ) : (
         <>
         <div style={{ display:'flex', gap:8, marginBottom:16, flexWrap:'wrap' }}>
-          <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>
-            <I.Plus width={13} height={13} /> Add entry
+          <button className="btn btn-primary btn-sm" onClick={() => setScraping(true)}>
+            🌐 Import from website
           </button>
           <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display:'none' }} onChange={handleFileUpload} />
-          <button className="btn btn-secondary btn-sm" onClick={() => fileRef.current?.click()}>
+          <button className="btn btn-primary btn-sm" onClick={() => fileRef.current?.click()}>
             ↑ Upload file <span style={{ fontSize:11, color:'var(--ink4)' }}>(PDF, Word, TXT)</span>
           </button>
-          <button className="btn btn-secondary btn-sm" onClick={() => setScraping(true)}>
-            🌐 Import from website
+          <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>
+            <I.Plus width={13} height={13} /> Add text entry
           </button>
         </div>
 
