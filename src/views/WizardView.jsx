@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { saveBot, callClaude, buildBotSystem, renderMarkdown } from '../lib/supabase.js'
+import { ActiveChat } from './ChatView.jsx'
 import { I, Spinner } from '../components/UI.jsx'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -382,7 +383,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
             </div>
             {/* Chat at natural size — 340px wide, 500px tall */}
             <div className="wizard-preview-frame" style={{ height:420, overflow:'hidden' }}>
-              <BotPreview bot={bot} />
+              <ActiveChat bot={bot} previewMode={true} />
             </div>
           </div>
         </div>

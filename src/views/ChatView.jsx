@@ -56,7 +56,7 @@ export default function ChatView({ botId }) {
   return <LandingScreen bot={bot} onChat={() => setMode('chat')} onFeedback={() => setMode('feedback')} />
 }
 
-function ActiveChat({ bot }) {
+export function ActiveChat({ bot, previewMode = false }) {
   const [msgs,      setMsgs]      = useState([])
   const [input,     setInput]     = useState('')
   const [thinking,  setThinking]  = useState(false)
@@ -117,11 +117,13 @@ const [emailInput, setEmailInput] = useState('')
     setConvId(null)
     setPendingGap(null)
     // Create conversation record
-    fetch('/api/create-conversation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ botId: bot.id, sessionId })
-    }).then(r => r.json()).then(c => { if (c.id) setConvId(c.id) }).catch(console.error)
+    if (!previewMode) {
+      fetch('/api/create-conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ botId: bot.id, sessionId })
+      }).then(r => r.json()).then(c => { if (c.id) setConvId(c.id) }).catch(console.error)
+    }
   }, [bot.id])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [msgs, thinking])
@@ -145,7 +147,7 @@ const [emailInput, setEmailInput] = useState('')
     const userMsg = { role:'user', content:t, id:Date.now().toString() }
     setMsgs(p => [...p, userMsg])
     msgsRef.current = [...msgsRef.current, { role:'user', content:t }]
-    if (convId) await fetch('/api/add-message', {
+    if (convId && !previewMode) await fetch('/api/add-message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ conversationId: convId, role: 'user', content: t })
