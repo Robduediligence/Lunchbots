@@ -213,7 +213,7 @@ const [emailInput, setEmailInput] = useState('')
       fontFamily:font, fontSize:sz, position:'relative',
       background: bgImage ? `url(${bgImage}) center/cover no-repeat` : bg,
     }}>
-      {bgImage && <div style={{ position:'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
+      {bgImage && <div style={{ position: previewMode ? 'absolute' : 'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
 
       {/* Header */}
       <div style={{
