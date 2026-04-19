@@ -434,9 +434,10 @@ function BotPreview({ bot }) {
 
       {/* Header */}
       <div style={{ position:'relative', zIndex:2, height:headerH, minHeight:headerH, padding:`0 ${spacing/2}px`, borderBottom:'1px solid rgba(0,0,0,0.07)', display:'flex', alignItems:'center', gap:8, background:`rgba(253,250,244,${panelOp})`, backdropFilter:'blur(8px)', flexShrink:0 }}>
-        {bot.logo_url && <img src={bot.logo_url} alt="" style={{ height: bot.logo_size || 24, maxWidth:64, objectFit:'contain', borderRadius:3 }} />}
-        <div style={{ width:Math.round(headerH*0.5), height:Math.round(headerH*0.5), borderRadius:`${Math.min(bot.border_radius??12,10)}px`, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:sz*0.9, fontWeight:700, color:'white', overflow:'hidden', flexShrink:0 }}>
-          {bot.avatar_url ? <img src={bot.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
+        <div style={{ width:Math.round(headerH*0.5), height:Math.round(headerH*0.5), borderRadius:`${Math.min(bot.border_radius??12,10)}px`, background:bot.avatar_url||bot.logo_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:sz*0.9, fontWeight:700, color:'white', overflow:'hidden', flexShrink:0 }}>
+          {bot.avatar_url ? <img src={bot.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+          : bot.logo_url ? <img src={bot.logo_url} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', padding:4 }} />
+          : letter}
         </div>
         <div style={{ minWidth:0 }}>
           <div style={{ fontFamily:titleFont, fontWeight:600, color:'#1E1209', opacity:textOp, fontSize:sz*1.05, lineHeight:1.2 }}>{name}</div>

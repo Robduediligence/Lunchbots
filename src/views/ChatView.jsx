@@ -222,8 +222,10 @@ const [emailInput, setEmailInput] = useState('')
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
         {bot.logo_url && <img src={bot.logo_url} alt="logo" style={{ height:26, maxWidth:80, objectFit:'contain', borderRadius:4 }} />}
-        <div style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, flexShrink:0, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 2px 8px ${primary}33` }}>
-          {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
+        <div style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, flexShrink:0, background:bot.avatar_url||bot.logo_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 2px 8px ${primary}33` }}>
+          {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+          : bot.logo_url ? <img src={bot.logo_url} alt="logo" style={{ width:'100%', height:'100%', objectFit:'contain', padding:4 }} />
+          : letter}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color:'#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
@@ -256,7 +258,7 @@ const [emailInput, setEmailInput] = useState('')
         {msgs.map((m, i) => (
           <div key={m.id || i} className="msg-in" style={{ display:'flex', gap:9, maxWidth:'83%', alignSelf:m.role==='user'?'flex-end':'flex-start', flexDirection:m.role==='user'?'row-reverse':'row' }}>
             <div style={{ width:26, height:26, borderRadius:`${Math.min(radius*0.65,8)}px`, flexShrink:0, marginTop:3, background:m.role==='bot'?(bot.avatar_url?'transparent':primary):'rgba(0,0,0,0.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, fontWeight:700, color:m.role==='bot'?'white':'rgba(0,0,0,0.4)', overflow:'hidden' }}>
-              {m.role==='bot' ? (bot.avatar_url ? <img src={bot.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter) : 'U'}
+              {m.role==='bot' ? (bot.avatar_url ? <img src={bot.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : bot.logo_url ? <img src={bot.logo_url} alt="" style={{ width:'100%', height:'100%', objectFit:'contain', padding:2 }} /> : letter) : 'U'}
             </div>
             <div
               style={{
