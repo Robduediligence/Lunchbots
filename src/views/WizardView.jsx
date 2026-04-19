@@ -382,8 +382,12 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
               </div>
             </div>
             {/* Chat at natural size — 340px wide, 500px tall */}
-            <div className="wizard-preview-frame" style={{ height:420, overflow:'hidden' }}>
-              <ActiveChat bot={bot} previewMode={true} />
+            <div className="wizard-preview-frame" style={{ height:420, overflow:'hidden', position:'relative', isolation:'isolate' }}>
+              <div style={{ position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none' }}>
+                <div style={{ transform:'scale(0.55)', transformOrigin:'top left', width:'182%', height:'182%' }}>
+                  <ActiveChat bot={bot} previewMode={true} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
