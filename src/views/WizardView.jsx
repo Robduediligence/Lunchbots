@@ -267,7 +267,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
     <div className="wizard-mobile-wrap" style={{ display:'flex', height:'100vh', background:'var(--bg)', overflow:'hidden', position:'fixed', width:'100%', top:0, left:0, overscrollBehavior:'none' }}>
 
       {/* ── Left: full content area ── */}
-      <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden', height:'calc(68vh - 56px)', maxHeight:'calc(68vh - 56px)' }}>
+      <div className="wizard-mobile-left" style={{ flex:1, display:'flex', flexDirection:'column', minWidth:0, overflow:'hidden' }}>
 
         {/* Top bar */}
         <div className="wizard-topbar" style={{ height:52, borderBottom:'1px solid var(--line)', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 16px', background:'var(--surface)', flexShrink:0 }}>
