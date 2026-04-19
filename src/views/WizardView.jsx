@@ -364,7 +364,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
         </div>
         {/* Floating desktop window centred in panel */}
         <div className="wizard-preview-inner" style={{ flex:1, overflow:'hidden', position:'relative', isolation:'isolate' }}>
-          <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:`scale(${(window.innerHeight * 0.75) / 844})`, transformOrigin:'top left', pointerEvents:'none' }}>
+          <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:`scale(${Math.max(window.innerWidth * 0.278 / 390, window.innerHeight * 0.88 / 844)})`, transformOrigin:'top left', pointerEvents:'none' }}>
             <ActiveChat bot={bot} previewMode={true} />
           </div>
         </div>
