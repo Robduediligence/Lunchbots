@@ -446,8 +446,7 @@ function BotPreview({ bot }) {
 
       {/* Messages */}
       <div style={{ height:340, padding:spacing/1.5, display:'flex', flexDirection:'column', gap:spacing/2, overflowY:'auto', position:'relative', zIndex:2 }}>
-        {bot.welcome_message && <p style={{ fontSize:sz*0.88, color: bot.bg_image_url?'rgba(255,255,255,0.85)':'#7A5C3E', opacity:textOp, lineHeight:1.6 }}>{bot.welcome_message}</p>}
-        {prompts.length > 0 && (
+        {bot.welcome_message && <p style={{ fontSize:sz*0.88, color: bot.bg_image_url?'rgba(255,255,255,0.85)':'#7A5C3E', opacity:textOp, lineHeight:1.6, textAlign:'center' }}>{bot.welcome_message}</p>}
           <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
             {prompts.map((p,i) => <div key={i} style={{ fontSize:sz*0.82, padding:'3px 8px', borderRadius:r, background:`rgba(255,255,255,${panelOp*0.9})`, border:'1px solid rgba(0,0,0,0.09)', color:'#3D2214', opacity:textOp }}>{p}</div>)}
           </div>
