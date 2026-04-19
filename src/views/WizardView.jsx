@@ -523,15 +523,19 @@ function StepUseCase({ bot, f }) {
         </div>
       )}
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-        {USE_CASES.map(uc => (
-          <button key={uc.id} onClick={() => select(uc.id)}
-            style={{ padding:'14px 14px', borderRadius:'var(--r-md)', textAlign:'left', border:`1.5px solid ${bot.use_case===uc.id?'var(--coffee-0)':'var(--line)'}`, background: bot.use_case===uc.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', transition:'all 0.12s' }}>
-          
-            <div style={{ fontSize:13, fontWeight:600, color: bot.use_case===uc.id?'var(--parch-1)':'var(--ink)', marginBottom:4 }}>{uc.label}</div>
-            <div style={{ fontSize:11.5, color: bot.use_case===uc.id?'rgba(253,250,244,0.7)':'var(--ink4)', lineHeight:1.5 }}>{uc.desc}</div>
-          </button>
-        ))}
+      <div className="field">
+        <label className="label">What kind of bot is this?</label>
+        <select className="input" value={bot.use_case||''} onChange={e => select(e.target.value)}>
+          <option value="" disabled>Select a bot type…</option>
+          {USE_CASES.map(uc => (
+            <option key={uc.id} value={uc.id}>{uc.label}</option>
+          ))}
+        </select>
+        {bot.use_case && (
+          <div style={{ marginTop:8, padding:'10px 14px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)', fontSize:13, color:'var(--ink3)', lineHeight:1.6 }}>
+            {USE_CASES.find(uc => uc.id === bot.use_case)?.desc}
+          </div>
+        )}
       </div>
     </>
   )
