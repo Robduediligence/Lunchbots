@@ -97,7 +97,24 @@ const [emailInput, setEmailInput] = useState('')
   const bg       = bot.bg_color       || '#F5F0E8'
   const bgImage  = bot.bg_image_url   || null
   const bgOv     = typeof bot.bg_overlay === 'number' ? bot.bg_overlay : 40
-  const font     = bot.body_font || bot.font_family || 'Inter, system-ui, sans-serif'
+  const font      = bot.body_font || bot.font_family || 'Inter, system-ui, sans-serif'
+  const titleFont = bot.title_font || font
+  useEffect(() => {
+    function loadFont(fontValue) {
+      if (!fontValue) return
+      const name = fontValue.replace(/['"]/g,'').split(',')[0].trim()
+      const safe = ['Georgia','monospace','sans-serif','serif','system-ui']
+      if (safe.includes(name)) return
+      const id = `gf-${name.replace(/\s/g,'-')}`
+      if (document.getElementById(id)) return
+      const link = document.createElement('link')
+      link.id = id; link.rel = 'stylesheet'
+      link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(name)}:wght@300;400;500;600;700&display=swap`
+      document.head.appendChild(link)
+    }
+    loadFont(bot.body_font)
+    loadFont(bot.title_font)
+  }, [bot.body_font, bot.title_font])
   const sz       = typeof bot.font_size === 'number' ? bot.font_size : 14
   const radius   = typeof bot.border_radius === 'number' ? bot.border_radius : 12
   const rr       = `${radius}px`
@@ -229,7 +246,7 @@ const [emailInput, setEmailInput] = useState('')
           {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color: bot.header_text_color || '#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
+          <div style={{ fontFamily:titleFont, fontSize:sz*0.95, fontWeight:600, color: bot.header_text_color || '#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
           {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.header_text_color || 'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
           <div style={{ fontSize:sz*0.75, color:'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
             <span style={{ width:5, height:5, borderRadius:'50%', background:'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
