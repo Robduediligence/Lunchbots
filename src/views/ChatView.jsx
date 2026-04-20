@@ -259,7 +259,7 @@ const [emailInput, setEmailInput] = useState('')
       overflow:'hidden',
     }}>
       {bgImage && <div style={{ position: previewMode ? 'absolute' : 'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
-      {bot.texture_overlay && bot.texture_overlay !== 'none' && (() => { const s = getOverlayStyle(bot.texture_overlay, bot.texture_intensity ?? 40); return s ? <div style={s} /> : null })()}
+      {bot.texture_overlay && bot.texture_overlay !== 'none' && (() => { const s = getOverlayStyle(bot.texture_overlay, bot.texture_intensity ?? 40); return s ? <div style={{ ...s, position:'absolute', zIndex:999, pointerEvents:'none' }} /> : null })()}
 
       {/* Header */}
       <div style={{
