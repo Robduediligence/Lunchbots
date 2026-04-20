@@ -238,8 +238,11 @@ const [emailInput, setEmailInput] = useState('')
         </div>
       </div>
 
+      {/* Header fade */}
+      <div style={{ height:24, flexShrink:0, position:'relative', zIndex:1, background:`linear-gradient(to bottom, ${bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)')}, transparent)`, pointerEvents:'none' }} />
+
       {/* Messages */}
-      <div style={{ flex:1, overflowY:'auto', padding:'20px 22px', display:'flex', flexDirection:'column', gap:14, position:'relative', zIndex:1 }}>
+      <div style={{ flex:1, overflowY:'auto', padding:'4px 22px 20px 22px', display:'flex', flexDirection:'column', gap:14, position:'relative', zIndex:1 }}>
         {/* Welcome + prompts */}
         {(bot.welcome_message || prompts.length > 0) && msgs.length <= 1 && (
           <div style={{ marginBottom:8 }}>
