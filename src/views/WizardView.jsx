@@ -1136,7 +1136,6 @@ function StepBranding({ bot, f }) {
       <Section title="Typography">
         <FontSelect label="Title / Bot name font" fieldKey="title_font" colorKey="title_color" />
         <FontSelect label="Body / Chat font"      fieldKey="body_font"  colorKey="body_color" />
-        <FontSelect label="Resource / Document font" fieldKey="resource_font" colorKey="resource_color" />
         <Slider label="Base text size"    field="font_size" min={10} max={22} step={0.1} unit="px" bot={bot} f={f} />
       </Section>
 
