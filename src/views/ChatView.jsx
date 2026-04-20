@@ -131,7 +131,7 @@ const [emailInput, setEmailInput] = useState('')
     const id = `placeholder-style-${bot.id || 'preview'}`
     let el = document.getElementById(id)
     if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el) }
-    el.textContent = `.chat-textarea::placeholder { color: ${bot.placeholder_color || '#999'} !important; opacity: 1 !important; }`
+    el.textContent = `textarea.chat-textarea::placeholder { color: ${bot.placeholder_color || '#C9AD8E'} !important; opacity: 1 !important; } textarea.chat-textarea::-webkit-input-placeholder { color: ${bot.placeholder_color || '#C9AD8E'} !important; opacity: 1 !important; }`
     return () => { const s = document.getElementById(id); if (s) s.remove() }
   }, [bot.placeholder_color, bot.id])
 
