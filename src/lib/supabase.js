@@ -170,6 +170,13 @@ export async function saveBot(botData) {
     cta_url: botData.cta_url, support_email: botData.support_email,
     use_case: botData.use_case, bot_type: botData.bot_type,
     access_password: botData.access_password, chat_width: botData.chat_width ? Math.round(botData.chat_width) : null,
+    header_color: botData.header_color,
+    header_text_color: botData.header_text_color,
+    input_bg_color: botData.input_bg_color,
+    input_area_color: botData.input_area_color,
+    title_color: botData.title_color,
+    body_color: botData.body_color,
+    resource_color: botData.resource_color,
     updated_at: new Date().toISOString(),
   }
   if (id) {

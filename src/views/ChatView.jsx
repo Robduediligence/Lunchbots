@@ -97,7 +97,7 @@ const [emailInput, setEmailInput] = useState('')
   const bg       = bot.bg_color       || '#F5F0E8'
   const bgImage  = bot.bg_image_url   || null
   const bgOv     = typeof bot.bg_overlay === 'number' ? bot.bg_overlay : 40
-  const font     = bot.font_family    || 'Inter, system-ui, sans-serif'
+  const font     = bot.body_font || bot.font_family || 'Inter, system-ui, sans-serif'
   const sz       = typeof bot.font_size === 'number' ? bot.font_size : 14
   const radius   = typeof bot.border_radius === 'number' ? bot.border_radius : 12
   const rr       = `${radius}px`
