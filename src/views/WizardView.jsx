@@ -1,6 +1,15 @@
 import { useState, useRef, useEffect } from 'react'
 import { saveBot, callClaude, buildBotSystem, renderMarkdown } from '../lib/supabase.js'
 import { ActiveChat } from './ChatView.jsx'
+
+// Preload fonts whenever bot changes
+function usePreloadFonts(bot) {
+  useEffect(() => {
+    if (bot.body_font) loadGoogleFont(bot.body_font)
+    if (bot.title_font) loadGoogleFont(bot.title_font)
+    if (bot.resource_font) loadGoogleFont(bot.resource_font)
+  }, [bot.body_font, bot.title_font, bot.resource_font])
+}
 import { I, Spinner } from '../components/UI.jsx'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -209,6 +218,7 @@ export default function WizardView({ user, sub, existingBot, onDone }) {
 
   const f = (k, v) => setBot(p => ({ ...p, [k]: v }))
   const scrollRef = useRef(null)
+  usePreloadFonts(bot)
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
