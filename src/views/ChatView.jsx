@@ -380,7 +380,7 @@ const [emailInput, setEmailInput] = useState('')
       </div>
 
       {/* Footer */}
-      <div style={{ position:'relative', zIndex:1, padding:'6px 16px', textAlign:'center', fontSize:11, color: bgImage?'rgba(255,255,255,0.4)':'var(--ink5)', background: bgImage?'rgba(0,0,0,0.1)':'transparent', flexShrink:0 }}>
+      <div style={{ position:'relative', zIndex:1, padding:'4px 16px 8px', textAlign:'center', fontSize:11, color: bgImage?'rgba(255,255,255,0.4)':'var(--ink5)', background: bot.input_area_color || (bgImage?'rgba(253,250,244,0.9)':'rgba(253,250,244,0.97)'), flexShrink:0 }}>
         {bot.cta_text && bot.cta_url
           ? <a href={bot.cta_url} target="_blank" rel="noreferrer" style={{ color:primary, textDecoration:'none', fontWeight:500 }}>{bot.cta_text}</a>
          : 'Powered by Bot Brunch'}
