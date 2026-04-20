@@ -56,6 +56,33 @@ export default function ChatView({ botId }) {
   return <LandingScreen bot={bot} onChat={() => setMode('chat')} onFeedback={() => setMode('feedback')} />
 }
 
+function getOverlayStyle(type, intensity = 40) {
+  const base = { position:'absolute', inset:0, pointerEvents:'none', zIndex:1 }
+  const op = intensity / 100
+  switch(type) {
+    case 'grain':
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, opacity:op }
+    case 'flare':
+      return { ...base, background:`radial-gradient(ellipse at 20% 20%, rgba(255,240,200,${op*0.6}) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(255,220,180,${op*0.4}) 0%, transparent 40%)` }
+    case 'sand':
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, opacity:op, background:`rgba(210,180,140,${op*0.2})` }
+    case 'rock':
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.4' numOctaves='5'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, opacity:op }
+    case 'vintage':
+      return { ...base, background:`radial-gradient(ellipse at center, transparent 30%, rgba(60,30,10,${op*0.5}) 100%)`, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E")` }
+    case 'linen':
+      return { ...base, backgroundImage:`repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(180,150,100,${op*0.15}) 2px, rgba(180,150,100,${op*0.15}) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(180,150,100,${op*0.15}) 2px, rgba(180,150,100,${op*0.15}) 4px)` }
+    case 'blur':
+      return { ...base, backdropFilter:`blur(${op*8}px)` }
+    case 'vignette':
+      return { ...base, background:`radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,${op*0.7}) 100%)` }
+    case 'frost':
+      return { ...base, backdropFilter:`blur(${op*4}px) brightness(1.1)`, background:`rgba(255,255,255,${op*0.15})` }
+    default:
+      return null
+  }
+}
+
 export function ActiveChat({ bot, previewMode = false }) {
   const [msgs,      setMsgs]      = useState([])
   const [input,     setInput]     = useState('')
@@ -232,6 +259,7 @@ const [emailInput, setEmailInput] = useState('')
       overflow:'hidden',
     }}>
       {bgImage && <div style={{ position: previewMode ? 'absolute' : 'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
+      {bot.texture_overlay && bot.texture_overlay !== 'none' && (() => { const s = getOverlayStyle(bot.texture_overlay, bot.texture_intensity ?? 40); return s ? <div style={s} /> : null })()}
 
       {/* Header */}
       <div style={{
