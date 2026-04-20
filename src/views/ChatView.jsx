@@ -223,10 +223,11 @@ const [emailInput, setEmailInput] = useState('')
         background: bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)',
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
-        <div style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, flexShrink:0, background:bot.avatar_url||bot.logo_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 2px 8px ${primary}33` }}>
-          {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-          : bot.logo_url ? <img src={bot.logo_url} alt="logo" style={{ width:'100%', height:'100%', objectFit:'contain', padding:4 }} />
-          : letter}
+        {bot.logo_url && (
+          <img src={bot.logo_url} alt="logo" style={{ height:28, maxWidth:80, objectFit:'contain', borderRadius:4, flexShrink:0 }} />
+        )}
+        <div style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, flexShrink:0, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 2px 8px ${primary}33` }}>
+          {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color:'#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
