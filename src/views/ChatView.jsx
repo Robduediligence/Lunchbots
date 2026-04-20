@@ -101,7 +101,7 @@ const [emailInput, setEmailInput] = useState('')
   const sz       = typeof bot.font_size === 'number' ? bot.font_size : 14
   const radius   = typeof bot.border_radius === 'number' ? bot.border_radius : 12
   const rr       = `${radius}px`
-  const letter   = (bot.avatar_letter || bot.name?.charAt(0) || 'B').toUpperCase()
+  const letter   = (bot.name?.charAt(0) || 'B').toUpperCase()
   const prompts  = (bot.suggested_prompts || []).filter(Boolean)
 
   const userBubble = bot.bubble_style === 'outlined'

@@ -1070,10 +1070,7 @@ function StepBranding({ bot, f }) {
             ) : <button className="btn btn-secondary btn-sm" onClick={()=>avatarRef.current?.click()}>Upload avatar</button>}
           </div>
         </div>
-        <div className="flex ic g8 mt-12">
-          <label className="label" style={{ marginBottom:0, whiteSpace:'nowrap' }}>Avatar letter</label>
-          <input className="input input-sm" style={{ maxWidth:70 }} maxLength={2} placeholder={bot.name?.charAt(0)||'A'} value={bot.avatar_letter} onChange={e=>f('avatar_letter',e.target.value)} />
-        </div>
+        
       </Section>
 
       {/* Colours */}
