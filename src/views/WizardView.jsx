@@ -870,13 +870,13 @@ function saveEntry() {
         </div>
       ) : (
         <>
-        <div style={{ display:'flex', gap:8, marginBottom:16, flexWrap:'wrap' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:16 }}>
           <button className="btn btn-primary btn-sm" onClick={() => setScraping(true)}>
             🌐 Import from website
           </button>
           <input ref={fileRef} type="file" accept=".pdf,.docx,.txt,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style={{ display:'none' }} onChange={handleFileUpload} />
           <button className="btn btn-primary btn-sm" onClick={() => fileRef.current?.click()}>
-            ↑ Upload file <span style={{ fontSize:11, color:'var(--ink4)' }}>(PDF, Word, TXT)</span>
+            ↑ Upload file
           </button>
           <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>
             <I.Plus width={13} height={13} /> Add text entry
