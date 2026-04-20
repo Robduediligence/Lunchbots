@@ -119,13 +119,16 @@ const FONTS = [
 ]
 
 const OVERLAYS = [
-  { id: 'none',    label: 'None',          css: 'none' },
-  { id: 'grain',   label: 'Film Grain',    css: 'grain' },
-  { id: 'flare',   label: 'Light Flare',   css: 'flare' },
-  { id: 'sand',    label: 'Sand',          css: 'sand' },
-  { id: 'rock',    label: 'Rock',          css: 'rock' },
-  { id: 'vintage', label: 'Vintage',       css: 'vintage' },
-  { id: 'linen',   label: 'Linen',         css: 'linen' },
+  { id: 'none',    label: 'None' },
+  { id: 'grain',   label: 'Film Grain' },
+  { id: 'sand',    label: 'Sand' },
+  { id: 'rock',    label: 'Rock' },
+  { id: 'linen',   label: 'Linen' },
+  { id: 'vintage', label: 'Vintage' },
+  { id: 'flare',   label: 'Light Flare' },
+  { id: 'vignette',label: 'Vignette' },
+  { id: 'blur',    label: 'Blur' },
+  { id: 'frost',   label: 'Frost' },
 ]
 
 const BOT_DEFAULTS = {
@@ -149,6 +152,7 @@ const BOT_DEFAULTS = {
   bg_overlay: 40,
   bg_image_url: null,
   texture_overlay: 'none',
+  texture_intensity: 40,
   // Layout controls
   header_height: 60,
   chat_width: 100,
@@ -188,21 +192,28 @@ function loadGoogleFont(fontValue) {
 }
 
 // ── Overlay CSS ───────────────────────────────────────────────────────────────
-function getOverlayStyle(type) {
+function getOverlayStyle(type, intensity = 40) {
   const base = { position:'absolute', inset:0, pointerEvents:'none', zIndex:1 }
+  const op = intensity / 100
   switch(type) {
     case 'grain':
-      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")`, opacity:0.6 }
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, opacity:op }
     case 'flare':
-      return { ...base, background:'radial-gradient(ellipse at 20% 20%, rgba(255,240,200,0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(255,220,180,0.08) 0%, transparent 40%)' }
+      return { ...base, background:`radial-gradient(ellipse at 20% 20%, rgba(255,240,200,${op*0.6}) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(255,220,180,${op*0.4}) 0%, transparent 40%)` }
     case 'sand':
-      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E")`, background:'rgba(210,180,140,0.05)' }
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, opacity:op, background:`rgba(210,180,140,${op*0.2})` }
     case 'rock':
-      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.4' numOctaves='5'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")` }
+      return { ...base, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.4' numOctaves='5'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")`, opacity:op }
     case 'vintage':
-      return { ...base, background:'radial-gradient(ellipse at center, transparent 40%, rgba(60,30,10,0.12) 100%)', backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")` }
+      return { ...base, background:`radial-gradient(ellipse at center, transparent 30%, rgba(60,30,10,${op*0.5}) 100%)`, backgroundImage:`url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E")` }
     case 'linen':
-      return { ...base, backgroundImage:`repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(180,150,100,0.03) 2px, rgba(180,150,100,0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(180,150,100,0.03) 2px, rgba(180,150,100,0.03) 4px)` }
+      return { ...base, backgroundImage:`repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(180,150,100,${op*0.15}) 2px, rgba(180,150,100,${op*0.15}) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(180,150,100,${op*0.15}) 2px, rgba(180,150,100,${op*0.15}) 4px)` }
+    case 'blur':
+      return { ...base, backdropFilter:`blur(${op*8}px)` }
+    case 'vignette':
+      return { ...base, background:`radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,${op*0.7}) 100%)` }
+    case 'frost':
+      return { ...base, backdropFilter:`blur(${op*4}px) brightness(1.1)`, background:`rgba(255,255,255,${op*0.15})` }
     default:
       return null
   }
@@ -413,7 +424,7 @@ function BotPreview({ bot }) {
   const bodyFont  = bot.body_font  || "'Inter', sans-serif"
   const titleFont = bot.title_font || "'Playfair Display', serif"
   const prompts = (bot.suggested_prompts || []).filter(Boolean).slice(0,3)
-  const overlayStyle = getOverlayStyle(bot.texture_overlay)
+  const overlayStyle = getOverlayStyle(bot.texture_overlay, bot.texture_intensity ?? 40)
   const spacing = bot.spacing || 14
   const headerH = bot.header_height || 60
   const textOp  = (bot.text_opacity || 100) / 100
@@ -1121,15 +1132,18 @@ function StepBranding({ bot, f }) {
       </Section>
 
       {/* Texture overlays */}
-      <Section title="Texture Overlay" sub="Adds a subtle material feel over the chat.">
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
+      <Section title="Texture Overlay" sub="Adds a material feel over the chat background.">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8, marginBottom:14 }}>
           {OVERLAYS.map(o=>(
             <button key={o.id} onClick={()=>f('texture_overlay',o.id)}
-              style={{ padding:'10px 8px', borderRadius:'var(--r)', border:`1.5px solid ${bot.texture_overlay===o.id?'var(--coffee-0)':'var(--line)'}`, background:bot.texture_overlay===o.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', fontSize:12, fontWeight:500, color:bot.texture_overlay===o.id?'var(--parch-1)':'var(--ink3)', transition:'all 0.12s', textAlign:'center' }}>
+              style={{ padding:'8px 4px', borderRadius:'var(--r)', border:`1.5px solid ${bot.texture_overlay===o.id?'var(--coffee-0)':'var(--line)'}`, background:bot.texture_overlay===o.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', fontSize:11, fontWeight:500, color:bot.texture_overlay===o.id?'var(--parch-1)':'var(--ink3)', transition:'all 0.12s', textAlign:'center' }}>
               {o.label}
             </button>
           ))}
         </div>
+        {bot.texture_overlay !== 'none' && (
+          <Slider label="Intensity" field="texture_intensity" min={0} max={100} step={1} unit="%" leftLabel="Subtle" rightLabel="Strong" bot={bot} f={f} />
+        )}
       </Section>
 
       {/* Typography */}
