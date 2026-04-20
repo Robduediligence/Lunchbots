@@ -949,13 +949,6 @@ function saveEntry() {
 
 // ── Step 4: Capabilities ──────────────────────────────────────────────────────
 function StepCapabilities({ bot, f }) {
-  const [newCat, setNewCat] = useState('')
-  function addCat() {
-    const name = newCat.trim(); if (!name) return
-    const cats = [...(bot.categories||[])]
-    if (cats.find(c=>c.name.toLowerCase()===name.toLowerCase())) return
-    cats.push({ id:Date.now().toString(), name }); f('categories',cats); setNewCat('')
-  }
   return (
     <>
       <SH n={4} title="Configure capabilities" sub="Control what your bot can access and how it handles questions it can't answer." />
@@ -978,22 +971,7 @@ function StepCapabilities({ bot, f }) {
         <div className="label-sub mb-8">What the bot says when it can't answer. The question gets sent to your inbox.</div>
         <textarea className="input" style={{ minHeight:72 }} value={bot.fallback_message} onChange={e=>f('fallback_message',e.target.value)} />
       </div>
-      <div className="field">
-        <label className="label">Conversation categories</label>
-        <div className="label-sub mb-8">Auto-tag conversations for your inbox and insights.</div>
-        <div className="flex g8 mb-8">
-          <input className="input" style={{ flex:1 }} placeholder="e.g. Billing, Support, Onboarding…" value={newCat} onChange={e=>setNewCat(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addCat()} />
-          <button className="btn btn-secondary" onClick={addCat} disabled={!newCat.trim()}>Add</button>
-        </div>
-        <div className="flex wrap g6">
-          {(bot.categories||[]).map(cat=>(
-            <div key={cat.id} style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'4px 10px', borderRadius:20, background:'var(--surface3)', border:'1px solid var(--line)', fontSize:12.5 }}>
-              {cat.name}
-              <button style={{ background:'none', border:'none', cursor:'pointer', color:'var(--ink4)', display:'flex', padding:0 }} onClick={()=>f('categories',(bot.categories||[]).filter(c=>c.id!==cat.id))}><I.X width={11} height={11}/></button>
-            </div>
-          ))}
-        </div>
-      </div>
+      
     </>
   )
 }
