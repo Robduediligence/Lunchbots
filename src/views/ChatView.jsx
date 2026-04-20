@@ -277,10 +277,10 @@ const [emailInput, setEmailInput] = useState('')
           {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontFamily:titleFont, fontSize:sz*0.95, fontWeight:600, color: bot.header_text_color || '#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
-          {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.header_text_color || 'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
-          <div style={{ fontSize:sz*0.75, color:'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
-            <span style={{ width:5, height:5, borderRadius:'50%', background:'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
+          <div style={{ fontFamily:titleFont, fontSize:sz*0.95, fontWeight:600, color: bot.bot_name_color || bot.header_text_color || '#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
+          {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.descriptor_color || bot.header_text_color || 'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
+          <div style={{ fontSize:sz*0.75, color: bot.online_color || 'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
+            <span style={{ width:5, height:5, borderRadius:'50%', background: bot.online_color || 'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
           </div>
         </div>
       </div>
@@ -295,7 +295,7 @@ const [emailInput, setEmailInput] = useState('')
         {/* Welcome + prompts */}
         {(bot.welcome_message || prompts.length > 0) && msgs.length <= 1 && (
           <div style={{ marginBottom:8 }}>
-            {bot.welcome_message && <p style={{ fontFamily:font, fontSize:sz*0.88, color: bgImage ? 'rgba(255,255,255,0.85)' : 'var(--ink3)', lineHeight:1.7, marginBottom:12 }}>{bot.welcome_message}</p>}
+            {bot.welcome_message && <p style={{ fontFamily:font, fontSize:sz*0.88, color: bot.welcome_color || (bgImage ? 'rgba(255,255,255,0.85)' : 'var(--ink3)'), lineHeight:1.7, marginBottom:12 }}>{bot.welcome_message}</p>}
             {prompts.length > 0 && (
               <div style={{ display:'flex', flexWrap:'wrap', gap:7 }}>
                 {prompts.map((p, i) => (
@@ -318,7 +318,7 @@ const [emailInput, setEmailInput] = useState('')
               style={{
                 padding:'10px 14px', fontFamily:font, fontSize:sz*0.92, lineHeight:1.65,
                 borderRadius: m.role==='bot' ? `3px ${rr} ${rr} ${rr}` : `${rr} 3px ${rr} ${rr}`,
-                ...(m.role==='user' ? userBubble : { background: bgImage?'rgba(255,255,255,0.93)':'white', border:'1px solid rgba(0,0,0,0.07)', color:'#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
+                ...(m.role==='user' ? userBubble : { background: bgImage?'rgba(255,255,255,0.93)':'white', border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
               }}
               dangerouslySetInnerHTML={m.role==='bot' ? { __html:renderMarkdown(m.content) } : undefined}
             >{m.role==='user' ? m.content : undefined}</div>
@@ -395,8 +395,7 @@ const [emailInput, setEmailInput] = useState('')
         ) : (
           <>
             <textarea ref={inputRef}
-              className="chat-textarea" style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
-              placeholder="Send a message…"
+              className="chat-textarea" style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120, '--placeholder-color': bot.placeholder_color || '#999' }}
               value={input} rows={1}
               onChange={e => setInput(e.target.value.slice(0, 2000))}
               onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
