@@ -218,7 +218,6 @@ const [emailInput, setEmailInput] = useState('')
       {/* Header */}
       <div style={{
         position:'relative', zIndex:1, padding:'12px 18px',
-        borderBottom:'1px solid rgba(0,0,0,0.07)',
         display:'flex', alignItems:'center', gap:12,
         background: bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)'),
         backdropFilter:'blur(12px)', flexShrink:0,
@@ -239,7 +238,7 @@ const [emailInput, setEmailInput] = useState('')
       </div>
 
       {/* Header fade */}
-      <div style={{ height:24, flexShrink:0, position:'relative', zIndex:1, background:`linear-gradient(to bottom, ${bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)')}, transparent)`, pointerEvents:'none' }} />
+      <div style={{ height:48, flexShrink:0, position:'relative', zIndex:1, background:`linear-gradient(to bottom, ${bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)')} 0%, transparent 100%)`, pointerEvents:'none' }} />
 
       {/* Messages */}
       <div style={{ flex:1, overflowY:'auto', padding:'4px 22px 20px 22px', display:'flex', flexDirection:'column', gap:14, position:'relative', zIndex:1 }}>
