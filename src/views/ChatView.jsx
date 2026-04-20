@@ -126,6 +126,15 @@ const [emailInput, setEmailInput] = useState('')
   const bgOv     = typeof bot.bg_overlay === 'number' ? bot.bg_overlay : 40
   const font      = bot.body_font || bot.font_family || 'Inter, system-ui, sans-serif'
   const titleFont = bot.title_font || font
+  // Inject dynamic CSS for placeholder colour
+  useEffect(() => {
+    const id = `placeholder-style-${bot.id || 'preview'}`
+    let el = document.getElementById(id)
+    if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el) }
+    el.textContent = `.chat-textarea::placeholder { color: ${bot.placeholder_color || '#999'} !important; opacity: 1 !important; }`
+    return () => { const s = document.getElementById(id); if (s) s.remove() }
+  }, [bot.placeholder_color, bot.id])
+
   useEffect(() => {
     function loadFont(fontValue) {
       if (!fontValue) return
@@ -149,10 +158,10 @@ const [emailInput, setEmailInput] = useState('')
   const prompts  = (bot.suggested_prompts || []).filter(Boolean)
 
   const userBubble = bot.bubble_style === 'outlined'
-    ? { background:'transparent', border:`1.5px solid ${primary}`, color:primary }
+    ? { background:'transparent', border:`1.5px solid ${bot.user_bubble_color || primary}`, color:bot.user_bubble_color || primary }
     : bot.bubble_style === 'minimal'
-    ? { background:`${primary}18`, color:primary, border:'none' }
-    : { background:primary, color:'white', border:'none' }
+    ? { background:`${bot.user_bubble_color || primary}18`, color:bot.user_bubble_color || primary, border:'none' }
+    : { background:bot.user_bubble_color || primary, color:'white', border:'none' }
 
   useEffect(() => {
     const greeting = bot.greeting || `Hi! I'm ${bot.name}. How can I help you today?`
@@ -318,7 +327,7 @@ const [emailInput, setEmailInput] = useState('')
               style={{
                 padding:'10px 14px', fontFamily:font, fontSize:sz*0.92, lineHeight:1.65,
                 borderRadius: m.role==='bot' ? `3px ${rr} ${rr} ${rr}` : `${rr} 3px ${rr} ${rr}`,
-                ...(m.role==='user' ? userBubble : { background: bgImage?'rgba(255,255,255,0.93)':'white', border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
+                ...(m.role==='user' ? userBubble : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
               }}
               dangerouslySetInnerHTML={m.role==='bot' ? { __html:renderMarkdown(m.content) } : undefined}
             >{m.role==='user' ? m.content : undefined}</div>

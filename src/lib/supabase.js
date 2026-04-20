@@ -180,6 +180,8 @@ export async function saveBot(botData) {
     chat_font_color: botData.chat_font_color,
     online_color: botData.online_color,
     placeholder_color: botData.placeholder_color,
+    bot_bubble_color: botData.bot_bubble_color,
+    user_bubble_color: botData.user_bubble_color,
     header_text_color: botData.header_text_color,
     input_bg_color: botData.input_bg_color,
     input_area_color: botData.input_area_color,

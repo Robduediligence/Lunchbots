@@ -1118,6 +1118,8 @@ function StepBranding({ bot, f }) {
             ['Input bar colour','input_bg_color'],
             ['Input area colour','input_area_color'],
             ['Placeholder colour','placeholder_color'],
+            ['Bot bubble colour','bot_bubble_color'],
+            ['User bubble colour','user_bubble_color'],
           ].map(([lbl,field])=>(
             <div key={field} className="field" style={{ marginBottom:0 }}>
               <label className="label">{lbl}</label>
