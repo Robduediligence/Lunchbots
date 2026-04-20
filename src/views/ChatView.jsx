@@ -229,6 +229,7 @@ const [emailInput, setEmailInput] = useState('')
       display:'flex', flexDirection:'column', height:'100vh',
       fontFamily:font, fontSize:sz, position:'relative',
       background: bgImage ? `url(${bgImage}) center/cover no-repeat` : bg,
+      overflow:'hidden',
     }}>
       {bgImage && <div style={{ position: previewMode ? 'absolute' : 'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
 
@@ -310,10 +311,10 @@ const [emailInput, setEmailInput] = useState('')
       {/* Input */}
       <div style={{
         position:'relative', zIndex:1,
-        padding:'12px 16px 28px 16px',
+        padding:'12px 16px 40px 16px',
         display:'flex', gap:9, alignItems:'flex-end',
-        background: `linear-gradient(to top, ${bot.input_area_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.97)')} 60%, transparent 100%)`,
-        backdropFilter:'blur(12px)', flexShrink:0,
+        background: `linear-gradient(to top, ${bot.input_area_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.97)')} 70%, transparent 100%)`,
+        backdropFilter:'blur(12px)', flexShrink:0, marginBottom:0,
       }}>
         {awaitingEmail ? (
           <div style={{ display:'flex', gap:8, flex:1, alignItems:'center' }}>
