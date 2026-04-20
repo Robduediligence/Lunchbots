@@ -310,9 +310,9 @@ const [emailInput, setEmailInput] = useState('')
       {/* Input */}
       <div style={{
         position:'relative', zIndex:1,
-        padding:'12px 16px', borderTop:'1px solid rgba(0,0,0,0.07)',
+        padding:'12px 16px 28px 16px',
         display:'flex', gap:9, alignItems:'flex-end',
-        background: bot.input_area_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.97)'),
+        background: `linear-gradient(to top, ${bot.input_area_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.97)')} 60%, transparent 100%)`,
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
         {awaitingEmail ? (
