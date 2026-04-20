@@ -1079,7 +1079,7 @@ function StepBranding({ bot, f }) {
       {/* Colours */}
       <Section title="Colours">
         <div className="grid2">
-          {[['Primary colour','primary_color'],['Background colour','bg_color'],['Header colour','header_color'],['Header text colour','header_text_color']].map(([lbl,field])=>(
+          {[['Primary colour','primary_color'],['Background colour','bg_color'],['Header colour','header_color'],['Header text colour','header_text_color'],['Input bar colour','input_bg_color'],['Input area colour','input_area_color']].map(([lbl,field])=>(
             <div key={field} className="field" style={{ marginBottom:0 }}>
               <label className="label">{lbl}</label>
               <div className="flex ic g8">

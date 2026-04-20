@@ -231,7 +231,7 @@ const [emailInput, setEmailInput] = useState('')
         </div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color: bot.header_text_color || '#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
-          {bot.descriptor && <div style={{ fontSize:sz*0.78, color:'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
+          {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.header_text_color || 'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
           <div style={{ fontSize:sz*0.75, color:'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
             <span style={{ width:5, height:5, borderRadius:'50%', background:'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
           </div>
@@ -291,7 +291,7 @@ const [emailInput, setEmailInput] = useState('')
         position:'relative', zIndex:1,
         padding:'12px 16px', borderTop:'1px solid rgba(0,0,0,0.07)',
         display:'flex', gap:9, alignItems:'flex-end',
-        background: bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.97)',
+        background: bot.input_area_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.97)'),
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
         {awaitingEmail ? (
@@ -343,7 +343,7 @@ const [emailInput, setEmailInput] = useState('')
         ) : (
           <>
             <textarea ref={inputRef}
-              style={{ flex:1, background:'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
+              style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
               placeholder="Send a message…"
               value={input} rows={1}
               onChange={e => setInput(e.target.value.slice(0, 2000))}
