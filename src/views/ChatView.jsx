@@ -258,7 +258,9 @@ const [emailInput, setEmailInput] = useState('')
       background: bgImage ? `url(${bgImage}) center/cover no-repeat` : bg,
       overflow:'hidden',
     }}>
-      {bgImage && <div style={{ position: previewMode ? 'absolute' : 'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0 }} />}
+      {bgImage && <div style={{ position: previewMode ? 'absolute' : 'fixed', inset:0, background:`rgba(0,0,0,${bgOv/100})`, zIndex:0,
+        backdropFilter: bot.image_effect === 'blur' ? `blur(${(bot.image_effect_intensity ?? 40) * 0.15}px)` : bot.image_effect === 'frost' ? `blur(${(bot.image_effect_intensity ?? 40) * 0.08}px) brightness(1.1)` : 'none',
+      }} />}
       {bot.texture_overlay && bot.texture_overlay !== 'none' && (() => { const s = getOverlayStyle(bot.texture_overlay, bot.texture_intensity ?? 40); return s ? <div style={{ ...s, position:'absolute', zIndex:999, pointerEvents:'none' }} /> : null })()}
 
       {/* Header */}

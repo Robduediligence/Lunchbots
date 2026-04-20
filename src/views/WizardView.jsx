@@ -127,8 +127,12 @@ const OVERLAYS = [
   { id: 'vintage', label: 'Vintage' },
   { id: 'flare',   label: 'Light Flare' },
   { id: 'vignette',label: 'Vignette' },
-  { id: 'blur',    label: 'Blur' },
-  { id: 'frost',   label: 'Frost' },
+]
+
+const IMAGE_EFFECTS = [
+  { id: 'none',  label: 'None' },
+  { id: 'blur',  label: 'Blur' },
+  { id: 'frost', label: 'Frost' },
 ]
 
 const BOT_DEFAULTS = {
@@ -153,6 +157,8 @@ const BOT_DEFAULTS = {
   bg_image_url: null,
   texture_overlay: 'none',
   texture_intensity: 40,
+  image_effect: 'none',
+  image_effect_intensity: 40,
   // Layout controls
   header_height: 60,
   chat_width: 100,
@@ -1132,8 +1138,8 @@ function StepBranding({ bot, f }) {
       </Section>
 
       {/* Texture overlays */}
-      <Section title="Texture Overlay" sub="Adds a material feel over the chat background.">
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8, marginBottom:14 }}>
+      <Section title="Texture Overlay" sub="Covers the whole chat view.">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginBottom:14 }}>
           {OVERLAYS.map(o=>(
             <button key={o.id} onClick={()=>f('texture_overlay',o.id)}
               style={{ padding:'8px 4px', borderRadius:'var(--r)', border:`1.5px solid ${bot.texture_overlay===o.id?'var(--coffee-0)':'var(--line)'}`, background:bot.texture_overlay===o.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', fontSize:11, fontWeight:500, color:bot.texture_overlay===o.id?'var(--parch-1)':'var(--ink3)', transition:'all 0.12s', textAlign:'center' }}>
@@ -1141,8 +1147,23 @@ function StepBranding({ bot, f }) {
             </button>
           ))}
         </div>
-        {bot.texture_overlay !== 'none' && (
+        {bot.texture_overlay && bot.texture_overlay !== 'none' && (
           <Slider label="Intensity" field="texture_intensity" min={0} max={100} step={1} unit="%" leftLabel="Subtle" rightLabel="Strong" bot={bot} f={f} />
+        )}
+      </Section>
+
+      {/* Image effects */}
+      <Section title="Image Effect" sub="Only affects the background image.">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8 }}>
+          {IMAGE_EFFECTS.map(o=>(
+            <button key={o.id} onClick={()=>f('image_effect',o.id)}
+              style={{ padding:'8px 4px', borderRadius:'var(--r)', border:`1.5px solid ${bot.image_effect===o.id?'var(--coffee-0)':'var(--line)'}`, background:bot.image_effect===o.id?'var(--coffee-0)':'var(--surface)', cursor:'pointer', fontSize:11, fontWeight:500, color:bot.image_effect===o.id?'var(--parch-1)':'var(--ink3)', transition:'all 0.12s', textAlign:'center' }}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+        {bot.image_effect && bot.image_effect !== 'none' && (
+          <Slider label="Intensity" field="image_effect_intensity" min={0} max={100} step={1} unit="%" leftLabel="Subtle" rightLabel="Strong" bot={bot} f={f} />
         )}
       </Section>
 

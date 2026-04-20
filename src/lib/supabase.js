@@ -171,6 +171,8 @@ export async function saveBot(botData) {
     use_case: botData.use_case, bot_type: botData.bot_type,
     access_password: botData.access_password, chat_width: botData.chat_width ? Math.round(botData.chat_width) : null,
     texture_intensity: botData.texture_intensity,
+    image_effect: botData.image_effect,
+    image_effect_intensity: botData.image_effect_intensity,
     header_color: botData.header_color,
     header_text_color: botData.header_text_color,
     input_bg_color: botData.input_bg_color,
