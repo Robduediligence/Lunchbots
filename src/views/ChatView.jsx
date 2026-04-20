@@ -364,7 +364,7 @@ const [emailInput, setEmailInput] = useState('')
         ) : (
           <>
             <textarea ref={inputRef}
-              style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
+              className="chat-textarea" style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
               placeholder="Send a message…"
               value={input} rows={1}
               onChange={e => setInput(e.target.value.slice(0, 2000))}

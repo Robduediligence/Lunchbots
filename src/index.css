@@ -1173,7 +1173,7 @@ body::before {
 ::selection { background: rgba(245,158,11,0.3); color: #f0f0ff; }
 
 /* ── FORM INPUTS ── */
-input, textarea, select {
+input:not(.chat-input), textarea:not(.chat-textarea), select {
   background: #09090e !important;
   border: 1px solid rgba(124,58,237,0.25) !important;
   color: #c0c0d8 !important;
