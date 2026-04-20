@@ -1018,19 +1018,22 @@ function StepBranding({ bot, f }) {
     reader.readAsDataURL(file)
   }
 
-  function FontSelect({ label, fieldKey }) {
+  function FontSelect({ label, fieldKey, colorKey }) {
     const val = bot[fieldKey] || FONTS[0].value
+    const colorVal = colorKey ? (bot[colorKey] || '#2F2F2F') : null
     loadGoogleFont(val)
     return (
       <div className="field" style={{ marginBottom:12 }}>
         <label className="label">{label}</label>
         <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <select className="input input-sm" style={{ flex:1 }} value={val} onChange={e=>{loadGoogleFont(e.target.value);f(fieldKey,e.target.value)}}>
-            {FONTS.map(fn=><option key={fn.value} value={fn.value}>{fn.label}</option>)}
+          <select className="input input-sm" style={{ flex:1, fontFamily:val }} value={val} onChange={e=>{loadGoogleFont(e.target.value);f(fieldKey,e.target.value)}}>
+            {FONTS.map(fn=><option key={fn.value} value={fn.value} style={{ fontFamily:fn.value }}>{fn.label}</option>)}
           </select>
-          <div style={{ fontFamily:val, fontSize:13, color:'var(--ink2)', whiteSpace:'nowrap', minWidth:100, padding:'4px 8px', background:'var(--surface2)', borderRadius:'var(--r-sm)', border:'1px solid var(--line)' }}>
-            The quick brown fox
-          </div>
+          {colorKey && (
+            <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
+              <input type="color" value={colorVal} onChange={e=>f(colorKey,e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+            </div>
+          )}
         </div>
       </div>
     )
@@ -1076,12 +1079,12 @@ function StepBranding({ bot, f }) {
       {/* Colours */}
       <Section title="Colours">
         <div className="grid2">
-          {[['Primary colour','primary_color'],['Background colour','bg_color']].map(([lbl,field])=>(
+          {[['Primary colour','primary_color'],['Background colour','bg_color'],['Header colour','header_color'],['Header text colour','header_text_color']].map(([lbl,field])=>(
             <div key={field} className="field" style={{ marginBottom:0 }}>
               <label className="label">{lbl}</label>
               <div className="flex ic g8">
                 <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
-                  <input type="color" value={bot[field]||'#2C1810'} onChange={e=>f(field,e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+                  <input type="color" value={bot[field]||'#ffffff'} onChange={e=>f(field,e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
                 </div>
                 <input className="input input-sm" style={{ flex:1, fontFamily:'monospace' }} value={bot[field]||''} onChange={e=>f(field,e.target.value)} />
               </div>
@@ -1121,9 +1124,9 @@ function StepBranding({ bot, f }) {
 
       {/* Typography */}
       <Section title="Typography">
-        <FontSelect label="Title / Bot name font" fieldKey="title_font" />
-        <FontSelect label="Body / Chat font"      fieldKey="body_font" />
-        <FontSelect label="Resource / Document font" fieldKey="resource_font" />
+        <FontSelect label="Title / Bot name font" fieldKey="title_font" colorKey="title_color" />
+        <FontSelect label="Body / Chat font"      fieldKey="body_font"  colorKey="body_color" />
+        <FontSelect label="Resource / Document font" fieldKey="resource_font" colorKey="resource_color" />
         <Slider label="Base text size"    field="font_size" min={10} max={22} step={0.1} unit="px" bot={bot} f={f} />
       </Section>
 

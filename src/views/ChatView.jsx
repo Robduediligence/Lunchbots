@@ -220,7 +220,7 @@ const [emailInput, setEmailInput] = useState('')
         position:'relative', zIndex:1, padding:'12px 18px',
         borderBottom:'1px solid rgba(0,0,0,0.07)',
         display:'flex', alignItems:'center', gap:12,
-        background: bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)',
+        background: bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)'),
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
         {bot.logo_url && (
@@ -230,7 +230,7 @@ const [emailInput, setEmailInput] = useState('')
           {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color:'#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
+          <div style={{ fontFamily:font, fontSize:sz*0.95, fontWeight:600, color: bot.header_text_color || '#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
           {bot.descriptor && <div style={{ fontSize:sz*0.78, color:'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
           <div style={{ fontSize:sz*0.75, color:'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
             <span style={{ width:5, height:5, borderRadius:'50%', background:'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
