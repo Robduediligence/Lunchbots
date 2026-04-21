@@ -661,6 +661,7 @@ function StepKnowledge({ bot, f }) {
         const arrayBuffer = await file.arrayBuffer()
         const { totalPages, text: extractedPages } = await extractText(new Uint8Array(arrayBuffer), { mergePages: false })
         const extracted = Array.isArray(extractedPages) ? extractedPages.join('\n\n') : extractedPages
+        console.log('PDF pages:', totalPages, 'Extracted chars:', extracted.length, 'Words:', extracted.split(/\s+/).filter(Boolean).length)
         try {
           const { callClaude } = await import('../lib/supabase.js')
           const chunkSize = 12000
