@@ -1163,7 +1163,6 @@ function StepBranding({ bot, f }) {
       <Section title="Colours">
         <div className="grid2">
           {[
-            ['Primary colour','primary_color'],
             ['Background colour','bg_color'],
             ['Header colour','header_color'],
             ['Bot name colour','bot_name_color'],
@@ -1175,6 +1174,7 @@ function StepBranding({ bot, f }) {
             ['Input area colour','input_area_color'],
             ['Placeholder colour','placeholder_color'],
             ['Input text colour','input_text_color'],
+            ['Send button colour','primary_color'],
             ['Bot bubble colour','bot_bubble_color'],
             ['User bubble colour','user_bubble_color'],
           ].map(([lbl,field])=>(
