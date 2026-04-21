@@ -158,10 +158,16 @@ const [emailInput, setEmailInput] = useState('')
   const prompts  = (bot.suggested_prompts || []).filter(Boolean)
 
   const userBubble = bot.bubble_style === 'outlined'
-    ? { background:'transparent', border:`1.5px solid ${bot.user_bubble_color || primary}`, color:bot.user_bubble_color || primary }
+    ? { background:'transparent', border:`1.5px solid ${bot.user_bubble_color || primary}`, color: bot.user_chat_font_color || 'white' }
     : bot.bubble_style === 'minimal'
-    ? { background:`${bot.user_bubble_color || primary}18`, color:bot.user_bubble_color || primary, border:'none' }
-    : { background:bot.user_bubble_color || primary, color:'white', border:'none' }
+    ? { background:`${bot.user_bubble_color || primary}18`, color: bot.user_chat_font_color || 'white', border:'none' }
+    : { background:bot.user_bubble_color || primary, color: bot.user_chat_font_color || 'white', border:'none' }
+
+  const botBubble = bot.bubble_style === 'outlined'
+    ? { background:'transparent', border:`1.5px solid ${bot.bot_bubble_color || primary}`, color: bot.chat_font_color || '#2F2F2F' }
+    : bot.bubble_style === 'minimal'
+    ? { background:`${bot.bot_bubble_color || primary}18`, color: bot.chat_font_color || '#2F2F2F', border:'none' }
+    : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F' }
 
   useEffect(() => {
     const greeting = bot.greeting || `Hi! I'm ${bot.name}. How can I help you today?`
@@ -368,7 +374,7 @@ const [emailInput, setEmailInput] = useState('')
                       textShadow: bot.text_glow_intensity > 0 ? `0 0 ${bot.text_glow_intensity * 0.2}px ${bot.text_glow_color || '#ffffff'}` : 'none',
                       WebkitTextStroke: bot.chat_text_outline_thickness > 0 ? `${bot.chat_text_outline_thickness}px ${bot.chat_text_outline_color || '#000000'}${Math.round((bot.chat_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none',
                     }
-                  : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F',
+                  : { ...botBubble,
                       boxShadow: [
                         bot.bubble_glow_intensity > 0 ? `0 0 ${bot.bubble_glow_intensity * 0.3}px ${bot.bubble_glow_intensity * 0.15}px ${bot.bubble_glow_color || '#ffffff'}` : '0 1px 2px rgba(0,0,0,0.06)',
                         bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${(100 - (bot.bubble_shadow_hardness ?? 50)) * 0.1 + 1}px ${bot.bubble_shadow_color || '#000000'}${Math.round(bot.bubble_shadow_intensity * 2.55).toString(16).padStart(2,'0')}` : '',
