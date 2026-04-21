@@ -1103,6 +1103,42 @@ function StepBranding({ bot, f }) {
         
       </Section>
 
+      {/* Colour Presets */}
+      <Section title="Colour Presets" sub="Pick a starting point then customise below.">
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginBottom:4 }}>
+          {[
+            { name:'Classic',    primary:'#2C1810', bg:'#F5F0E8', header:'rgba(253,250,244,0.95)', headerText:'#2C1810', inputArea:'rgba(253,250,244,0.97)', inputBg:'white' },
+            { name:'Midnight',   primary:'#6366f1', bg:'#0f0f1a', header:'rgba(15,15,26,0.95)',    headerText:'#e2e2ff', inputArea:'rgba(15,15,26,0.97)',    inputBg:'#1a1a2e' },
+            { name:'Forest',     primary:'#2d6a4f', bg:'#f0f7f4', header:'rgba(240,247,244,0.95)', headerText:'#1b4332', inputArea:'rgba(240,247,244,0.97)', inputBg:'white' },
+            { name:'Sunset',     primary:'#e85d04', bg:'#fff8f0', header:'rgba(255,248,240,0.95)', headerText:'#7b2d00', inputArea:'rgba(255,248,240,0.97)', inputBg:'white' },
+            { name:'Ocean',      primary:'#0077b6', bg:'#e8f4fd', header:'rgba(232,244,253,0.95)', headerText:'#023e8a', inputArea:'rgba(232,244,253,0.97)', inputBg:'white' },
+            { name:'Rose',       primary:'#be185d', bg:'#fff0f6', header:'rgba(255,240,246,0.95)', headerText:'#831843', inputArea:'rgba(255,240,246,0.97)', inputBg:'white' },
+            { name:'Slate',      primary:'#334155', bg:'#f8fafc', header:'rgba(248,250,252,0.95)', headerText:'#0f172a', inputArea:'rgba(248,250,252,0.97)', inputBg:'white' },
+            { name:'Neon',       primary:'#f59e0b', bg:'#09090e', header:'rgba(9,9,14,0.95)',      headerText:'#f0f0ff', inputArea:'rgba(9,9,14,0.97)',      inputBg:'#0f0f18' },
+          ].map(p => (
+            <button key={p.name} onClick={() => {
+              f('primary_color', p.primary)
+              f('bg_color', p.bg)
+              f('header_color', p.header)
+              f('header_text_color', p.headerText)
+              f('input_area_color', p.inputArea)
+              f('input_bg_color', p.inputBg)
+            }} style={{
+              padding:'10px 6px', borderRadius:'var(--r)', border:'1px solid var(--line)',
+              background:'var(--surface)', cursor:'pointer', transition:'all 0.12s',
+              display:'flex', flexDirection:'column', alignItems:'center', gap:6,
+            }}>
+              <div style={{ display:'flex', gap:3 }}>
+                <div style={{ width:16, height:16, borderRadius:'50%', background:p.primary }} />
+                <div style={{ width:16, height:16, borderRadius:'50%', background:p.bg, border:'1px solid var(--line)' }} />
+                <div style={{ width:16, height:16, borderRadius:'50%', background:p.header, border:'1px solid var(--line)' }} />
+              </div>
+              <span style={{ fontSize:10, color:'var(--ink3)', fontWeight:500 }}>{p.name}</span>
+            </button>
+          ))}
+        </div>
+      </Section>
+
       {/* Colours */}
       <Section title="Colours">
         <div className="grid2">
