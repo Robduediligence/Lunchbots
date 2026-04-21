@@ -283,7 +283,7 @@ const [emailInput, setEmailInput] = useState('')
       {/* Header */}
       <div style={{
         position:'relative', zIndex:1, padding:'12px 18px',
-        display:'flex', alignItems:'center', gap:12, minHeight: headerH,
+        display:'flex', alignItems:'center', gap:12, minHeight: typeof bot.header_height === 'number' ? bot.header_height : 60,
         background: bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)'),
         backdropFilter:'blur(12px)', flexShrink:0,
       }}>
