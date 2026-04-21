@@ -1107,31 +1107,51 @@ function StepBranding({ bot, f }) {
       <Section title="Colour Presets" sub="Pick a starting point then customise below.">
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8, marginBottom:4 }}>
           {[
-            { name:'Classic',    primary:'#2C1810', bg:'#F5F0E8', header:'rgba(253,250,244,0.95)', headerText:'#2C1810', inputArea:'rgba(253,250,244,0.97)', inputBg:'white' },
-            { name:'Midnight',   primary:'#6366f1', bg:'#0f0f1a', header:'rgba(15,15,26,0.95)',    headerText:'#e2e2ff', inputArea:'rgba(15,15,26,0.97)',    inputBg:'#1a1a2e' },
-            { name:'Forest',     primary:'#2d6a4f', bg:'#f0f7f4', header:'rgba(240,247,244,0.95)', headerText:'#1b4332', inputArea:'rgba(240,247,244,0.97)', inputBg:'white' },
-            { name:'Sunset',     primary:'#e85d04', bg:'#fff8f0', header:'rgba(255,248,240,0.95)', headerText:'#7b2d00', inputArea:'rgba(255,248,240,0.97)', inputBg:'white' },
-            { name:'Ocean',      primary:'#0077b6', bg:'#e8f4fd', header:'rgba(232,244,253,0.95)', headerText:'#023e8a', inputArea:'rgba(232,244,253,0.97)', inputBg:'white' },
-            { name:'Rose',       primary:'#be185d', bg:'#fff0f6', header:'rgba(255,240,246,0.95)', headerText:'#831843', inputArea:'rgba(255,240,246,0.97)', inputBg:'white' },
-            { name:'Slate',      primary:'#334155', bg:'#f8fafc', header:'rgba(248,250,252,0.95)', headerText:'#0f172a', inputArea:'rgba(248,250,252,0.97)', inputBg:'white' },
-            { name:'Neon',       primary:'#f59e0b', bg:'#09090e', header:'rgba(9,9,14,0.95)',      headerText:'#f0f0ff', inputArea:'rgba(9,9,14,0.97)',      inputBg:'#0f0f18' },
+            {
+              name:'Parchment',
+              preview:['#3B2B23','#F6F1E7','#FDFAF4'],
+              apply:{ primary_color:'#3B2B23', bg_color:'#F6F1E7', header_color:'#FDFAF4', header_text_color:'#3B2B23', bot_name_color:'#3B2B23', descriptor_color:'#7A5C3E', welcome_color:'#7A5C3E', chat_font_color:'#2F2F2F', online_color:'#2d6a4f', input_area_color:'#FDFAF4', input_bg_color:'#FFFFFF', placeholder_color:'#C9AD8E', bot_bubble_color:'#FFFFFF', user_bubble_color:'#3B2B23' }
+            },
+            {
+              name:'Midnight',
+              preview:['#818cf8','#0f172a','#1e1b4b'],
+              apply:{ primary_color:'#818cf8', bg_color:'#0f172a', header_color:'#1e1b4b', header_text_color:'#e0e7ff', bot_name_color:'#e0e7ff', descriptor_color:'#a5b4fc', welcome_color:'#c7d2fe', chat_font_color:'#e0e7ff', online_color:'#6ee7b7', input_area_color:'#1e1b4b', input_bg_color:'#0f172a', placeholder_color:'#4f46e5', bot_bubble_color:'#312e81', user_bubble_color:'#818cf8' }
+            },
+            {
+              name:'Forest',
+              preview:['#2d6a4f','#f0faf4','#ffffff'],
+              apply:{ primary_color:'#2d6a4f', bg_color:'#f0faf4', header_color:'#ffffff', header_text_color:'#1b4332', bot_name_color:'#1b4332', descriptor_color:'#2d6a4f', welcome_color:'#40916c', chat_font_color:'#1b4332', online_color:'#40916c', input_area_color:'#ffffff', input_bg_color:'#f0faf4', placeholder_color:'#74c69d', bot_bubble_color:'#ffffff', user_bubble_color:'#2d6a4f' }
+            },
+            {
+              name:'Sunset',
+              preview:['#ea580c','#fff7ed','#ffedd5'],
+              apply:{ primary_color:'#ea580c', bg_color:'#fff7ed', header_color:'#ffedd5', header_text_color:'#7c2d12', bot_name_color:'#7c2d12', descriptor_color:'#c2410c', welcome_color:'#c2410c', chat_font_color:'#431407', online_color:'#16a34a', input_area_color:'#ffedd5', input_bg_color:'#ffffff', placeholder_color:'#fb923c', bot_bubble_color:'#ffffff', user_bubble_color:'#ea580c' }
+            },
+            {
+              name:'Ocean',
+              preview:['#0284c7','#f0f9ff','#e0f2fe'],
+              apply:{ primary_color:'#0284c7', bg_color:'#f0f9ff', header_color:'#e0f2fe', header_text_color:'#0c4a6e', bot_name_color:'#0c4a6e', descriptor_color:'#0369a1', welcome_color:'#0369a1', chat_font_color:'#0c4a6e', online_color:'#059669', input_area_color:'#e0f2fe', input_bg_color:'#ffffff', placeholder_color:'#7dd3fc', bot_bubble_color:'#ffffff', user_bubble_color:'#0284c7' }
+            },
+            {
+              name:'Rose',
+              preview:['#be185d','#fff1f2','#ffe4e6'],
+              apply:{ primary_color:'#be185d', bg_color:'#fff1f2', header_color:'#ffe4e6', header_text_color:'#881337', bot_name_color:'#881337', descriptor_color:'#be185d', welcome_color:'#be185d', chat_font_color:'#4c0519', online_color:'#16a34a', input_area_color:'#ffe4e6', input_bg_color:'#ffffff', placeholder_color:'#fb7185', bot_bubble_color:'#ffffff', user_bubble_color:'#be185d' }
+            },
+            {
+              name:'Charcoal',
+              preview:['#f8fafc','#1e293b','#0f172a'],
+              apply:{ primary_color:'#94a3b8', bg_color:'#1e293b', header_color:'#0f172a', header_text_color:'#f8fafc', bot_name_color:'#f8fafc', descriptor_color:'#94a3b8', welcome_color:'#cbd5e1', chat_font_color:'#e2e8f0', online_color:'#4ade80', input_area_color:'#0f172a', input_bg_color:'#1e293b', placeholder_color:'#475569', bot_bubble_color:'#334155', user_bubble_color:'#94a3b8' }
+            },
+            {
+              name:'Amber',
+              preview:['#f59e0b','#09090e','#1a1000'],
+              apply:{ primary_color:'#f59e0b', bg_color:'#09090e', header_color:'#1a1000', header_text_color:'#fef3c7', bot_name_color:'#fbbf24', descriptor_color:'#d97706', welcome_color:'#d97706', chat_font_color:'#fef3c7', online_color:'#f59e0b', input_area_color:'#1a1000', input_bg_color:'#09090e', placeholder_color:'#78350f', bot_bubble_color:'#1c1400', user_bubble_color:'#f59e0b' }
+            },
           ].map(p => (
-            <button key={p.name} onClick={() => {
-              f('primary_color', p.primary)
-              f('bg_color', p.bg)
-              f('header_color', p.header)
-              f('header_text_color', p.headerText)
-              f('input_area_color', p.inputArea)
-              f('input_bg_color', p.inputBg)
-            }} style={{
-              padding:'10px 6px', borderRadius:'var(--r)', border:'1px solid var(--line)',
-              background:'var(--surface)', cursor:'pointer', transition:'all 0.12s',
-              display:'flex', flexDirection:'column', alignItems:'center', gap:6,
-            }}>
+            <button key={p.name} onClick={() => Object.entries(p.apply).forEach(([k,v]) => f(k,v))}
+              style={{ padding:'10px 6px', borderRadius:'var(--r)', border:'1px solid var(--line)', background:'var(--surface)', cursor:'pointer', transition:'all 0.12s', display:'flex', flexDirection:'column', alignItems:'center', gap:6 }}>
               <div style={{ display:'flex', gap:3 }}>
-                <div style={{ width:16, height:16, borderRadius:'50%', background:p.primary }} />
-                <div style={{ width:16, height:16, borderRadius:'50%', background:p.bg, border:'1px solid var(--line)' }} />
-                <div style={{ width:16, height:16, borderRadius:'50%', background:p.header, border:'1px solid var(--line)' }} />
+                {p.preview.map((c,i) => <div key={i} style={{ width:16, height:16, borderRadius:'50%', background:c, border:'1px solid rgba(0,0,0,0.1)' }} />)}
               </div>
               <span style={{ fontSize:10, color:'var(--ink3)', fontWeight:500 }}>{p.name}</span>
             </button>
