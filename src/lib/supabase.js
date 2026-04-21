@@ -189,6 +189,7 @@ export async function saveBot(botData) {
     text_glow_intensity: botData.text_glow_intensity,
     bubble_shadow_color: botData.bubble_shadow_color,
     bubble_shadow_intensity: botData.bubble_shadow_intensity,
+    bubble_shadow_hardness: botData.bubble_shadow_hardness,
     user_bubble_color: botData.user_bubble_color,
     header_text_color: botData.header_text_color,
     input_bg_color: botData.input_bg_color,

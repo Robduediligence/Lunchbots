@@ -302,7 +302,7 @@ const [emailInput, setEmailInput] = useState('')
       <div style={{ height:48, flexShrink:0, position:'relative', zIndex:1, background:`linear-gradient(to bottom, ${bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)')} 0%, transparent 100%)`, pointerEvents:'none' }} />
 
       {/* Messages */}
-      <div style={{ flex:1, overflowY:'auto', padding:'4px 22px 20px 22px', display:'flex', flexDirection:'column', gap:14, position:'relative', zIndex:1 }}>
+      <div style={{ flex:1, overflowY:'auto', padding:'4px 22px 20px 22px', display:'flex', flexDirection:'column', gap:14, position:'relative', zIndex:1, overflowX:'visible' }}>
         {/* Welcome + prompts */}
         {(bot.welcome_message || prompts.length > 0) && msgs.length <= 1 && (
           <div style={{ marginBottom:8 }}>
@@ -333,14 +333,14 @@ const [emailInput, setEmailInput] = useState('')
                   ? { ...userBubble, color: bot.user_chat_font_color || 'white',
                       boxShadow: [
                         bot.bubble_glow_intensity > 0 ? `0 0 ${bot.bubble_glow_intensity * 0.3}px ${bot.bubble_glow_intensity * 0.15}px ${bot.bubble_glow_color || '#ffffff'}` : '',
-                        bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${bot.bubble_shadow_intensity * 0.3}px ${bot.bubble_shadow_color || '#000000'}88` : '',
+                        bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${(100 - (bot.bubble_shadow_hardness ?? 50)) * 0.1 + 1}px ${bot.bubble_shadow_color || '#000000'}${Math.round(bot.bubble_shadow_intensity * 2.55).toString(16).padStart(2,'0')}` : '',
                       ].filter(Boolean).join(', ') || 'none',
                       textShadow: bot.text_glow_intensity > 0 ? `0 0 ${bot.text_glow_intensity * 0.2}px ${bot.text_glow_color || '#ffffff'}` : 'none',
                     }
                   : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F',
                       boxShadow: [
                         bot.bubble_glow_intensity > 0 ? `0 0 ${bot.bubble_glow_intensity * 0.3}px ${bot.bubble_glow_intensity * 0.15}px ${bot.bubble_glow_color || '#ffffff'}` : '0 1px 2px rgba(0,0,0,0.06)',
-                        bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${bot.bubble_shadow_intensity * 0.3}px ${bot.bubble_shadow_color || '#000000'}88` : '',
+                        bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${(100 - (bot.bubble_shadow_hardness ?? 50)) * 0.1 + 1}px ${bot.bubble_shadow_color || '#000000'}${Math.round(bot.bubble_shadow_intensity * 2.55).toString(16).padStart(2,'0')}` : '',
                       ].filter(Boolean).join(', '),
                       textShadow: bot.text_glow_intensity > 0 ? `0 0 ${bot.text_glow_intensity * 0.2}px ${bot.text_glow_color || '#ffffff'}` : 'none',
                     }),
@@ -422,7 +422,7 @@ const [emailInput, setEmailInput] = useState('')
             <textarea ref={inputRef}
               className="chat-textarea"
               placeholder="Send a message…"
-              style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color: bot.input_text_color || '#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
+              style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color: bot.input_text_color || '#1a1a1a', fontFamily:font, fontSize:sz, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
               value={input} rows={1}
               onChange={e => setInput(e.target.value.slice(0, 2000))}
               onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send() } }}

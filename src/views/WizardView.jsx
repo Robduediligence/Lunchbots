@@ -165,6 +165,7 @@ const BOT_DEFAULTS = {
   text_glow_intensity: 0,
   bubble_shadow_color: '#000000',
   bubble_shadow_intensity: 0,
+  bubble_shadow_hardness: 50,
   // Layout controls
   header_height: 60,
   chat_width: 100,
@@ -1315,6 +1316,9 @@ function StepBranding({ bot, f }) {
             <span style={{ fontSize:12, color:'var(--ink3)' }}>Shadow colour</span>
           </div>
           <Slider label="Shadow intensity" field="bubble_shadow_intensity" min={0} max={100} step={1} unit="%" leftLabel="None" rightLabel="Strong" bot={bot} f={f} />
+          {bot.bubble_shadow_intensity > 0 && (
+            <Slider label="Shadow edge" field="bubble_shadow_hardness" min={0} max={100} step={1} unit="%" leftLabel="Hard" rightLabel="Soft" bot={bot} f={f} />
+          )}
         </div>
       </Section>
 
