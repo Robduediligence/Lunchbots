@@ -188,7 +188,7 @@ const [emailInput, setEmailInput] = useState('')
         body: JSON.stringify({ botId: bot.id, sessionId })
       }).then(r => r.json()).then(c => { if (c.id) setConvId(c.id) }).catch(console.error)
     }
-  }, [bot.id])
+  }, [bot.id, bot.greeting])
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:'smooth' }) }, [msgs, thinking])
 

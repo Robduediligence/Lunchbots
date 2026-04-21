@@ -672,7 +672,7 @@ Restructure it into clean, readable, well-organised plain text that preserves al
 - Do not add or remove any information
 - Return only the cleaned text, no explanation`,
             messages: [],
-            userMessage: `Clean up this raw PDF text:\n\n${extracted.slice(0, 8000)}`,
+            userMessage: `Clean up this raw PDF text:\n\n${extracted.slice(0, 50000)}`,
           })
           text = result
         } catch(e) {
@@ -687,7 +687,7 @@ Restructure it into clean, readable, well-organised plain text that preserves al
       text = await file.text()
     }
 
-    setForm(p => ({ ...p, title: file.name.replace(/\.[^.]+$/, ''), content: text.slice(0, 50000) }))
+    setForm(p => ({ ...p, title: file.name.replace(/\.[^.]+$/, ''), content: text.slice(0, 200000) }))
     setAdding(true)
   }
 

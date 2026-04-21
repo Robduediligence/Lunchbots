@@ -476,7 +476,7 @@ ${fullKb.trim() ? `## Your Knowledge Base\nThis is your ONLY source of truth. Al
 ${bot.strict_kb_only ? '- ONLY answer from your knowledge base. If the answer is not in your knowledge base, you MUST start your response with the exact token [FALLBACK] before any other text.' : ''}
 ${bot.allow_broad_ai ? '- You may draw on general knowledge when the knowledge base does not cover the topic.' : ''}
 - Never fabricate information. If the answer is not in your knowledge base and you cannot confidently help, you MUST include the exact token [FALLBACK] at the very start of your response, before any other text. This token will be hidden from the user — it is for internal routing only.
-- If you include [FALLBACK], still give a brief, polite response after it explaining you don't have that information.
+- If you include [FALLBACK], your response after it MUST be exactly this message (word for word): "${bot.fallback_message || "I don't have that information yet. I've flagged your question for the team."}"
 - Stay in character as ${bot.name} at all times.
 
 ## Formatting
