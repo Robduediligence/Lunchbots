@@ -1090,9 +1090,7 @@ function StepBranding({ bot, f }) {
             </div>
           )}
         </div>
-        <div style={{ marginTop:6, padding:'8px 12px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)', fontFamily:val, fontSize:15, color:'var(--ink2)' }}>
-          The quick brown fox jumps over the lazy dog
-        </div>
+        
       </div>
     )
   }
