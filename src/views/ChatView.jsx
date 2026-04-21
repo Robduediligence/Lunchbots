@@ -133,7 +133,7 @@ const [emailInput, setEmailInput] = useState('')
     if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el) }
     el.textContent = `textarea.chat-textarea::placeholder { color: ${bot.input_text_color || '#999'} !important; opacity: 0.5 !important; } textarea.chat-textarea::-webkit-input-placeholder { color: ${bot.input_text_color || '#999'} !important; opacity: 0.5 !important; }`
     return () => { const s = document.getElementById(id); if (s) s.remove() }
-  }, [bot.placeholder_color, bot.id])
+  }, [bot.input_text_color, bot.id])
 
   useEffect(() => {
     function loadFont(fontValue) {
