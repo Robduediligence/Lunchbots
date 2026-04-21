@@ -288,8 +288,12 @@ const [emailInput, setEmailInput] = useState('')
           {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
         </div>
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontFamily:titleFont, fontSize:sz*0.95, fontWeight:600, color: bot.bot_name_color || bot.header_text_color || '#2F2F2F', lineHeight:1.2 }}>{bot.name}</div>
-          {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.descriptor_color || bot.header_text_color || 'var(--ink4)', marginTop:1 }}>{bot.descriptor}</div>}
+          <div style={{ fontFamily:titleFont, fontSize:sz*0.95, fontWeight:600, color: bot.bot_name_color || bot.header_text_color || '#2F2F2F', lineHeight:1.2,
+            WebkitTextStroke: bot.header_text_outline_thickness > 0 ? `${bot.header_text_outline_thickness}px ${bot.header_text_outline_color || '#000000'}${Math.round((bot.header_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none',
+          }}>{bot.name}</div>
+          {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.descriptor_color || bot.header_text_color || 'var(--ink4)', marginTop:1,
+            WebkitTextStroke: bot.header_text_outline_thickness > 0 ? `${bot.header_text_outline_thickness}px ${bot.header_text_outline_color || '#000000'}${Math.round((bot.header_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none',
+          }}>{bot.descriptor}</div>}
           <div style={{ fontSize:sz*0.75, color: bot.online_color || 'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
             <span style={{ width:5, height:5, borderRadius:'50%', background: bot.online_color || 'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
           </div>
@@ -336,6 +340,7 @@ const [emailInput, setEmailInput] = useState('')
                         bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${(100 - (bot.bubble_shadow_hardness ?? 50)) * 0.1 + 1}px ${bot.bubble_shadow_color || '#000000'}${Math.round(bot.bubble_shadow_intensity * 2.55).toString(16).padStart(2,'0')}` : '',
                       ].filter(Boolean).join(', ') || 'none',
                       textShadow: bot.text_glow_intensity > 0 ? `0 0 ${bot.text_glow_intensity * 0.2}px ${bot.text_glow_color || '#ffffff'}` : 'none',
+                      WebkitTextStroke: bot.chat_text_outline_thickness > 0 ? `${bot.chat_text_outline_thickness}px ${bot.chat_text_outline_color || '#000000'}${Math.round((bot.chat_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none',
                     }
                   : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F',
                       boxShadow: [
@@ -343,6 +348,7 @@ const [emailInput, setEmailInput] = useState('')
                         bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${(100 - (bot.bubble_shadow_hardness ?? 50)) * 0.1 + 1}px ${bot.bubble_shadow_color || '#000000'}${Math.round(bot.bubble_shadow_intensity * 2.55).toString(16).padStart(2,'0')}` : '',
                       ].filter(Boolean).join(', '),
                       textShadow: bot.text_glow_intensity > 0 ? `0 0 ${bot.text_glow_intensity * 0.2}px ${bot.text_glow_color || '#ffffff'}` : 'none',
+                      WebkitTextStroke: bot.chat_text_outline_thickness > 0 ? `${bot.chat_text_outline_thickness}px ${bot.chat_text_outline_color || '#000000'}${Math.round((bot.chat_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none',
                     }),
               }}
               dangerouslySetInnerHTML={m.role==='bot' ? { __html:renderMarkdown(m.content) } : undefined}

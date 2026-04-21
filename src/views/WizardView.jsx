@@ -166,6 +166,12 @@ const BOT_DEFAULTS = {
   bubble_shadow_color: '#000000',
   bubble_shadow_intensity: 0,
   bubble_shadow_hardness: 50,
+  header_text_outline_thickness: 0,
+  header_text_outline_opacity: 100,
+  header_text_outline_color: '#000000',
+  chat_text_outline_thickness: 0,
+  chat_text_outline_opacity: 100,
+  chat_text_outline_color: '#000000',
   // Layout controls
   header_height: 60,
   chat_width: 100,
@@ -1318,6 +1324,34 @@ function StepBranding({ bot, f }) {
           <Slider label="Shadow intensity" field="bubble_shadow_intensity" min={0} max={100} step={1} unit="%" leftLabel="None" rightLabel="Strong" bot={bot} f={f} />
           {bot.bubble_shadow_intensity > 0 && (
             <Slider label="Shadow edge" field="bubble_shadow_hardness" min={0} max={100} step={1} unit="%" leftLabel="Hard" rightLabel="Soft" bot={bot} f={f} />
+          )}
+        </div>
+
+        <div style={{ marginTop:16 }}>
+          <div style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', marginBottom:8 }}>Header text outline</div>
+          <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+            <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
+              <input type="color" value={bot.header_text_outline_color||'#000000'} onChange={e=>f('header_text_outline_color',e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+            </div>
+            <span style={{ fontSize:12, color:'var(--ink3)' }}>Outline colour</span>
+          </div>
+          <Slider label="Thickness" field="header_text_outline_thickness" min={0} max={10} step={0.1} unit="px" leftLabel="None" rightLabel="Thick" bot={bot} f={f} />
+          {bot.header_text_outline_thickness > 0 && (
+            <Slider label="Opacity" field="header_text_outline_opacity" min={0} max={100} step={1} unit="%" leftLabel="Faint" rightLabel="Full" bot={bot} f={f} />
+          )}
+        </div>
+
+        <div style={{ marginTop:16 }}>
+          <div style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', marginBottom:8 }}>Chat & input text outline</div>
+          <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+            <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
+              <input type="color" value={bot.chat_text_outline_color||'#000000'} onChange={e=>f('chat_text_outline_color',e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+            </div>
+            <span style={{ fontSize:12, color:'var(--ink3)' }}>Outline colour</span>
+          </div>
+          <Slider label="Thickness" field="chat_text_outline_thickness" min={0} max={10} step={0.1} unit="px" leftLabel="None" rightLabel="Thick" bot={bot} f={f} />
+          {bot.chat_text_outline_thickness > 0 && (
+            <Slider label="Opacity" field="chat_text_outline_opacity" min={0} max={100} step={1} unit="%" leftLabel="Faint" rightLabel="Full" bot={bot} f={f} />
           )}
         </div>
       </Section>
