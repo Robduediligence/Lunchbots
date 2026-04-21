@@ -1478,7 +1478,8 @@ function StepTest({ bot }) {
       const botWithKb = { ...bot, knowledge_text: kbText }
       const history = msgs.map(m=>({ role:m.role==='bot'?'assistant':'user', content:m.content }))
       const reply = await callClaude({ system:buildBotSystem(botWithKb), messages:history, userMessage:t, allowWeb:bot.allow_web })
-      setMsgs(p=>[...p,{ role:'bot', content:reply }])
+      const cleanReply = reply.replace(/\[FALLBACK\]/g, '').trimStart()
+      setMsgs(p=>[...p,{ role:'bot', content:cleanReply }])
     } catch { setMsgs(p=>[...p,{ role:'bot', content:'Error — check your API key.' }]) }
     setThinking(false)
   }

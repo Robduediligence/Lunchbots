@@ -427,19 +427,30 @@ export async function callClaude({ system, messages, userMessage, allowWeb = fal
 
 export function buildBotSystem(bot) {
   const toneMap = {
-    warm:         'warm, empathetic, and approachable',
-    professional: 'professional, clear, and competent',
-    expert:       'authoritative, precise, and knowledgeable',
-    playful:      'friendly, light-hearted, and engaging',
-    calm:         'calm, measured, and reassuring',
-    educational:  'clear, structured, and educational',
-    direct:       'direct, concise, and no-nonsense',
-    consultative: 'consultative, thoughtful, and solution-focused',
+    warm:         'warm, empathetic, and approachable. Use phrases like "I understand", "That\'s a great question", "I\'m happy to help". Address the user\'s feelings before giving information.',
+    professional: 'professional, clear, and competent. Use formal language, avoid slang, structure responses logically. Never use exclamation marks.',
+    expert:       'authoritative and precise. State facts confidently, reference specifics from your knowledge base, avoid hedging language like "I think" or "maybe".',
+    playful:      'friendly, light-hearted, and fun. Use casual language, occasional humour, and keep things upbeat. Short punchy sentences work well.',
+    calm:         'calm, measured, and reassuring. Never rush. Acknowledge concerns, speak slowly through your writing, use gentle language.',
+    educational:  'structured and educational. Break things down step by step. Use numbered lists, explain the "why" behind answers, and check understanding.',
+    direct:       'extremely direct and brief. Get to the point immediately. No preamble, no pleasantries. Just the answer.',
+    consultative: 'consultative and thoughtful. Ask clarifying questions before giving advice. Consider multiple angles. Help the user think through their situation.',
   }
   const lengthMap = {
-    short:    'Keep responses concise — 1-3 sentences where possible.',
-    balanced: 'Aim for balanced responses — thorough but not excessive.',
-    detailed: 'Give detailed, comprehensive responses.',
+    short:    'Keep responses to 1-3 sentences MAXIMUM. Be ruthlessly concise. If you need more, use bullet points.',
+    balanced: 'Aim for 2-4 sentences for simple questions, up to a short paragraph for complex ones. Never pad responses.',
+    detailed: 'Give comprehensive, detailed responses. Cover all angles. Use headings and bullet points for long answers.',
+  }
+  const initiativeMap = {
+    reactive:  'Only answer what is asked. Do not volunteer additional information or ask follow-up questions unless necessary.',
+    followup:  'After answering, ask ONE relevant follow-up question to help the user further.',
+    proactive: 'Proactively offer related information the user might need. Anticipate follow-up questions and answer them before they\'re asked.',
+  }
+  const styleMap = {
+    conversational: 'Write conversationally, like a helpful human assistant. Natural sentences, no jargon.',
+    polished:       'Write in polished, refined prose. Elegant word choices, well-structured sentences.',
+    educational:    'Write to teach. Use examples, analogies, and step-by-step explanations.',
+    support:        'Write like a support agent. Acknowledge the issue first, then solve it. Always confirm resolution.',
   }
   // Compile knowledge entries + legacy text into one KB string
   const entries = Array.isArray(bot.knowledge_entries) ? bot.knowledge_entries.filter(e => e.enabled !== false) : []
@@ -454,10 +465,14 @@ export function buildBotSystem(bot) {
 
 ${fullKb.trim() ? `## Your Knowledge Base\nThis is your ONLY source of truth. Always check here first before responding. If the answer is here, use it — even if the question is phrased differently:\n\n---\n${fullKb}\n---\n` : ''}
 
-## Behaviour
-- Tone: Be ${toneMap[bot.tone] || 'professional and helpful'}.
-- ${lengthMap[bot.response_length] || ''}
-- Emoji use: ${bot.emoji_use === 'none' ? 'Use no emojis.' : bot.emoji_use === 'minimal' ? 'Use emojis sparingly.' : 'Use emojis naturally.'}.
+## Personality — follow these STRICTLY, they define your character
+- TONE: ${toneMap[bot.tone] || 'Be professional and helpful.'}
+- RESPONSE LENGTH: ${lengthMap[bot.response_length] || 'Aim for balanced responses.'}
+- INITIATIVE: ${initiativeMap[bot.initiative] || 'Answer what is asked.'}
+- WRITING STYLE: ${styleMap[bot.writing_style] || 'Write conversationally.'}
+- EMOJI USE: ${bot.emoji_use === 'none' ? 'Never use emojis under any circumstances.' : bot.emoji_use === 'minimal' ? 'Use emojis very sparingly — maximum 1 per response, only when natural.' : 'Use emojis naturally to match your tone.'}
+
+## Rules
 ${bot.strict_kb_only ? '- ONLY answer from your knowledge base. If the answer is not in your knowledge base, you MUST start your response with the exact token [FALLBACK] before any other text.' : ''}
 ${bot.allow_broad_ai ? '- You may draw on general knowledge when the knowledge base does not cover the topic.' : ''}
 - Never fabricate information. If the answer is not in your knowledge base and you cannot confidently help, you MUST include the exact token [FALLBACK] at the very start of your response, before any other text. This token will be hidden from the user — it is for internal routing only.
