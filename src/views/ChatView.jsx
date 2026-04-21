@@ -165,7 +165,9 @@ const [emailInput, setEmailInput] = useState('')
 
   useEffect(() => {
     const greeting = bot.greeting || `Hi! I'm ${bot.name}. How can I help you today?`
-    setMsgs([{ role:'bot', content:greeting, id:'greeting' }])
+    setMsgs(previewMode
+      ? [{ role:'bot', content:greeting, id:'greeting' }, { role:'user', content:'How can you help me?', id:'preview-user' }]
+      : [{ role:'bot', content:greeting, id:'greeting' }])
     msgsRef.current = []
     setConvId(null)
     setPendingGap(null)
@@ -404,7 +406,9 @@ const [emailInput, setEmailInput] = useState('')
         ) : (
           <>
             <textarea ref={inputRef}
-              className="chat-textarea" style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color:'#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120, '--placeholder-color': bot.placeholder_color || '#999' }}
+              className="chat-textarea"
+              placeholder="Send a message…"
+              style={{ flex:1, background: bot.input_bg_color || 'white', border:'1px solid rgba(0,0,0,0.15)', color: bot.input_text_color || '#1a1a1a', fontFamily:font, fontSize:sz*0.9, borderRadius:`${radius*0.75}px`, padding:'9px 13px', outline:'none', resize:'none', lineHeight:1.5, maxHeight:120 }}
               value={input} rows={1}
               onChange={e => setInput(e.target.value.slice(0, 2000))}
               onKeyDown={e => { if (e.key==='Enter' && !e.shiftKey) { e.preventDefault(); send() } }}

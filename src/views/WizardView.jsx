@@ -1109,43 +1109,43 @@ function StepBranding({ bot, f }) {
           {[
             {
               name:'Parchment',
-              preview:['#3B2B23','#F6F1E7','#FDFAF4'],
-              apply:{ primary_color:'#3B2B23', bg_color:'#F6F1E7', header_color:'#FDFAF4', header_text_color:'#3B2B23', bot_name_color:'#3B2B23', descriptor_color:'#7A5C3E', welcome_color:'#7A5C3E', chat_font_color:'#2F2F2F', online_color:'#2d6a4f', input_area_color:'#FDFAF4', input_bg_color:'#FFFFFF', placeholder_color:'#C9AD8E', bot_bubble_color:'#FFFFFF', user_bubble_color:'#3B2B23' }
+              preview:['#3B2B23','#F6F1E7','#c1b69f'],
+              apply:{ primary_color:'#3B2B23', bg_color:'#F6F1E7', header_color:'#c1b69f', header_text_color:'#3B2B23', bot_name_color:'#3B2B23', descriptor_color:'#1f170f', welcome_color:'#211a12', chat_font_color:'#000000', online_color:'#2d6a4f', input_area_color:'#c0b69f', input_bg_color:'#FFFFFF', placeholder_color:'#C9AD8E', input_text_color:'#3B2B23', bot_bubble_color:'#c0b69f', user_bubble_color:'#f8d17c' }
             },
             {
               name:'Midnight',
               preview:['#818cf8','#0f172a','#1e1b4b'],
-              apply:{ primary_color:'#818cf8', bg_color:'#0f172a', header_color:'#1e1b4b', header_text_color:'#e0e7ff', bot_name_color:'#e0e7ff', descriptor_color:'#a5b4fc', welcome_color:'#c7d2fe', chat_font_color:'#e0e7ff', online_color:'#6ee7b7', input_area_color:'#1e1b4b', input_bg_color:'#0f172a', placeholder_color:'#4f46e5', bot_bubble_color:'#312e81', user_bubble_color:'#818cf8' }
+              apply:{ primary_color:'#818cf8', bg_color:'#0f172a', header_color:'#1e1b4b', header_text_color:'#e0e7ff', bot_name_color:'#e0e7ff', descriptor_color:'#a5b4fc', welcome_color:'#c7d2fe', chat_font_color:'#e0e7ff', online_color:'#6ee7b7', input_area_color:'#1e1b4b', input_bg_color:'#0f172a', placeholder_color:'#4f46e5', input_text_color:'#e0e7ff', bot_bubble_color:'#312e81', user_bubble_color:'#818cf8' }
             },
             {
               name:'Forest',
-              preview:['#2d6a4f','#f0faf4','#ffffff'],
-              apply:{ primary_color:'#2d6a4f', bg_color:'#f0faf4', header_color:'#ffffff', header_text_color:'#1b4332', bot_name_color:'#1b4332', descriptor_color:'#2d6a4f', welcome_color:'#40916c', chat_font_color:'#1b4332', online_color:'#40916c', input_area_color:'#ffffff', input_bg_color:'#f0faf4', placeholder_color:'#74c69d', bot_bubble_color:'#ffffff', user_bubble_color:'#2d6a4f' }
+              preview:['#001f11','#003d18','#092c07'],
+              apply:{ primary_color:'#001f11', bg_color:'#003d18', header_color:'#092c07', header_text_color:'#a3ffd9', bot_name_color:'#a3ffd9', descriptor_color:'#57ffb3', welcome_color:'#ffffff', chat_font_color:'#ffffff', online_color:'#40916c', input_area_color:'#092c07', input_bg_color:'#7ca287', placeholder_color:'#74c69d', input_text_color:'#ffffff', bot_bubble_color:'#000000', user_bubble_color:'#2d6a4f' }
             },
             {
               name:'Sunset',
               preview:['#ea580c','#fff7ed','#ffedd5'],
-              apply:{ primary_color:'#ea580c', bg_color:'#fff7ed', header_color:'#ffedd5', header_text_color:'#7c2d12', bot_name_color:'#7c2d12', descriptor_color:'#c2410c', welcome_color:'#c2410c', chat_font_color:'#431407', online_color:'#16a34a', input_area_color:'#ffedd5', input_bg_color:'#ffffff', placeholder_color:'#fb923c', bot_bubble_color:'#ffffff', user_bubble_color:'#ea580c' }
+              apply:{ primary_color:'#ea580c', bg_color:'#fff7ed', header_color:'#ffedd5', header_text_color:'#7c2d12', bot_name_color:'#7c2d12', descriptor_color:'#c2410c', welcome_color:'#c2410c', chat_font_color:'#431407', online_color:'#16a34a', input_area_color:'#ffedd5', input_bg_color:'#ffffff', placeholder_color:'#fb923c', input_text_color:'#7c2d12', bot_bubble_color:'#ffffff', user_bubble_color:'#ea580c' }
             },
             {
               name:'Ocean',
-              preview:['#0284c7','#f0f9ff','#e0f2fe'],
-              apply:{ primary_color:'#0284c7', bg_color:'#f0f9ff', header_color:'#e0f2fe', header_text_color:'#0c4a6e', bot_name_color:'#0c4a6e', descriptor_color:'#0369a1', welcome_color:'#0369a1', chat_font_color:'#0c4a6e', online_color:'#059669', input_area_color:'#e0f2fe', input_bg_color:'#ffffff', placeholder_color:'#7dd3fc', bot_bubble_color:'#ffffff', user_bubble_color:'#0284c7' }
+              preview:['#032b3f','#f0f9ff','#b3e0ff'],
+              apply:{ primary_color:'#032b3f', bg_color:'#f0f9ff', header_color:'#b3e0ff', header_text_color:'#000000', bot_name_color:'#000000', descriptor_color:'#002b42', welcome_color:'#0369a1', chat_font_color:'#000000', online_color:'#009465', input_area_color:'#abd6f2', input_bg_color:'#74b9b4', placeholder_color:'#7dd3fc', input_text_color:'#000000', bot_bubble_color:'#ffffff', user_bubble_color:'#74a2b9' }
             },
             {
               name:'Rose',
               preview:['#be185d','#fff1f2','#ffe4e6'],
-              apply:{ primary_color:'#be185d', bg_color:'#fff1f2', header_color:'#ffe4e6', header_text_color:'#881337', bot_name_color:'#881337', descriptor_color:'#be185d', welcome_color:'#be185d', chat_font_color:'#4c0519', online_color:'#16a34a', input_area_color:'#ffe4e6', input_bg_color:'#ffffff', placeholder_color:'#fb7185', bot_bubble_color:'#ffffff', user_bubble_color:'#be185d' }
+              apply:{ primary_color:'#be185d', bg_color:'#fff1f2', header_color:'#ffe4e6', header_text_color:'#881337', bot_name_color:'#881337', descriptor_color:'#be185d', welcome_color:'#be185d', chat_font_color:'#4c0519', online_color:'#16a34a', input_area_color:'#ffe4e6', input_bg_color:'#ffffff', placeholder_color:'#fb7185', input_text_color:'#881337', bot_bubble_color:'#ffffff', user_bubble_color:'#be185d' }
             },
             {
               name:'Charcoal',
               preview:['#f8fafc','#1e293b','#0f172a'],
-              apply:{ primary_color:'#94a3b8', bg_color:'#1e293b', header_color:'#0f172a', header_text_color:'#f8fafc', bot_name_color:'#f8fafc', descriptor_color:'#94a3b8', welcome_color:'#cbd5e1', chat_font_color:'#e2e8f0', online_color:'#4ade80', input_area_color:'#0f172a', input_bg_color:'#1e293b', placeholder_color:'#475569', bot_bubble_color:'#334155', user_bubble_color:'#94a3b8' }
+              apply:{ primary_color:'#94a3b8', bg_color:'#1e293b', header_color:'#0f172a', header_text_color:'#f8fafc', bot_name_color:'#f8fafc', descriptor_color:'#94a3b8', welcome_color:'#cbd5e1', chat_font_color:'#e2e8f0', online_color:'#4ade80', input_area_color:'#0f172a', input_bg_color:'#1e293b', placeholder_color:'#94a3b8', input_text_color:'#f8fafc', bot_bubble_color:'#334155', user_bubble_color:'#94a3b8' }
             },
             {
               name:'Amber',
               preview:['#f59e0b','#09090e','#1a1000'],
-              apply:{ primary_color:'#f59e0b', bg_color:'#09090e', header_color:'#1a1000', header_text_color:'#fef3c7', bot_name_color:'#fbbf24', descriptor_color:'#d97706', welcome_color:'#d97706', chat_font_color:'#fef3c7', online_color:'#f59e0b', input_area_color:'#1a1000', input_bg_color:'#09090e', placeholder_color:'#78350f', bot_bubble_color:'#1c1400', user_bubble_color:'#f59e0b' }
+              apply:{ primary_color:'#f59e0b', bg_color:'#09090e', header_color:'#1a1000', header_text_color:'#fef3c7', bot_name_color:'#fbbf24', descriptor_color:'#d97706', welcome_color:'#d97706', chat_font_color:'#fef3c7', online_color:'#f59e0b', input_area_color:'#1a1000', input_bg_color:'#09090e', placeholder_color:'#d97706', input_text_color:'#fef3c7', bot_bubble_color:'#1c1400', user_bubble_color:'#f59e0b' }
             },
           ].map(p => (
             <button key={p.name} onClick={() => Object.entries(p.apply).forEach(([k,v]) => f(k,v))}
@@ -1174,6 +1174,7 @@ function StepBranding({ bot, f }) {
             ['Input bar colour','input_bg_color'],
             ['Input area colour','input_area_color'],
             ['Placeholder colour','placeholder_color'],
+            ['Input text colour','input_text_color'],
             ['Bot bubble colour','bot_bubble_color'],
             ['User bubble colour','user_bubble_color'],
           ].map(([lbl,field])=>(
