@@ -159,6 +159,12 @@ const BOT_DEFAULTS = {
   texture_intensity: 40,
   image_effect: 'none',
   image_effect_intensity: 40,
+  bubble_glow_color: '#ffffff',
+  bubble_glow_intensity: 0,
+  text_glow_color: '#ffffff',
+  text_glow_intensity: 0,
+  bubble_shadow_color: '#000000',
+  bubble_shadow_intensity: 0,
   // Layout controls
   header_height: 60,
   chat_width: 100,
@@ -1274,6 +1280,42 @@ function StepBranding({ bot, f }) {
         <FontSelect label="Title / Bot name font" fieldKey="title_font" />
         <FontSelect label="Body / Chat font"      fieldKey="body_font" />
         <Slider label="Base text size"    field="font_size" min={10} max={22} step={0.1} unit="px" bot={bot} f={f} />
+      </Section>
+
+      {/* Glow & Shadow */}
+      <Section title="Glow & Shadow Effects">
+        <div style={{ marginBottom:16 }}>
+          <div style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', marginBottom:8 }}>Bubble glow</div>
+          <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+            <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
+              <input type="color" value={bot.bubble_glow_color||'#ffffff'} onChange={e=>f('bubble_glow_color',e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+            </div>
+            <span style={{ fontSize:12, color:'var(--ink3)' }}>Glow colour</span>
+          </div>
+          <Slider label="Glow intensity" field="bubble_glow_intensity" min={0} max={100} step={1} unit="%" leftLabel="None" rightLabel="Strong" bot={bot} f={f} />
+        </div>
+
+        <div style={{ marginBottom:16 }}>
+          <div style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', marginBottom:8 }}>Text glow</div>
+          <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+            <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
+              <input type="color" value={bot.text_glow_color||'#ffffff'} onChange={e=>f('text_glow_color',e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+            </div>
+            <span style={{ fontSize:12, color:'var(--ink3)' }}>Glow colour</span>
+          </div>
+          <Slider label="Glow intensity" field="text_glow_intensity" min={0} max={100} step={1} unit="%" leftLabel="None" rightLabel="Strong" bot={bot} f={f} />
+        </div>
+
+        <div>
+          <div style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', marginBottom:8 }}>Drop shadow</div>
+          <div style={{ display:'flex', gap:8, alignItems:'center', marginBottom:8 }}>
+            <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
+              <input type="color" value={bot.bubble_shadow_color||'#000000'} onChange={e=>f('bubble_shadow_color',e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+            </div>
+            <span style={{ fontSize:12, color:'var(--ink3)' }}>Shadow colour</span>
+          </div>
+          <Slider label="Shadow intensity" field="bubble_shadow_intensity" min={0} max={100} step={1} unit="%" leftLabel="None" rightLabel="Strong" bot={bot} f={f} />
+        </div>
       </Section>
 
       {/* Shape */}

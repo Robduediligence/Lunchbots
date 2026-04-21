@@ -329,7 +329,21 @@ const [emailInput, setEmailInput] = useState('')
               style={{
                 padding:'10px 14px', fontFamily:font, fontSize:sz*0.92, lineHeight:1.65,
                 borderRadius: m.role==='bot' ? `3px ${rr} ${rr} ${rr}` : `${rr} 3px ${rr} ${rr}`,
-                ...(m.role==='user' ? { ...userBubble, color: bot.user_chat_font_color || 'white' } : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
+                ...(m.role==='user'
+                  ? { ...userBubble, color: bot.user_chat_font_color || 'white',
+                      boxShadow: [
+                        bot.bubble_glow_intensity > 0 ? `0 0 ${bot.bubble_glow_intensity * 0.3}px ${bot.bubble_glow_intensity * 0.15}px ${bot.bubble_glow_color || '#ffffff'}` : '',
+                        bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${bot.bubble_shadow_intensity * 0.3}px ${bot.bubble_shadow_color || '#000000'}88` : '',
+                      ].filter(Boolean).join(', ') || 'none',
+                      textShadow: bot.text_glow_intensity > 0 ? `0 0 ${bot.text_glow_intensity * 0.2}px ${bot.text_glow_color || '#ffffff'}` : 'none',
+                    }
+                  : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F',
+                      boxShadow: [
+                        bot.bubble_glow_intensity > 0 ? `0 0 ${bot.bubble_glow_intensity * 0.3}px ${bot.bubble_glow_intensity * 0.15}px ${bot.bubble_glow_color || '#ffffff'}` : '0 1px 2px rgba(0,0,0,0.06)',
+                        bot.bubble_shadow_intensity > 0 ? `${bot.bubble_shadow_intensity * 0.1}px ${bot.bubble_shadow_intensity * 0.15}px ${bot.bubble_shadow_intensity * 0.3}px ${bot.bubble_shadow_color || '#000000'}88` : '',
+                      ].filter(Boolean).join(', '),
+                      textShadow: bot.text_glow_intensity > 0 ? `0 0 ${bot.text_glow_intensity * 0.2}px ${bot.text_glow_color || '#ffffff'}` : 'none',
+                    }),
               }}
               dangerouslySetInnerHTML={m.role==='bot' ? { __html:renderMarkdown(m.content) } : undefined}
             >{m.role==='user' ? m.content : undefined}</div>
