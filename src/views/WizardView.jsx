@@ -1396,7 +1396,7 @@ function StepBranding({ bot, f }) {
 
       {/* Layout controls */}
       <Section title="Layout & Spacing">
-        <Slider label="Header height"       field="header_height" min={40} max={120} step={1} unit="px" bot={bot} f={f} />
+        <Slider label="Header height"       field="header_height" min={20} max={120} step={1} unit="px" bot={bot} f={f} />
         <Slider label="Header gradient depth" field="header_gradient_depth" min={0} max={120} step={1} unit="px" leftLabel="None" rightLabel="Deep" bot={bot} f={f} />
         <Slider label="Overall spacing"     field="spacing" min={4} max={32} step={0.1} unit="px" leftLabel="Tight" rightLabel="Spacious" bot={bot} f={f} />
         <Slider label="Logo size"           field="logo_size" min={12} max={80} step={1} unit="px" bot={bot} f={f} />
@@ -1413,11 +1413,7 @@ function StepBranding({ bot, f }) {
         </div>
       </Section>
 
-      {/* Opacity controls */}
-      <Section title="Opacity & Visibility">
-        <Slider label="Text opacity"     field="text_opacity" min={30} max={100} step={0.1} unit="%" leftLabel="Subtle" rightLabel="Full" bot={bot} f={f} />
-        <Slider label="Panel opacity"    field="panel_opacity" min={20} max={100} step={0.1} unit="%" leftLabel="Transparent" rightLabel="Solid" bot={bot} f={f} />
-      </Section>
+     
 
       {/* CTA */}
       <Section title="Optional Links">
