@@ -172,6 +172,8 @@ const BOT_DEFAULTS = {
   chat_text_outline_thickness: 0,
   chat_text_outline_opacity: 100,
   chat_text_outline_color: '#000000',
+  header_alignment: 'left',
+  logo_position: 'left',
   // Layout controls
   header_height: 60,
   chat_width: 100,
@@ -1199,6 +1201,28 @@ function StepBranding({ bot, f }) {
               <span style={{ fontSize:10, color:'var(--ink3)', fontWeight:500 }}>{p.name}</span>
             </button>
           ))}
+        </div>
+      </Section>
+
+      {/* Header Layout */}
+      <Section title="Header Layout">
+        <div className="field" style={{ marginBottom:12 }}>
+          <label className="label">Header text alignment</label>
+          <div style={{ display:'flex', gap:8 }}>
+            {[{v:'left',l:'Left'},{v:'center',l:'Centre'},{v:'right',l:'Right'}].map(o=>(
+              <button key={o.v} onClick={()=>f('header_alignment',o.v)}
+                style={{ flex:1, padding:'8px', borderRadius:'var(--r)', border:`1px solid ${bot.header_alignment===o.v?'var(--coffee-0)':'var(--line)'}`, background:bot.header_alignment===o.v?'var(--coffee-0)':'var(--surface)', color:bot.header_alignment===o.v?'var(--parch-1)':'var(--ink3)', cursor:'pointer', fontSize:12, fontWeight:500, transition:'all 0.12s' }}>{o.l}</button>
+            ))}
+          </div>
+        </div>
+        <div className="field" style={{ marginBottom:0 }}>
+          <label className="label">Logo position</label>
+          <div style={{ display:'flex', gap:8 }}>
+            {[{v:'left',l:'Left'},{v:'right',l:'Right'}].map(o=>(
+              <button key={o.v} onClick={()=>f('logo_position',o.v)}
+                style={{ flex:1, padding:'8px', borderRadius:'var(--r)', border:`1px solid ${bot.logo_position===o.v?'var(--coffee-0)':'var(--line)'}`, background:bot.logo_position===o.v?'var(--coffee-0)':'var(--surface)', color:bot.logo_position===o.v?'var(--parch-1)':'var(--ink3)', cursor:'pointer', fontSize:12, fontWeight:500, transition:'all 0.12s' }}>{o.l}</button>
+            ))}
+          </div>
         </div>
       </Section>
 

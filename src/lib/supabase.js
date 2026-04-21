@@ -196,6 +196,8 @@ export async function saveBot(botData) {
     chat_text_outline_thickness: botData.chat_text_outline_thickness,
     chat_text_outline_opacity: botData.chat_text_outline_opacity,
     chat_text_outline_color: botData.chat_text_outline_color,
+    header_alignment: botData.header_alignment,
+    logo_position: botData.logo_position,
     user_bubble_color: botData.user_bubble_color,
     header_text_color: botData.header_text_color,
     input_bg_color: botData.input_bg_color,

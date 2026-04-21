@@ -280,24 +280,29 @@ const [emailInput, setEmailInput] = useState('')
         display:'flex', alignItems:'center', gap:12,
         background: bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)'),
         backdropFilter:'blur(12px)', flexShrink:0,
+        flexDirection: bot.logo_position === 'right' ? 'row' : 'row',
+        justifyContent: bot.header_alignment === 'center' ? 'center' : bot.header_alignment === 'right' ? 'flex-end' : 'flex-start',
       }}>
-        {bot.logo_url && (
+        {bot.logo_url && bot.logo_position !== 'right' && (
           <img src={bot.logo_url} alt="logo" style={{ height:28, maxWidth:80, objectFit:'contain', borderRadius:4, flexShrink:0 }} />
         )}
         <div style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, flexShrink:0, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 2px 8px ${primary}33` }}>
           {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
         </div>
-        <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ flex: bot.header_alignment === 'left' ? 1 : 0, minWidth:0, textAlign: bot.header_alignment || 'left' }}>
           <div style={{ fontFamily:titleFont, fontSize:sz*0.95, fontWeight:600, color: bot.bot_name_color || bot.header_text_color || '#2F2F2F', lineHeight:1.2,
             WebkitTextStroke: bot.header_text_outline_thickness > 0 ? `${bot.header_text_outline_thickness}px ${bot.header_text_outline_color || '#000000'}${Math.round((bot.header_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none',
           }}>{bot.name}</div>
           {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.descriptor_color || bot.header_text_color || 'var(--ink4)', marginTop:1,
             WebkitTextStroke: bot.header_text_outline_thickness > 0 ? `${bot.header_text_outline_thickness}px ${bot.header_text_outline_color || '#000000'}${Math.round((bot.header_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none',
           }}>{bot.descriptor}</div>}
-          <div style={{ fontSize:sz*0.75, color: bot.online_color || 'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2 }}>
+          <div style={{ fontSize:sz*0.75, color: bot.online_color || 'var(--success)', display:'flex', alignItems:'center', gap:4, marginTop:2, justifyContent: bot.header_alignment === 'center' ? 'center' : bot.header_alignment === 'right' ? 'flex-end' : 'flex-start' }}>
             <span style={{ width:5, height:5, borderRadius:'50%', background: bot.online_color || 'var(--success)', display:'inline-block', flexShrink:0 }} /> Online
           </div>
         </div>
+        {bot.logo_url && bot.logo_position === 'right' && (
+          <img src={bot.logo_url} alt="logo" style={{ height:28, maxWidth:80, objectFit:'contain', borderRadius:4, flexShrink:0, marginLeft:'auto' }} />
+        )}
       </div>
 
       
