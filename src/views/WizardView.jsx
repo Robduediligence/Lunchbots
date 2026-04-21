@@ -660,23 +660,26 @@ function StepKnowledge({ bot, f }) {
         const { extractText } = await import('unpdf')
         const arrayBuffer = await file.arrayBuffer()
         const { text: extracted } = await extractText(new Uint8Array(arrayBuffer), { mergePages: true })
-        // Use Claude to clean and restructure the raw PDF text
-        try {
-          const { callClaude } = await import('../lib/supabase.js')
-          const result = await callClaude({
-            system: `You are cleaning up raw text extracted from a PDF. The text may be jumbled due to column layouts, tables, or formatting. 
-Restructure it into clean, readable, well-organised plain text that preserves all the information.
+        // Only use Claude cleanup for small PDFs — large ones use raw text to preserve all content
+        if (extracted.length < 8000) {
+          try {
+            const { callClaude } = await import('../lib/supabase.js')
+            const result = await callClaude({
+              system: `You are cleaning up raw text extracted from a PDF. Restructure it into clean, readable plain text.
 - Fix ordering issues caused by multi-column layouts
-- Preserve headings and categories
-- Format lists cleanly, one item per line
+- Preserve headings and categories  
+- Format lists cleanly
 - Do not add or remove any information
 - Return only the cleaned text, no explanation`,
-            messages: [],
-            userMessage: `Clean up this raw PDF text:\n\n${extracted.slice(0, 50000)}`,
-          })
-          text = result
-        } catch(e) {
-          // If Claude fails, fall back to raw extracted text
+              messages: [],
+              userMessage: `Clean up this raw PDF text:\n\n${extracted}`,
+            })
+            text = result
+          } catch(e) {
+            text = extracted
+          }
+        } else {
+          // Large PDF — use raw extracted text to preserve everything
           text = extracted
         }
       } catch (err) {
