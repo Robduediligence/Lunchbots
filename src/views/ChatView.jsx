@@ -282,7 +282,7 @@ const [emailInput, setEmailInput] = useState('')
 
       {/* Header */}
       <div style={{
-        position:'relative', zIndex:1, padding:'12px 18px',
+        position:'relative', zIndex:1, padding: bot.header_alignment === 'center' ? '16px 18px' : '12px 18px',
         display:'flex', alignItems:'center', gap:12, minHeight: typeof bot.header_height === 'number' ? bot.header_height : 60,
         background: bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)'),
         backdropFilter:'blur(12px)', flexShrink:0,
@@ -299,7 +299,7 @@ const [emailInput, setEmailInput] = useState('')
 
         {/* Text — centred absolutely or inline */}
         {bot.header_alignment === 'center' ? (
-          <div style={{ position:'absolute', left:0, right:0, top:0, bottom:0, display:'flex', alignItems:'center', justifyContent:'center', pointerEvents:'none' }}>
+          <div style={{ position:'absolute', left:0, right:0, top:0, bottom:0, display:'flex', alignItems:'center', justifyContent:'center', pointerEvents:'none', padding:'8px 60px' }}>
             <div style={{ textAlign:'center' }}>
               <div style={{ fontFamily:titleFont, fontSize:sz*0.95, fontWeight:600, color: bot.bot_name_color || bot.header_text_color || '#2F2F2F', lineHeight:1.2, WebkitTextStroke: bot.header_text_outline_thickness > 0 ? `${bot.header_text_outline_thickness}px ${bot.header_text_outline_color || '#000000'}${Math.round((bot.header_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none' }}>{bot.name}</div>
               {bot.descriptor && <div style={{ fontSize:sz*0.78, color: bot.descriptor_color || bot.header_text_color || 'var(--ink4)', marginTop:1, WebkitTextStroke: bot.header_text_outline_thickness > 0 ? `${bot.header_text_outline_thickness}px ${bot.header_text_outline_color || '#000000'}${Math.round((bot.header_text_outline_opacity ?? 100) * 2.55).toString(16).padStart(2,'0')}` : 'none' }}>{bot.descriptor}</div>}
