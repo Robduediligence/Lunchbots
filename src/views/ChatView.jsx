@@ -163,11 +163,14 @@ const [emailInput, setEmailInput] = useState('')
     ? { background:`${bot.user_bubble_color || primary}18`, color: bot.user_chat_font_color || 'white', border:'none' }
     : { background:bot.user_bubble_color || primary, color: bot.user_chat_font_color || 'white', border:'none' }
 
+  const bw = `${bot.bubble_border_width ?? 1}px`
   const botBubble = bot.bubble_style === 'outlined'
-    ? { background:'transparent', border:`1.5px solid ${bot.bot_bubble_color || primary}`, color: bot.chat_font_color || '#2F2F2F' }
+    ? { background:'transparent', border:`${bw} solid ${bot.bot_bubble_color || primary}`, color: bot.chat_font_color || '#2F2F2F' }
     : bot.bubble_style === 'minimal'
     ? { background:`${bot.bot_bubble_color || primary}18`, color: bot.chat_font_color || '#2F2F2F', border:'none' }
-    : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F' }
+    : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:`${bw} solid rgba(0,0,0,0.07)`, color: bot.chat_font_color || '#2F2F2F' }
+
+  const userBubbleWithBorder = { ...userBubble, borderWidth: bw }
 
   useEffect(() => {
     const greeting = bot.greeting || `Hi! I'm ${bot.name}. How can I help you today?`
@@ -289,10 +292,10 @@ const [emailInput, setEmailInput] = useState('')
       }}>
         {/* Left side — avatar + logo if left */}
         <div style={{ display:'flex', alignItems:'center', gap:8, flexShrink:0, zIndex:2 }}>
-          {bot.logo_url && bot.logo_position !== 'right' && (
-            <img src={bot.logo_url} alt="logo" style={{ height:28, maxWidth:80, objectFit:'contain', borderRadius:4, flexShrink:0 }} />
+         {bot.logo_url && bot.logo_position !== 'right' && (
+            <img src={bot.logo_url} alt="logo" style={{ height: bot.logo_size || 28, maxWidth:120, objectFit:'contain', borderRadius:4, flexShrink:0 }} />
           )}
-          <div style={{ width:38, height:38, borderRadius:`${Math.min(radius,12)}px`, flexShrink:0, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 2px 8px ${primary}33` }}>
+          <div style={{ width: bot.avatar_size || 38, height: bot.avatar_size || 38, borderRadius: bot.avatar_shape === 'circle' ? '50%' : bot.avatar_shape === 'square' ? '0px' : `${Math.min(radius,12)}px`, flexShrink:0, background:bot.avatar_url?'transparent':primary, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:700, color:'white', overflow:'hidden', boxShadow:`0 2px 8px ${primary}33` }}>
             {bot.avatar_url ? <img src={bot.avatar_url} alt="avatar" style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : letter}
           </div>
         </div>
@@ -328,14 +331,13 @@ const [emailInput, setEmailInput] = useState('')
 
         {/* Logo right */}
         {bot.logo_url && bot.logo_position === 'right' && (
-          <img src={bot.logo_url} alt="logo" style={{ height:28, maxWidth:80, objectFit:'contain', borderRadius:4, flexShrink:0, marginLeft:'auto', zIndex:2 }} />
+          <img src={bot.logo_url} alt="logo" style={{ height: bot.logo_size || 28, maxWidth:120, objectFit:'contain', borderRadius:4, flexShrink:0, marginLeft:'auto', zIndex:2 }} />
         )}
       </div>
 
       
 
-      {/* Header fade */}
-      <div style={{ height:48, flexShrink:0, position:'relative', zIndex:1, background:`linear-gradient(to bottom, ${bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)')} 0%, transparent 100%)`, pointerEvents:'none' }} />
+      {(bot.header_gradient_depth ?? 48) > 0 && <div style={{ height: bot.header_gradient_depth ?? 48, flexShrink:0, position:'relative', zIndex:1, background:`linear-gradient(to bottom, ${bot.header_color || (bgImage ? 'rgba(253,250,244,0.9)' : 'rgba(253,250,244,0.95)')} 0%, transparent 100%)`, pointerEvents:'none' }} />}
 
       {/* Messages */}
       <div style={{ flex:1, overflowY:'auto', padding:'4px 22px 20px 22px', display:'flex', flexDirection:'column', gap:14, position:'relative', zIndex:1, overflowX:'visible' }}>

@@ -181,6 +181,10 @@ const BOT_DEFAULTS = {
   text_opacity: 100,
   panel_opacity: 100,
   logo_size: 28,
+  avatar_size: 38,
+  avatar_shape: 'rounded',
+  header_gradient_depth: 48,
+  bubble_border_width: 1,
   button_style: 'filled',
   avatar_letter: '',
   logo_url: null,
@@ -1392,9 +1396,21 @@ function StepBranding({ bot, f }) {
 
       {/* Layout controls */}
       <Section title="Layout & Spacing">
-        <Slider label="Header height"    field="header_height" min={40} max={90} step={0.1} unit="px" bot={bot} f={f} />
-        <Slider label="Overall spacing"  field="spacing" min={4} max={32} step={0.1} unit="px" leftLabel="Tight" rightLabel="Spacious" bot={bot} f={f} />
-        <Slider label="Logo size"        field="logo_size" min={12} max={60} step={0.1} unit="px" bot={bot} f={f} />
+        <Slider label="Header height"       field="header_height" min={40} max={120} step={1} unit="px" bot={bot} f={f} />
+        <Slider label="Header gradient depth" field="header_gradient_depth" min={0} max={120} step={1} unit="px" leftLabel="None" rightLabel="Deep" bot={bot} f={f} />
+        <Slider label="Overall spacing"     field="spacing" min={4} max={32} step={0.1} unit="px" leftLabel="Tight" rightLabel="Spacious" bot={bot} f={f} />
+        <Slider label="Logo size"           field="logo_size" min={12} max={80} step={1} unit="px" bot={bot} f={f} />
+        <Slider label="Avatar size"         field="avatar_size" min={20} max={80} step={1} unit="px" bot={bot} f={f} />
+        <Slider label="Bubble border width" field="bubble_border_width" min={0} max={6} step={0.1} unit="px" leftLabel="None" rightLabel="Thick" bot={bot} f={f} />
+        <div style={{ marginBottom:14 }}>
+          <label className="label">Avatar shape</label>
+          <div style={{ display:'flex', gap:8 }}>
+            {[{v:'circle',l:'Circle'},{v:'rounded',l:'Rounded'},{v:'square',l:'Square'}].map(o=>(
+              <button key={o.v} onClick={()=>f('avatar_shape',o.v)}
+                style={{ flex:1, padding:'8px', borderRadius:'var(--r)', border:`1px solid ${bot.avatar_shape===o.v?'var(--coffee-0)':'var(--line)'}`, background:bot.avatar_shape===o.v?'var(--coffee-0)':'var(--surface)', color:bot.avatar_shape===o.v?'var(--parch-1)':'var(--ink3)', cursor:'pointer', fontSize:12, fontWeight:500, transition:'all 0.12s' }}>{o.l}</button>
+            ))}
+          </div>
+        </div>
       </Section>
 
       {/* Opacity controls */}
