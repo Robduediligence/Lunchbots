@@ -1039,7 +1039,8 @@ function StepBranding({ bot, f }) {
 
   async function handleFile(e, key) {
     const file = e.target.files?.[0]; if (!file) return
-    if (file.size > 5*1024*1024) { alert('Max 5MB.'); return }
+    if (key === 'bg_image_url' && file.size > 10*1024*1024) { alert('Max 10MB for background images.'); return }
+    if (key !== 'bg_image_url' && file.size > 5*1024*1024) { alert('Max 5MB.'); return }
     const reader = new FileReader()
     reader.onload = () => f(key, reader.result)
     reader.readAsDataURL(file)
