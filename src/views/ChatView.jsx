@@ -334,7 +334,7 @@ const [emailInput, setEmailInput] = useState('')
       {/* Messages */}
       <div style={{ flex:1, overflowY:'auto', padding:'4px 22px 20px 22px', display:'flex', flexDirection:'column', gap:14, position:'relative', zIndex:1, overflowX:'visible' }}>
         {/* Welcome + prompts */}
-        {(bot.welcome_message || prompts.length > 0) && msgs.length <= 1 && (
+        {(bot.welcome_message || prompts.length > 0) && (msgs.length <= 1 || previewMode) && (
           <div style={{ marginBottom:8 }}>
             {bot.welcome_message && <p style={{ fontFamily:font, fontSize:sz*0.88, color: bot.welcome_color || (bgImage ? 'rgba(255,255,255,0.85)' : 'var(--ink3)'), lineHeight:1.7, marginBottom:12 }}>{bot.welcome_message}</p>}
             {prompts.length > 0 && (
