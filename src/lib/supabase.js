@@ -182,6 +182,7 @@ export async function saveBot(botData) {
     placeholder_color: botData.placeholder_color,
     input_text_color: botData.input_text_color,
     bot_bubble_color: botData.bot_bubble_color,
+    user_chat_font_color: botData.user_chat_font_color,
     user_bubble_color: botData.user_bubble_color,
     header_text_color: botData.header_text_color,
     input_bg_color: botData.input_bg_color,

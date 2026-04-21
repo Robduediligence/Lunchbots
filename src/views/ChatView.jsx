@@ -131,7 +131,7 @@ const [emailInput, setEmailInput] = useState('')
     const id = `placeholder-style-${bot.id || 'preview'}`
     let el = document.getElementById(id)
     if (!el) { el = document.createElement('style'); el.id = id; document.head.appendChild(el) }
-    el.textContent = `textarea.chat-textarea::placeholder { color: ${bot.placeholder_color || '#C9AD8E'} !important; opacity: 1 !important; } textarea.chat-textarea::-webkit-input-placeholder { color: ${bot.placeholder_color || '#C9AD8E'} !important; opacity: 1 !important; }`
+    el.textContent = `textarea.chat-textarea::placeholder { color: ${bot.input_text_color || '#999'} !important; opacity: 0.5 !important; } textarea.chat-textarea::-webkit-input-placeholder { color: ${bot.input_text_color || '#999'} !important; opacity: 0.5 !important; }`
     return () => { const s = document.getElementById(id); if (s) s.remove() }
   }, [bot.placeholder_color, bot.id])
 
@@ -329,7 +329,7 @@ const [emailInput, setEmailInput] = useState('')
               style={{
                 padding:'10px 14px', fontFamily:font, fontSize:sz*0.92, lineHeight:1.65,
                 borderRadius: m.role==='bot' ? `3px ${rr} ${rr} ${rr}` : `${rr} 3px ${rr} ${rr}`,
-                ...(m.role==='user' ? userBubble : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
+                ...(m.role==='user' ? { ...userBubble, color: bot.user_chat_font_color || 'white' } : { background: bot.bot_bubble_color || (bgImage?'rgba(255,255,255,0.93)':'white'), border:'1px solid rgba(0,0,0,0.07)', color: bot.chat_font_color || '#2F2F2F', boxShadow:'0 1px 2px rgba(0,0,0,0.06)' }),
               }}
               dangerouslySetInnerHTML={m.role==='bot' ? { __html:renderMarkdown(m.content) } : undefined}
             >{m.role==='user' ? m.content : undefined}</div>
