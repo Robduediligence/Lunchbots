@@ -1045,22 +1045,53 @@ function StepBranding({ bot, f }) {
     reader.readAsDataURL(file)
   }
 
-  function FontSelect({ label, fieldKey, colorKey }) {
+  function FontSelect({ label, fieldKey }) {
     const val = bot[fieldKey] || FONTS[0].value
-    const colorVal = colorKey ? (bot[colorKey] || '#2F2F2F') : null
+    const [open, setOpen] = useState(false)
+    const [search, setSearch] = useState('')
+    const dropRef = useRef(null)
     loadGoogleFont(val)
+
+    const filtered = FONTS.filter(fn => fn.label.toLowerCase().includes(search.toLowerCase()))
+    const selectedFont = FONTS.find(fn => fn.value === val) || FONTS[0]
+
+    useEffect(() => {
+      function handleClick(e) { if (dropRef.current && !dropRef.current.contains(e.target)) setOpen(false) }
+      document.addEventListener('mousedown', handleClick)
+      return () => document.removeEventListener('mousedown', handleClick)
+    }, [])
+
     return (
-      <div className="field" style={{ marginBottom:12 }}>
+      <div className="field" style={{ marginBottom:16 }} ref={dropRef}>
         <label className="label">{label}</label>
-        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-          <select className="input input-sm" style={{ flex:1, fontFamily:val }} value={val} onChange={e=>{loadGoogleFont(e.target.value);f(fieldKey,e.target.value)}}>
-            {FONTS.map(fn=><option key={fn.value} value={fn.value} style={{ fontFamily:fn.value }}>{fn.label}</option>)}
-          </select>
-          {colorKey && (
-            <div style={{ width:34, height:34, borderRadius:'var(--r-sm)', border:'1px solid var(--line)', overflow:'hidden', flexShrink:0, position:'relative' }}>
-              <input type="color" value={colorVal} onChange={e=>f(colorKey,e.target.value)} style={{ position:'absolute', inset:-4, width:'calc(100% + 8px)', height:'calc(100% + 8px)', border:'none', cursor:'pointer', padding:0 }} />
+        <div style={{ position:'relative' }}>
+          <button onClick={() => setOpen(p => !p)}
+            style={{ width:'100%', padding:'8px 12px', background:'var(--surface)', border:'1px solid var(--line2)', borderRadius:'var(--r)', display:'flex', alignItems:'center', justifyContent:'space-between', cursor:'pointer', fontFamily:val, fontSize:15, color:'var(--ink)' }}>
+            <span>{selectedFont.label}</span>
+            <span style={{ fontSize:10, color:'var(--ink4)', fontFamily:'var(--font-body)' }}>▼</span>
+          </button>
+          {open && (
+            <div style={{ position:'absolute', top:'calc(100% + 4px)', left:0, right:0, zIndex:500, background:'var(--surface)', border:'1px solid var(--line2)', borderRadius:'var(--r)', boxShadow:'var(--shadow-lg)', maxHeight:280, display:'flex', flexDirection:'column' }}>
+              <div style={{ padding:'8px', borderBottom:'1px solid var(--line)', flexShrink:0 }}>
+                <input autoFocus placeholder="Search fonts…" value={search} onChange={e => setSearch(e.target.value)}
+                  style={{ width:'100%', padding:'5px 8px', border:'1px solid var(--line)', borderRadius:'var(--r-sm)', fontSize:12, background:'var(--surface2)', color:'var(--ink)', outline:'none', boxSizing:'border-box' }} />
+              </div>
+              <div style={{ overflowY:'auto', flex:1 }}>
+                {filtered.map(fn => {
+                  loadGoogleFont(fn.value)
+                  return (
+                    <button key={fn.value} onClick={() => { f(fieldKey, fn.value); setOpen(false); setSearch('') }}
+                      style={{ width:'100%', padding:'10px 12px', background: fn.value === val ? 'var(--accent-bg)' : 'transparent', border:'none', borderBottom:'1px solid var(--line)', cursor:'pointer', textAlign:'left', fontFamily:fn.value, fontSize:16, color:'var(--ink)', display:'block' }}>
+                      {fn.label}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           )}
+        </div>
+        <div style={{ marginTop:6, padding:'8px 12px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)', fontFamily:val, fontSize:15, color:'var(--ink2)' }}>
+          The quick brown fox jumps over the lazy dog
         </div>
       </div>
     )
@@ -1240,8 +1271,8 @@ function StepBranding({ bot, f }) {
 
       {/* Typography */}
       <Section title="Typography">
-        <FontSelect label="Title / Bot name font" fieldKey="title_font" colorKey="title_color" />
-        <FontSelect label="Body / Chat font"      fieldKey="body_font"  colorKey="body_color" />
+        <FontSelect label="Title / Bot name font" fieldKey="title_font" />
+        <FontSelect label="Body / Chat font"      fieldKey="body_font" />
         <Slider label="Base text size"    field="font_size" min={10} max={22} step={0.1} unit="px" bot={bot} f={f} />
       </Section>
 
