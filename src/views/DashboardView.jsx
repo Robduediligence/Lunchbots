@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut, getActivityLog, getPlanLimits, renderMarkdown } from '../lib/supabase.js'
 import { I, Spinner } from '../components/UI.jsx'
+import { ActiveChat } from './ChatView.jsx'
 
 const NAV = [
-  { id: 'dashboard', label: 'Dashboard', Icon: I.Home },
-  { id: 'inbox',     label: 'Inbox',     Icon: I.Inbox },
-  { id: 'feedback',  label: 'Feedback',  Icon: I.Users },
-  { id: 'insights',  label: 'Insights',  Icon: I.Chart },
-  { id: 'share',     label: 'Share',     Icon: I.Eye },
+  { id: 'dashboard', label: 'Home',     icon: '⌂' },
+  { id: 'inbox',     label: 'Inbox',    icon: '✉' },
+  { id: 'feedback',  label: 'Feedback', icon: '✦' },
+  { id: 'insights',  label: 'Insights', icon: '◈' },
+  { id: 'share',     label: 'Share',    icon: '⊕' },
+  { id: 'settings',  label: 'Settings', icon: '⚙' },
 ]
 
 export default function DashboardView({ user, sub, bot, onEditBot, onLogout, initialBots, showPlanOnLoad }) {
@@ -78,7 +80,67 @@ useEffect(() => {
   const shareUrl = activeBot ? `${window.location.origin}/dashboard?bot=${activeBot.id}&widget=true` : ''
 
   return (
-    <div className="app">
+    <div style={{ display:'flex', height:'100vh', overflow:'hidden', background:'#09090e' }}>
+
+      {/* ── Sidebar ── */}
+      <div style={{ width:220, minWidth:220, background:'#0a0a12', borderRight:'1px solid rgba(124,58,237,0.2)', display:'flex', flexDirection:'column', height:'100vh', overflow:'hidden' }}>
+        
+        {/* Logo */}
+        <div style={{ padding:'20px 16px 16px', borderBottom:'1px solid rgba(124,58,237,0.15)' }}>
+          <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" style={{ height:48, width:'auto', imageRendering:'pixelated' }} />
+        </div>
+
+        {/* Bot list */}
+        <div style={{ flex:1, overflowY:'auto', padding:'12px 8px' }}>
+          <div style={{ fontSize:9, fontWeight:600, letterSpacing:2, color:'#4a4a6a', textTransform:'uppercase', padding:'0 8px', marginBottom:8 }}>Your Bots</div>
+          {allBots.map(b => (
+            <button key={b.id} onClick={() => setActiveBot(b)}
+              style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'10px 10px', borderRadius:6, border:'none', background: activeBot?.id===b.id ? 'rgba(245,158,11,0.1)' : 'transparent', cursor:'pointer', marginBottom:4, borderLeft: activeBot?.id===b.id ? '3px solid #f59e0b' : '3px solid transparent', transition:'all 0.15s' }}>
+              <div style={{ width:36, height:36, borderRadius:8, background: b.avatar_url ? 'transparent' : '#1e1b4b', flexShrink:0, overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:700, color:'#f59e0b', border:'1px solid rgba(124,58,237,0.3)' }}>
+                {b.avatar_url ? <img src={b.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : (b.name?.charAt(0) || '?').toUpperCase()}
+              </div>
+              <div style={{ minWidth:0, textAlign:'left' }}>
+                <div style={{ fontSize:13, fontWeight:600, color: activeBot?.id===b.id ? '#f59e0b' : '#f0f0ff', lineHeight:1.2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.name || 'Unnamed'}</div>
+                <div style={{ fontSize:10, color:'#7878a0', marginTop:1 }}>{b.published ? '● Live' : '○ Draft'}</div>
+              </div>
+            </button>
+          ))}
+          
+          {/* New bot button */}
+          <button onClick={() => {
+            const limits = getPlanLimits(sub)
+            if (allBots.length >= limits.bots) { alert(`Your ${sub?.plan || 'trial'} plan allows ${limits.bots} bot${limits.bots===1?'':'s'}. Upgrade to add more.`); return }
+            onEditBot(null)
+          }} style={{ width:'100%', padding:'10px', borderRadius:6, border:'1px dashed rgba(124,58,237,0.3)', background:'transparent', color:'#7878a0', fontSize:12, cursor:'pointer', marginTop:8, display:'flex', alignItems:'center', justifyContent:'center', gap:6, transition:'all 0.15s' }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor='#f59e0b'; e.currentTarget.style.color='#f59e0b' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(124,58,237,0.3)'; e.currentTarget.style.color='#7878a0' }}>
+            + New Bot
+          </button>
+        </div>
+
+        {/* Nav */}
+        <div style={{ padding:'8px', borderTop:'1px solid rgba(124,58,237,0.15)' }}>
+          {NAV.map(({ id, label, icon }) => {
+            let badge = null
+            if (id === 'inbox') badge = Math.max(0, (stats?.unresolvedGaps ?? 0) - resolvedCount)
+            if (id === 'feedback') badge = feedback.filter(f => !f.resolved).length
+            return (
+              <button key={id} onClick={() => setPage(id)}
+                style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'9px 12px', borderRadius:6, border:'none', background: page===id ? 'rgba(245,158,11,0.1)' : 'transparent', color: page===id ? '#f59e0b' : '#7878a0', cursor:'pointer', marginBottom:2, fontSize:12, fontFamily:'DM Mono, monospace', letterSpacing:1, textTransform:'uppercase', transition:'all 0.15s', position:'relative' }}>
+                <span style={{ fontSize:14 }}>{icon}</span>
+                {label}
+                {badge > 0 && <span style={{ marginLeft:'auto', background:'#ef4444', color:'white', fontSize:9, fontWeight:700, minWidth:16, height:16, borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center', padding:'0 4px' }}>{badge}</span>}
+              </button>
+            )
+          })}
+          <button onClick={onLogout} style={{ width:'100%', display:'flex', alignItems:'center', gap:10, padding:'9px 12px', borderRadius:6, border:'none', background:'transparent', color:'#4a4a6a', cursor:'pointer', fontSize:12, fontFamily:'DM Mono, monospace', letterSpacing:1, textTransform:'uppercase', marginTop:4 }}>
+            <span style={{ fontSize:14 }}>⏻</span> Sign out
+          </button>
+        </div>
+      </div>
+
+      {/* ── Main content ── */}
+      <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
       {showWelcomePlan && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}>
           <div style={{ background:'white', borderRadius:12, padding:32, width:480, maxWidth:'90vw', boxShadow:'0 24px 48px rgba(0,0,0,0.2)' }}>
@@ -112,66 +174,7 @@ useEffect(() => {
           </div>
         </div>
       )}
-      {/* Top nav pill */}
-      <div>
-      <nav className="topnav">
-        <div className="topnav-bottom-row">
-          <div className="topnav-logo">
-            <img src="/bot_brunch_logo_transparent.png" alt="Bot Brunch" />
-          </div>
-          <div className="topnav-pill" id="main-nav-pill">
-            {NAV.map(({ id, label, Icon }) => {
-              let count = null
-              if (id === 'inbox') count = Math.max(0, (stats?.unresolvedGaps ?? 0) - resolvedCount)
-              if (id === 'feedback') count = feedback.filter(f => !f.resolved).length
-              return (
-                <button key={id} className={`pill-item ${page === id ? 'active' : ''}`}
-                  onClick={() => setPage(id)}>
-                  {label}{count > 0 ? ` (${count})` : ''}
-                </button>
-              )
-            })}
-            <button className="pill-item" onClick={() => onEditBot(activeBot)}>
-              {activeBot ? 'Edit Bot' : 'Create Bot'}
-            </button>
-            <button className="pill-item" onClick={() => setPage('settings')}>
-              Settings
-            </button>
-          </div>
-          <div className="topnav-right">
-            
-            <button className="btn btn-ghost btn-sm" onClick={onLogout}>Sign out</button>
-          </div>
-        </div>
-      </nav>
-      
-
       {/* Pages */}
-      {/* Bot switcher */}
-      {allBots.length > 0 && (
-        <div className="bot-switcher" style={{ padding:'8px 16px', marginTop:'16px', borderBottom:'1px solid var(--line)', background:'var(--surface2)', display:'flex', alignItems:'center', gap:8 }}>
-          <span style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginRight:4 }}>Active bot:</span>
-          {allBots.map(b => (
-            <button key={b.id} onClick={() => { setActiveBot(b) }}
-              style={{ display:'flex', alignItems:'center', gap:6, padding:'5px 12px', borderRadius:20, border:`1.5px solid ${activeBot?.id===b.id?'var(--coffee-0)':'var(--line)'}`, background: activeBot?.id===b.id?'var(--coffee-0)':'var(--surface)', color: activeBot?.id===b.id?'var(--parch-1)':'var(--ink3)', fontSize:12.5, fontWeight:500, cursor:'pointer', transition:'all 0.12s', opacity: b.disabled ? 0.5 : 1 }}>
-              {b.disabled ? '🔐' : b.bot_type === 'internal' ? '🔒' : '🌐'} {b.name || 'Unnamed bot'}
-              {b.disabled && <span style={{ fontSize:10, color:'var(--danger)', fontWeight:600 }}>LOCKED</span>}
-            </button>
-          ))}
-          <button onClick={() => {
-  const limits = getPlanLimits(sub)
-  if (allBots.length >= limits.bots) {
-    alert(`Your ${sub?.plan || 'trial'} plan allows ${limits.bots} bot${limits.bots === 1 ? '' : 's'}. Upgrade to add more.`)
-    return
-  }
-  onEditBot(null)
-}}
-            style={{ display:'flex', alignItems:'center', gap:5, padding:'5px 12px', borderRadius:20, border:'1.5px dashed var(--line)', background:'transparent', color:'var(--ink4)', fontSize:12, cursor:'pointer', marginLeft:4 }}>
-            + New bot
-          </button>
-        </div>
-      )}
-      </div>
 
       {loadError ? (
         <div className="flex ic jc" style={{ height:'calc(100vh - 54px)', flexDirection:'column', gap:12 }}>
@@ -205,29 +208,7 @@ useEffect(() => {
           {page === 'settings'  && <SettingsPage user={user} sub={sub} onLogout={onLogout} activeBot={activeBot} onBotDeleted={() => { setAllBots(p => p.filter(b => b.id !== activeBot?.id)); setActiveBot(null); setPage('dashboard') }} />}
         </>
       )}
-    {/* Mobile bottom nav */}
-      <nav className="mobile-bottom-nav">
-        {[
-          { id: 'dashboard', label: 'Home', icon: '⌂' },
-          { id: 'inbox', label: 'Inbox', icon: '✉' },
-          { id: 'feedback', label: 'Feedback', icon: '✦' },
-          { id: 'insights', label: 'Insights', icon: '◈' },
-          { id: 'share', label: 'Share', icon: '⊕' },
-          { id: 'settings', label: 'Settings', icon: '⚙' },
-        ].map(({ id, label, icon }) => {
-          let badge = null
-          if (id === 'inbox') badge = Math.max(0, (stats?.unresolvedGaps ?? 0) - resolvedCount)
-          if (id === 'feedback') badge = feedback.filter(f => !f.resolved).length
-          return (
-            <button key={id} className={`mobile-nav-item ${page === id ? 'active' : ''}`}
-              onClick={() => setPage(id)}>
-              {badge > 0 && <span className="mobile-nav-badge">{badge}</span>}
-              <span className="nav-icon">{icon}</span>
-              <span>{label}</span>
-            </button>
-          )
-        })}
-      </nav>
+    </div>
     </div>
   )
 }
