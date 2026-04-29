@@ -258,142 +258,84 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
   }
 
   return (
-    <div style={{ flex:1, overflowY:'auto', padding:'20px', background:'#09090e' }}>
+    <div style={{ flex:1, overflowY:'auto', padding:'20px', background:'#09090e', display:'flex', flexDirection:'column', gap:16 }}>
 
-      {/* ── Stat cards ── */}
-      <div className="stat-grid">
-        {[
-          { label: 'Total conversations', num: stats?.totalConversations ?? 0, dot: null },
-          { label: 'Unique users',        num: stats?.uniqueUsers ?? 0,        dot: null },
-          { label: 'Messages sent',       num: stats?.totalMessages ?? 0,      dot: null },
-          { label: 'This week',           num: stats?.conversationsThisWeek ?? 0, dot: null },
-          { label: 'Feedback received',   num: stats?.feedbackCount ?? 0,      dot: feedbackDot },
-          { label: 'Inbox items',         num: inboxCount,                     dot: inboxCount === 0 ? '#7F9C8B' : inboxCount <= 2 ? '#C89B5A' : '#C0522A' },
-        ].map((s, i) => (
-          <div key={i} className={`stat-card fade-up d${i+1}`}>
-            <div className="stat-label" style={{ display:'flex', alignItems:'center', gap:6 }}>
-              {s.dot && <span style={{ width:7, height:7, borderRadius:'50%', background:s.dot, flexShrink:0, display:'inline-block' }} />}
-              {s.label}
+      {/* ── Row 1: Chat Preview + KB ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:16, alignItems:'start' }}>
+
+        {/* Chat Preview */}
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
+            <div>
+              <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff' }}>Chat Preview</div>
+              <div style={{ fontSize:10, color:'#7878a0', marginTop:1 }}>Test your bot live</div>
             </div>
-            <div className="stat-num">{s.num}</div>
+            <div style={{ display:'flex', gap:4, background:'#1a1a2a', padding:3, borderRadius:6 }}>
+              {['phone','desktop'].map(m => (
+                <button key={m} onClick={() => setPreviewMode(m)}
+                  style={{ padding:'4px 12px', borderRadius:4, border:'none', fontSize:10, cursor:'pointer', fontFamily:'DM Mono, monospace', transition:'all 0.15s', background: previewMode===m ? '#7c3aed' : 'transparent', color: previewMode===m ? '#fff' : '#7878a0' }}>
+                  {m.charAt(0).toUpperCase()+m.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div style={{ background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', borderRadius:8, overflow:'hidden', height: previewMode==='phone' ? 480 : 360 }}>
+            <ActiveChat bot={bot} previewMode={true} forceWidth={previewMode==='phone' ? 'mobile' : 'desktop'} />
+          </div>
+        </div>
+
+        {/* KB Panel — placeholder for Step 3 */}
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff', marginBottom:4 }}>Knowledge Base</div>
+          <div style={{ fontSize:10, color:'#7878a0', marginBottom:14 }}>Teach your bot new content</div>
+          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>KB panel coming in next step</div>
+        </div>
+      </div>
+
+      {/* ── Row 2: Inbox + Feedback ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>Inbox panel — next step</div>
+        </div>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>Feedback panel — next step</div>
+        </div>
+      </div>
+
+      {/* ── Row 3: AI Insights + Summary ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>AI Insights — next step</div>
+        </div>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>AI Summary — next step</div>
+        </div>
+      </div>
+
+      {/* ── Row 4: Stats ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:12 }}>
+        {[
+          { label:'Conversations', num: stats?.totalConversations ?? 0 },
+          { label:'Unique Users',  num: stats?.uniqueUsers ?? 0 },
+          { label:'Messages',      num: stats?.totalMessages ?? 0 },
+          { label:'Resolved',      num: stats?.conversationsThisWeek ?? 0 },
+          { label:'Inbox',         num: inboxCount },
+        ].map((s,i) => (
+          <div key={i} style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:8, padding:14 }}>
+            <div style={{ fontSize:9, color:'#7878a0', textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:4 }}>{s.label}</div>
+            <div style={{ fontSize:22, fontWeight:700, color:'#f59e0b', lineHeight:1 }}>{s.num}</div>
           </div>
         ))}
       </div>
 
-      {/* ── Top: Bot Status + Quick Actions ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:16, alignItems:'start', marginBottom:20 }} className="dash-top-grid">
-
-        {/* Bot Status */}
-        <div className="card" style={{ padding:'20px 20px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-            <span style={{ width:10, height:10, borderRadius:'50%', background:statusDot, flexShrink:0, display:'inline-block' }} />
-            <h1 style={{ fontSize:18, fontWeight:600, color:'var(--ink)', fontFamily:'var(--font-display)' }}>{bot.name}</h1>
-            <span className="badge badge-green" style={{ marginLeft:4 }}>Live</span>
-            <button className="btn btn-secondary btn-sm" style={{ marginLeft:'auto' }} onClick={onEdit}>Edit bot</button>
-          </div>
-          <p style={{ fontSize:14, color:'var(--ink3)', lineHeight:1.6 }}>
-            Your bot answered <strong style={{ color:'var(--ink)' }}>{answeredToday} questions</strong> this week
-            {inboxCount > 0 && <> · <strong style={{ color:'#C0522A' }}>{inboxCount} question{inboxCount > 1 ? 's' : ''} need{inboxCount === 1 ? 's' : ''} your help</strong></>}
-            {inboxCount === 0 && <> · <span style={{ color:'#7F9C8B' }}>all caught up</span></>}
-          </p>
-          {/* Share link inline */}
-          <div style={{ display:'flex', alignItems:'center', gap:8, marginTop:14, padding:'8px 12px', background:'var(--surface2)', border:'1px solid var(--line)', borderRadius:'var(--r)' }}>
-            <span style={{ flex:1, fontSize:12, color:'var(--ink3)', fontFamily:'monospace', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{shareUrl}</span>
-            <button className="btn btn-secondary btn-sm" onClick={() => window.open(shareUrl, '_blank')}>Preview</button>
-            <button className="btn btn-primary btn-sm" onClick={() => { navigator.clipboard.writeText(shareUrl).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false), 2000) }}>
-              {copied ? 'Copied!' : 'Copy link'}
-            </button>
-          </div>
+      {/* ── Row 5: Share + Embed ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>Share panel — next step</div>
         </div>
-
-        {/* Quick Actions */}
-        <div className="card" style={{ padding:'7px 20px', minWidth:200, alignSelf:'start' }}>
-          <div style={{ fontSize:11, fontWeight:600, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--ink4)', marginBottom:12 }}>Quick actions</div>
-          <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-            {[
-              { label:'Edit knowledge base', action: onEdit },
-              { label:'Test my bot', action: () => window.open(shareUrl, '_blank') },
-              { label:'Copy bot link', action: () => { navigator.clipboard.writeText(shareUrl).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false), 2000) } },
-            ].map((a, i) => (
-              <button key={i} className="btn btn-secondary btn-sm" style={{ justifyContent:'flex-start', width:'100%' }} onClick={a.action}>
-                {a.label}
-              </button>
-            ))}
-          </div>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>Embed panel — next step</div>
         </div>
-      </div>
-
-      {/* ── Middle: Questions needing attention ── */}
-      <div className="card">
-        <div className="card-head" style={{ flexDirection:'column', alignItems:'center', textAlign:'center', gap:6 }}>
-          <div className="card-title">Questions that need your attention</div>
-          <div className="card-sub">Answer to help your customers and improve your bot</div>
-          {inboxCount > 0 && <span className="badge badge-amber">{inboxCount} unresolved</span>}
-        </div>
-        {gaps.length === 0 ? (
-          <div className="empty" style={{ padding:'32px 20px' }}>
-            <div className="empty-icon">✅</div>
-            <div className="empty-title">All caught up</div>
-            <div className="empty-sub">No questions need your attention right now.</div>
-          </div>
-        ) : (
-          <div>
-            {gaps.slice(0, 5).map((g, i) => (
-              <AttentionRow key={i} gap={g} bot={bot} isLast={i >= Math.min(gaps.length-1, 4)}
-               onAnswered={(answeredGap, mode, answerText) => {
-  setGaps(p => p.filter(x => x.id !== answeredGap.id))
-  setResolvedCount(p => p + 1)
-  setActivity(p => [{
-    id: Date.now(),
-    type: mode === 'answer' ? 'answered_question' : 'replied_question',
-    description: mode === 'answer' 
-      ? `Answered: "${answeredGap.question.slice(0, 60)}"` 
-      : `Replied to: "${answeredGap.question.slice(0, 60)}"`,
-    created_at: new Date().toISOString(),
-  }, ...p])
-}} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* ── Bottom: Recent Activity ── */}
-      <div className="card">
-        <div className="card-head"><div className="card-title">Recent activity</div></div>
-        {activity.length === 0 ? (
-          <div className="empty" style={{ padding:'24px 20px' }}>
-            <div className="empty-icon">💬</div>
-            <div className="empty-title">No activity yet</div>
-            <div className="empty-sub">Activity will appear here as you and your bot interact.</div>
-          </div>
-        ) : (
-          <div style={{ padding:'8px 0' }}>
-            {activity.map((a, i) => {
-              const isLast = i >= activity.length - 1
-              const dots = {
-                answered_question: '#7F9C8B',
-                replied_question:  '#749CA5',
-                kb_updated:        '#C89B5A',
-                bot_created:       '#9AB86C',
-                bot_updated:       '#A28791',
-                new_conversation:  '#749CA5',
-                new_feedback:      '#D98757',
-                knowledge_gap:     '#C98278',
-                bot_previewed:     '#8A8480',
-                kb_milestone:      '#C89B5A',
-                first_conversation:'#7F9C8B',
-              }
-              const dot = dots[a.type] || '#8A8480'
-              return (
-                <div key={i} style={{ padding:'10px 20px', display:'flex', alignItems:'center', gap:10, borderBottom: isLast ? 'none' : '1px solid var(--line)' }}>
-                  <span style={{ width:7, height:7, borderRadius:'50%', background:dot, flexShrink:0 }} />
-                  <span style={{ fontSize:13.5, color:'var(--ink)', flex:1 }}>{a.description}</span>
-                  <span style={{ fontSize:12, color:'var(--ink4)' }}>{new Date(a.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })}</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
       </div>
 
     </div>
