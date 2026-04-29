@@ -219,11 +219,12 @@ useEffect(() => {
 function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onNewBot, setGaps, activity, setActivity }) {
   const [copied, setCopied] = useState(false)
   const [previewMode, setPreviewMode] = useState('phone')
-  const [kbMode, setKbMode] = useState(null) // null | 'voice' | 'pdf' | 'text'
+  const [kbMode, setKbMode] = useState(null)
   const [kbText, setKbText] = useState('')
   const [kbSaving, setKbSaving] = useState(false)
-  const fileRef = useState(null)[0]
-  const fileInputRef = { current: null }
+  const inboxCount = stats?.unresolvedGaps ?? 0
+  const answeredToday = stats?.conversationsThisWeek ?? 0
+  const statusDot = inboxCount === 0 ? '#7F9C8B' : inboxCount <= 2 ? '#C89B5A' : '#C0522A'
 
   if (!bot) {
     return (
@@ -240,226 +241,24 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
     )
   }
 
-  const inboxCount = (stats?.unresolvedGaps ?? 0) + (stats?.unresolvedFeedback ?? 0)
-  const answeredToday = stats?.conversationsThisWeek ?? 0
-  const statusDot = inboxCount === 0 ? '#7F9C8B' : inboxCount <= 2 ? '#C89B5A' : '#C0522A'
-  const sentiment = bot?.feedback_summary?.sentiment
-  const feedbackDot = sentiment === 'positive' ? '#7F9C8B' : sentiment === 'negative' ? '#C0522A' : sentiment === 'mixed' ? '#C89B5A' : null
-
   async function saveQuickKb() {
     if (!kbText.trim()) return
     setKbSaving(true)
     try {
       const { supabase } = await import('../lib/supabase.js')
-      const newEntry = {
-        id: Date.now().toString(),
-        title: kbText.trim().split('\n')[0].slice(0, 60),
-        type: 'faq', priority: 'primary',
-        content: kbText.trim(),
-        enabled: true, source: 'dashboard',
-        created_at: new Date().toISOString(),
-      }
+      const newEntry = { id: Date.now().toString(), title: kbText.trim().split('\n')[0].slice(0, 60), type: 'faq', priority: 'primary', content: kbText.trim(), enabled: true, source: 'dashboard', created_at: new Date().toISOString() }
       const updatedEntries = [...(bot.knowledge_entries || []), newEntry]
       await supabase.from('bots').update({ knowledge_entries: updatedEntries, updated_at: new Date().toISOString() }).eq('id', bot.id)
       bot.knowledge_entries = updatedEntries
-      setKbText('')
-      setKbMode(null)
+      setKbText(''); setKbMode(null)
     } catch(e) { console.error(e) }
     setKbSaving(false)
   }
 
-  const inboxCount = stats?.unresolvedGaps ?? 0
-  const unresolvedFeedback = 0
-
   return (
     <div style={{ flex:1, overflowY:'auto', padding:'20px', background:'#09090e' }}>
 
-      {/* ── Row 1: Chat Preview + Add to KB ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:16, marginBottom:16 }}>
-        
-        {/* Chat Preview */}
-        <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.2)', borderRadius:8, overflow:'hidden', display:'flex', flexDirection:'column' }}>
-          <div style={{ padding:'14px 18px', borderBottom:'1px solid rgba(124,58,237,0.15)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <div>
-              <div style={{ fontSize:11, fontWeight:600, letterSpacing:2, color:'#7878a0', textTransform:'uppercase', marginBottom:2 }}>Chat Preview</div>
-              <div style={{ fontSize:12, color:'#4a4a6a' }}>Live — changes reflect instantly</div>
-            </div>
-            <div style={{ display:'flex', gap:6 }}>
-              {['phone','desktop'].map(m => (
-                <button key={m} onClick={() => setPreviewMode(m)}
-                  style={{ padding:'5px 14px', borderRadius:4, border:`1px solid ${previewMode===m?'#f59e0b':'rgba(124,58,237,0.25)'}`, background: previewMode===m?'rgba(245,158,11,0.1)':'transparent', color: previewMode===m?'#f59e0b':'#7878a0', fontSize:11, fontFamily:'DM Mono, monospace', letterSpacing:1, textTransform:'uppercase', cursor:'pointer' }}>
-                  {m}
-                </button>
-              ))}
-              <button onClick={onEdit} style={{ padding:'5px 14px', borderRadius:4, border:'1px solid rgba(124,58,237,0.25)', background:'transparent', color:'#7878a0', fontSize:11, fontFamily:'DM Mono, monospace', letterSpacing:1, textTransform:'uppercase', cursor:'pointer' }}>
-                Edit →
-              </button>
-            </div>
-          </div>
-          <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', padding:previewMode==='phone'?'16px':'16px', minHeight:480, background:'#09090e' }}>
-            {previewMode === 'phone' ? (
-              <div style={{ width:320, height:580, borderRadius:16, overflow:'hidden', border:'2px solid rgba(124,58,237,0.3)', boxShadow:'0 0 40px rgba(124,58,237,0.1)' }}>
-                <ActiveChat bot={bot} previewMode={true} />
-              </div>
-            ) : (
-              <div style={{ width:'100%', height:520, borderRadius:8, overflow:'hidden', border:'1px solid rgba(124,58,237,0.2)' }}>
-                <ActiveChat bot={bot} previewMode={true} />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Add to KB */}
-        <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.2)', borderRadius:8, overflow:'hidden', display:'flex', flexDirection:'column' }}>
-          <div style={{ padding:'14px 18px', borderBottom:'1px solid rgba(124,58,237,0.15)' }}>
-            <div style={{ fontSize:11, fontWeight:600, letterSpacing:2, color:'#7878a0', textTransform:'uppercase', marginBottom:2 }}>Add to Knowledge Base</div>
-            <div style={{ fontSize:12, color:'#4a4a6a' }}>Teach your bot with new content</div>
-          </div>
-          <div style={{ flex:1, padding:'16px', display:'flex', flexDirection:'column', gap:10 }}>
-            {[
-              { id:'voice', icon:'🎤', label:'Record Voice', desc:'Speak and add to KB' },
-              { id:'pdf',   icon:'📄', label:'Upload PDF',   desc:'Extract text from PDF' },
-              { id:'text',  icon:'✏️', label:'Add Text',     desc:'Write or paste content' },
-            ].map(item => (
-              <button key={item.id} onClick={() => setKbMode(kbMode===item.id?null:item.id)}
-                style={{ display:'flex', alignItems:'center', gap:14, padding:'14px 16px', borderRadius:6, border:`1px solid ${kbMode===item.id?'#f59e0b':'rgba(124,58,237,0.2)'}`, background: kbMode===item.id?'rgba(245,158,11,0.08)':'#161622', cursor:'pointer', transition:'all 0.15s', textAlign:'left' }}>
-                <div style={{ width:40, height:40, borderRadius:8, background:'rgba(124,58,237,0.15)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{item.icon}</div>
-                <div>
-                  <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff', marginBottom:2 }}>{item.label}</div>
-                  <div style={{ fontSize:11, color:'#7878a0' }}>{item.desc}</div>
-                </div>
-                <span style={{ marginLeft:'auto', color:'#7878a0', fontSize:14 }}>›</span>
-              </button>
-            ))}
-
-            {kbMode === 'text' && (
-              <div style={{ marginTop:4 }}>
-                <textarea value={kbText} onChange={e => setKbText(e.target.value)}
-                  placeholder="Paste or type knowledge content here…"
-                  style={{ width:'100%', minHeight:120, padding:'10px 12px', background:'#09090e', border:'1px solid rgba(124,58,237,0.25)', borderRadius:6, color:'#c0c0d8', fontSize:13, fontFamily:'DM Mono, monospace', resize:'vertical', outline:'none', boxSizing:'border-box' }} />
-                <button onClick={saveQuickKb} disabled={!kbText.trim()||kbSaving}
-                  style={{ width:'100%', marginTop:8, padding:'10px', background:'#f59e0b', color:'#09090e', border:'none', borderRadius:4, fontSize:12, fontFamily:'DM Mono, monospace', letterSpacing:2, textTransform:'uppercase', cursor:'pointer', fontWeight:600, opacity:kbText.trim()&&!kbSaving?1:0.5 }}>
-                  {kbSaving ? 'Saving…' : 'Save to KB'}
-                </button>
-              </div>
-            )}
-
-            <div style={{ marginTop:'auto', padding:'12px 14px', background:'#09090e', borderRadius:6, border:'1px solid rgba(124,58,237,0.15)' }}>
-              <div style={{ fontSize:10, color:'#4a4a6a', letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>Knowledge Base</div>
-              <div style={{ fontSize:20, fontWeight:700, color:'#f59e0b', fontFamily:'DM Mono, monospace' }}>{(bot.knowledge_entries||[]).filter(e=>e.enabled!==false).length}</div>
-              <div style={{ fontSize:11, color:'#7878a0' }}>active entries</div>
-              <button onClick={onEdit} style={{ marginTop:8, width:'100%', padding:'7px', background:'transparent', border:'1px solid rgba(124,58,237,0.2)', borderRadius:4, color:'#7878a0', fontSize:11, fontFamily:'DM Mono, monospace', letterSpacing:1, textTransform:'uppercase', cursor:'pointer' }}>
-                View Knowledge Base →
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Row 2: Inbox + Feedback ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
-        
-        {/* Inbox */}
-        <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.2)', borderRadius:8, overflow:'hidden' }}>
-          <div style={{ padding:'14px 18px', borderBottom:'1px solid rgba(124,58,237,0.15)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <div>
-              <div style={{ fontSize:11, fontWeight:600, letterSpacing:2, color:'#7878a0', textTransform:'uppercase' }}>Inbox
-                {inboxCount > 0 && <span style={{ marginLeft:8, background:'#ef4444', color:'white', fontSize:9, padding:'2px 6px', borderRadius:8, fontWeight:700 }}>{inboxCount}</span>}
-              </div>
-              <div style={{ fontSize:12, color:'#4a4a6a', marginTop:2 }}>Unanswered questions</div>
-            </div>
-            <button onClick={() => window.location.hash='inbox'} style={{ fontSize:11, color:'#7c3aed', background:'none', border:'none', cursor:'pointer', fontFamily:'DM Mono, monospace', letterSpacing:1 }}>View all →</button>
-          </div>
-          <div>
-            {gaps.length === 0 ? (
-              <div style={{ padding:'32px 20px', textAlign:'center' }}>
-                <div style={{ fontSize:24, marginBottom:8 }}>✅</div>
-                <div style={{ fontSize:13, color:'#4a4a6a' }}>All caught up</div>
-              </div>
-            ) : gaps.slice(0,5).map((g,i) => (
-              <AttentionRow key={i} gap={g} bot={bot} isLast={i>=Math.min(gaps.length-1,4)}
-                onAnswered={(answeredGap, mode) => {
-                  setGaps(p => p.filter(x => x.id !== answeredGap.id))
-                  setActivity(p => [{ id:Date.now(), type: mode==='answer'?'answered_question':'replied_question', description: mode==='answer'?`Answered: "${answeredGap.question.slice(0,60)}"` : `Replied to: "${answeredGap.question.slice(0,60)}"`, created_at: new Date().toISOString() }, ...p])
-                }} />
-            ))}
-          </div>
-        </div>
-
-        {/* Feedback */}
-        <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.2)', borderRadius:8, overflow:'hidden' }}>
-          <div style={{ padding:'14px 18px', borderBottom:'1px solid rgba(124,58,237,0.15)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <div>
-              <div style={{ fontSize:11, fontWeight:600, letterSpacing:2, color:'#7878a0', textTransform:'uppercase' }}>Feedback</div>
-              <div style={{ fontSize:12, color:'#4a4a6a', marginTop:2 }}>Recent user feedback</div>
-            </div>
-            <button style={{ fontSize:11, color:'#7c3aed', background:'none', border:'none', cursor:'pointer', fontFamily:'DM Mono, monospace', letterSpacing:1 }}>View all →</button>
-          </div>
-          <div>
-            {(!convs || convs.length === 0) ? (
-              <div style={{ padding:'32px 20px', textAlign:'center' }}>
-                <div style={{ fontSize:24, marginBottom:8 }}>📝</div>
-                <div style={{ fontSize:13, color:'#4a4a6a' }}>No feedback yet</div>
-              </div>
-            ) : convs.slice(0,5).map((c,i) => (
-              <div key={i} style={{ padding:'12px 18px', borderBottom: i<4?'1px solid rgba(124,58,237,0.08)':'none', display:'flex', alignItems:'center', gap:10 }}>
-                <span style={{ fontSize:18 }}>😊</span>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:13, color:'#c0c0d8', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{c.type || 'Conversation'}</div>
-                  <div style={{ fontSize:11, color:'#4a4a6a', marginTop:1 }}>{new Date(c.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Row 3: Stats ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'repeat(6,1fr)', gap:12, marginBottom:16 }}>
-        {[
-          { label:'Conversations', num: stats?.totalConversations ?? 0 },
-          { label:'Unique Users',  num: stats?.uniqueUsers ?? 0 },
-          { label:'Messages',      num: stats?.totalMessages ?? 0 },
-          { label:'This Week',     num: stats?.conversationsThisWeek ?? 0 },
-          { label:'Feedback',      num: stats?.feedbackCount ?? 0 },
-          { label:'Inbox Items',   num: inboxCount, alert: inboxCount > 0 },
-        ].map((s,i) => (
-          <div key={i} style={{ background:'#0f0f18', border:`1px solid ${s.alert?'rgba(239,68,68,0.3)':'rgba(124,58,237,0.2)'}`, borderRadius:8, padding:'16px' }}>
-            <div style={{ fontSize:9, fontWeight:600, letterSpacing:2, color:'#4a4a6a', textTransform:'uppercase', marginBottom:8 }}>{s.label}</div>
-            <div style={{ fontSize:28, fontWeight:700, color: s.alert?'#ef4444':'#f59e0b', fontFamily:'DM Mono, monospace' }}>{s.num}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Row 4: Share + Embed ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
-        <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.2)', borderRadius:8, padding:'18px' }}>
-          <div style={{ fontSize:11, fontWeight:600, letterSpacing:2, color:'#7878a0', textTransform:'uppercase', marginBottom:12 }}>Share Your Bot</div>
-          <div style={{ display:'flex', gap:8, alignItems:'center', padding:'8px 12px', background:'#09090e', border:'1px solid rgba(124,58,237,0.2)', borderRadius:6, marginBottom:10 }}>
-            <span style={{ flex:1, fontSize:11, color:'#7878a0', fontFamily:'monospace', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{shareUrl}</span>
-            <button onClick={() => { navigator.clipboard.writeText(shareUrl).catch(()=>{}); setCopied(true); setTimeout(()=>setCopied(false),2000) }}
-              style={{ padding:'5px 12px', background:'#f59e0b', color:'#09090e', border:'none', borderRadius:4, fontSize:11, fontFamily:'DM Mono, monospace', letterSpacing:1, cursor:'pointer', fontWeight:600, flexShrink:0 }}>
-              {copied ? 'Copied!' : 'Copy'}
-            </button>
-          </div>
-          <button onClick={() => window.open(shareUrl, '_blank')} style={{ width:'100%', padding:'9px', background:'transparent', border:'1px solid rgba(124,58,237,0.2)', borderRadius:4, color:'#7878a0', fontSize:11, fontFamily:'DM Mono, monospace', letterSpacing:1, textTransform:'uppercase', cursor:'pointer' }}>
-            Open Bot →
-          </button>
-        </div>
-        <div style={{ background:'#0f0f18', border:'1px solid rgba(124,58,237,0.2)', borderRadius:8, padding:'18px' }}>
-          <div style={{ fontSize:11, fontWeight:600, letterSpacing:2, color:'#7878a0', textTransform:'uppercase', marginBottom:12 }}>Embed Your Bot</div>
-          <div style={{ padding:'10px 12px', background:'#09090e', border:'1px solid rgba(124,58,237,0.2)', borderRadius:6, fontFamily:'monospace', fontSize:11, color:'#7c3aed', wordBreak:'break-all', marginBottom:10 }}>
-            {`<script src="https://botbrunch.com/widget.js" data-bot-id="${bot.id}"></script>`}
-          </div>
-          <button onClick={() => { navigator.clipboard.writeText(`<script src="https://botbrunch.com/widget.js" data-bot-id="${bot.id}"></script>`).catch(()=>{}); }} style={{ width:'100%', padding:'9px', background:'#7c3aed', color:'white', border:'none', borderRadius:4, fontSize:11, fontFamily:'DM Mono, monospace', letterSpacing:1, textTransform:'uppercase', cursor:'pointer' }}>
-            Copy Code
-          </button>
-        </div>
-      </div>
-
-    </div>
-  )
-}
+      {/* ── Stat cards ── */}
       <div className="stat-grid">
         {[
           { label: 'Total conversations', num: stats?.totalConversations ?? 0, dot: null },
@@ -595,7 +394,11 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
         )}
       </div>
 
-    // ── Attention row (answer or reply only) ──────────────────────────────────────
+    </div>
+  )
+}
+
+// ── Attention row (answer or reply only) ──────────────────────────────────────
 function AttentionRow({ gap, bot, isLast, onAnswered }) {
   const [mode,    setMode]    = useState(null) // null | 'answer' | 'reply'
   const [text,    setText]    = useState('')
