@@ -685,17 +685,17 @@ function CustomerFeedback({ bot, onBack }) {
                 <>
                   <div style={{ marginBottom:14 }}>
                     <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Your name</label>
-                    <input value={name} onChange={e=>setName(e.target.value)} placeholder="How should we address you?" style={{ width:'100%', padding:'9px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', boxSizing:'border-box' }} />
+                    <input value={name} onChange={e=>setName(e.target.value)} placeholder="How should we address you?" style={{ width:'100%', padding:'9px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', boxSizing:'border-box', background:'white', color:'#1a1a1a' }} />
                   </div>
                   <div style={{ marginBottom:14 }}>
                     <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Contact <span style={{ fontWeight:400, color:'var(--ink4)' }}>(optional)</span></label>
-                    <input value={contact} onChange={e=>setContact(e.target.value)} placeholder="Email or phone for follow up" style={{ width:'100%', padding:'9px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', boxSizing:'border-box' }} />
+                    <input value={contact} onChange={e=>setContact(e.target.value)} placeholder="Email or phone for follow up" style={{ width:'100%', padding:'9px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', boxSizing:'border-box', background:'white', color:'#1a1a1a' }} />
                   </div>
                 </>
               )}
               <div style={{ marginBottom:18 }}>
                 <label style={{ fontSize:12, fontWeight:500, color:'var(--ink2)', display:'block', marginBottom:5 }}>Your message</label>
-                <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Share what's on your mind…" style={{ width:'100%', padding:'10px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', resize:'none', minHeight:120, lineHeight:1.65, boxSizing:'border-box' }} />
+                <textarea value={text} onChange={e=>setText(e.target.value)} placeholder="Share what's on your mind…" style={{ width:'100%', padding:'10px 12px', borderRadius:`${Math.min(radius,8)}px`, border:'1px solid var(--line)', fontSize:13.5, fontFamily:font, outline:'none', resize:'none', minHeight:120, lineHeight:1.65, boxSizing:'border-box', background:'white', color:'#1a1a1a' }} />
               </div>
               <button onClick={submit} disabled={!text.trim()||sending} style={{ width:'100%', padding:'12px', borderRadius:`${Math.min(radius,10)}px`, background:primary, color:'white', border:'none', fontSize:14, fontWeight:500, cursor:text.trim()&&!sending?'pointer':'not-allowed', opacity:text.trim()&&!sending?1:0.5, fontFamily:font }}>
                 {sending ? 'Sending…' : 'Send feedback →'}
