@@ -99,10 +99,16 @@ useEffect(() => {
               <div style={{ width:36, height:36, borderRadius:8, background: b.avatar_url ? 'transparent' : '#1e1b4b', flexShrink:0, overflow:'hidden', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, fontWeight:700, color:'#f59e0b', border:'1px solid rgba(124,58,237,0.3)' }}>
                 {b.avatar_url ? <img src={b.avatar_url} style={{ width:'100%', height:'100%', objectFit:'cover' }} /> : (b.name?.charAt(0) || '?').toUpperCase()}
               </div>
-              <div style={{ minWidth:0, textAlign:'left' }}>
+              <div style={{ minWidth:0, textAlign:'left', flex:1 }}>
                 <div style={{ fontSize:13, fontWeight:600, color: activeBot?.id===b.id ? '#f59e0b' : '#f0f0ff', lineHeight:1.2, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{b.name || 'Unnamed'}</div>
                 <div style={{ fontSize:10, color:'#7878a0', marginTop:1 }}>{b.published ? '● Live' : '○ Draft'}</div>
               </div>
+              <button onClick={e => { e.stopPropagation(); onEditBot(b) }}
+                style={{ flexShrink:0, background:'transparent', border:'1px solid rgba(124,58,237,0.3)', borderRadius:4, color:'#7878a0', fontSize:9, padding:'3px 6px', cursor:'pointer', fontFamily:'DM Mono, monospace', letterSpacing:1, opacity: activeBot?.id===b.id ? 1 : 0.4, transition:'all 0.15s' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor='#f59e0b'; e.currentTarget.style.color='#f59e0b'; e.currentTarget.style.opacity='1' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(124,58,237,0.3)'; e.currentTarget.style.color='#7878a0'; e.currentTarget.style.opacity= activeBot?.id===b.id ? '1' : '0.4' }}>
+                EDIT
+              </button>
             </button>
           ))}
           
@@ -285,12 +291,22 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
               ))}
             </div>
           </div>
-          <div style={{ background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', borderRadius:8, overflow:'hidden', height: previewMode==='phone' ? 600 : 420, position:'relative' }}>
-            <div style={{ position:'absolute', inset:0, overflow:'hidden' }}>
-              <div style={{ width: previewMode==='phone' ? '390px' : '100%', height:'100%', margin: previewMode==='phone' ? '0 auto' : '0', transform: previewMode==='phone' ? 'scale(0.75)' : 'scale(1)', transformOrigin:'top center', height: previewMode==='phone' ? '133%' : '100%' }}>
-                <ActiveChat bot={bot} previewMode={true} />
+          <div style={{ position:'relative', borderRadius:8, overflow:'hidden', height:500, background:'#09090e', border:'1px solid rgba(124,58,237,0.15)' }}>
+            {previewMode === 'phone' ? (
+              <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'flex-start', justifyContent:'center', paddingTop:0 }}>
+                <div style={{ width:320, height:500, borderRadius:12, overflow:'hidden', flexShrink:0, position:'relative' }}>
+                  <div style={{ position:'absolute', inset:0, transform:'scale(0.82)', transformOrigin:'top center', width:`${100/0.82}%`, height:`${100/0.82}%` }}>
+                    <ActiveChat bot={bot} previewMode={true} />
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ position:'absolute', inset:0, overflow:'hidden' }}>
+                <div style={{ position:'absolute', inset:0, transform:'scale(0.7)', transformOrigin:'top left', width:`${100/0.7}%`, height:`${100/0.7}%` }}>
+                  <ActiveChat bot={bot} previewMode={true} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
