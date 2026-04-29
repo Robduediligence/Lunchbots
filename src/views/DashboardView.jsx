@@ -260,6 +260,12 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
   return (
     <div style={{ flex:1, overflowY:'auto', padding:'20px', background:'#09090e', display:'flex', flexDirection:'column', gap:16 }}>
 
+      {/* ── Bot name title ── */}
+      <div style={{ textAlign:'center', paddingBottom:4 }}>
+        <h1 style={{ fontSize:22, fontWeight:700, color:'#f59e0b', fontFamily:'DM Mono, monospace', letterSpacing:2, margin:0 }}>{bot.name}</h1>
+        <div style={{ fontSize:11, color:'#7878a0', marginTop:4 }}>{bot.published ? '● Live' : '○ Draft'}</div>
+      </div>
+
       {/* ── Row 1: Chat Preview + KB ── */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:16, alignItems:'start' }}>
 
@@ -279,8 +285,12 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
               ))}
             </div>
           </div>
-          <div style={{ background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', borderRadius:8, overflow:'hidden', height: previewMode==='phone' ? 480 : 360 }}>
-            <ActiveChat bot={bot} previewMode={true} forceWidth={previewMode==='phone' ? 'mobile' : 'desktop'} />
+          <div style={{ background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', borderRadius:8, overflow:'hidden', height: previewMode==='phone' ? 600 : 420, position:'relative' }}>
+            <div style={{ position:'absolute', inset:0, overflow:'hidden' }}>
+              <div style={{ width: previewMode==='phone' ? '390px' : '100%', height:'100%', margin: previewMode==='phone' ? '0 auto' : '0', transform: previewMode==='phone' ? 'scale(0.75)' : 'scale(1)', transformOrigin:'top center', height: previewMode==='phone' ? '133%' : '100%' }}>
+                <ActiveChat bot={bot} previewMode={true} />
+              </div>
+            </div>
           </div>
         </div>
 

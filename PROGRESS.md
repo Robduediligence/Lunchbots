@@ -935,3 +935,184 @@ git push origin main
 At 12/12 serverless functions. Any new API endpoints require either:
 - Merging into existing files
 - Upgrading Vercel to Pro ($20/mo)
+
+
+
+
+Bot Brunch — Progress Tracker
+Project
+
+Name: Bot Brunch
+Domain: botbrunch.com
+Stack: React + Vite + Supabase + Anthropic API + Vercel + Resend + Sentry
+Supabase URL: https://vklbfvfrfcncpsslnivm.supabase.co
+Live URL: https://botbrunch.com
+GitHub: https://github.com/Robduediligence/Lunchbots
+Local dev: http://localhost:5175
+
+
+Phase 1: Foundation ✅ COMPLETE
+Phase 2: Infrastructure ✅ COMPLETE
+Phase 3: Billing ✅ COMPLETE
+Phase 4: Creator Experience ✅ MOSTLY COMPLETE
+Phase 5: Legal ✅ COMPLETE
+Phase 6: Marketing ❌ NOT STARTED
+Phase 7: Launch ❌ NOT STARTED
+
+Priority 1 Fixes ✅ COMPLETE (Apr 16 2026)
+
+✅ Email confirmation redirect to sign-in
+✅ PDF upload via unpdf + Claude cleanup
+✅ Toast notifications (no more browser alerts)
+✅ Chat captures user email on fallback
+✅ Resend email notifications when admin answers inbox
+✅ Markdown rendering in conversation panel
+✅ Bot messages saving to Supabase (answered boolean column)
+✅ Knowledge base RLS security tightened
+✅ Inbox auto-refresh every 15 seconds
+
+Priority 2 Fixes ✅ COMPLETE (Apr 16 2026)
+
+✅ Plan names Solo/Squadron/Fleet (trial as default)
+✅ Cancel subscription working
+✅ Mandatory plan selection modal for new trial users
+✅ Stripe plan changes update existing subscriptions in place
+✅ Bot disable modal for downgraded users
+✅ stripe_subscription_id saving correctly
+
+Priority 3: Wizard UX ✅ COMPLETE (Apr 2026)
+
+✅ Use case → dropdown with dynamic description
+✅ Emojis removed from use cases
+✅ "Descriptor" renamed to "What is this bot's focus?"
+✅ Common Questions (suggested prompts) kept, centred in chat preview
+✅ Knowledge panel button order: Import from Website, Upload File, Add Text Entry, Dictate
+✅ All 3 knowledge buttons + Dictate made yellow, in 2x2 grid
+✅ Dictation via Web Speech API (120 seconds, duplicate fix)
+✅ Conversation categories removed from Capabilities
+✅ Welcome message centred in chat preview
+✅ Wizard mobile scroll/topbar fixes
+
+Priority 4: Live Preview Overhaul ✅ COMPLETE (Apr 2026)
+
+✅ Replaced BotPreview with ActiveChat in previewMode=true
+✅ previewMode skips API calls
+✅ Preview scaled to iPhone dimensions (390x844, scale 0.65)
+✅ Browser chrome bar removed from preview
+✅ Dummy user message shown in preview for bubble preview
+✅ Welcome message shown in previewMode
+
+Priority 5: Branding Panel ✅ COMPLETE (Apr 2026)
+
+✅ Logo shows in chat header
+✅ Both logo AND avatar show in header when both uploaded
+✅ Avatar letter auto-uses bot name initial (no manual input)
+✅ Colour presets (8 presets: Parchment, Midnight, Forest, Ocean, Sunset, Rose, Charcoal, Amber)
+✅ Full colour control: bg, header, bot name, descriptor, welcome, chat font, online, input bar, input area, input text, send button, bot bubble, bot chat font, user bubble, user chat font
+✅ Header colour + text colour editable
+✅ Header gradient fade into chat area
+✅ Texture overlays (8 options) + intensity fader
+✅ Image effects section (blur, frost) — image only
+✅ Glow & Shadow: bubble glow (colour+intensity), text glow, drop shadow (colour+intensity+hardness)
+✅ Text outline for header and chat (thickness + opacity + colour)
+✅ Header layout: text alignment (left/centre/right) + logo position (left/right)
+✅ Avatar size fader + shape (circle/rounded/square)
+✅ Header height fader (min 20px)
+✅ Gradient depth fader
+✅ Logo size fader
+✅ Bubble border width fader
+✅ Custom font dropdown showing each font in its own typeface + search
+✅ Title font applies to bot name
+✅ Body font applies to chat
+✅ Fill/Outline/Minimal applies to both user and bot bubbles
+✅ Opacity controls removed (redundant with colour system)
+✅ BG image max 10MB
+✅ Feedback form inputs fixed (white bg, dark text)
+✅ Personality system prompts strengthened (tone, length, initiative, style maps)
+✅ [FALLBACK] tag stripped in StepTest
+✅ Fallback message used verbatim in system prompt
+
+Priority 6: Dashboard Redesign ✅ IN PROGRESS (Apr 25 2026)
+
+✅ New sidebar layout (220px) — logo, bot cards with avatar, nav, sign out
+✅ Old topnav and bot switcher removed
+✅ ActiveChat imported into DashboardView
+✅ New DashPage grid layout:
+
+Row 1: Chat preview (phone/desktop toggle, fully testable) + Add to KB panel
+Row 2: Inbox (5 questions inline with Answer/Reply) + Feedback panel
+Row 3: Stats row (6 cards)
+Row 4: Share + Embed
+
+
+✅ Add to KB panel: text entry working, PDF and voice UI present
+⚠️ Old DashPage code partially still present — needs cleanup
+❌ "View all" inbox/feedback links need to navigate to correct pages (setPage)
+❌ Feedback panel shows conversations not actual feedback — needs fixing
+❌ PDF upload in Quick Add KB not wired up
+❌ Voice dictation in Quick Add KB not wired up
+❌ Other pages (Inbox, Feedback, Insights, Share, Settings) still old light theme
+
+
+Remaining Phase 4 Items
+
+ Edit Bot should stay within dashboard layout
+ Onboarding flow (new signup → wizard immediately)
+ Duplicate / archive bots
+ Rate limiting per end user per bot
+
+
+Key Infrastructure
+Supabase New Columns Added to bots table (Apr 2026)
+All nullable: header_color, header_text_color, input_bg_color, input_area_color, input_text_color, title_color, body_color, bot_name_color, descriptor_color, welcome_color, chat_font_color, online_color, user_chat_font_color, bot_bubble_color, user_bubble_color, bubble_glow_color, bubble_glow_intensity (int4), text_glow_color, text_glow_intensity (int4), bubble_shadow_color, bubble_shadow_intensity (int4), bubble_shadow_hardness (int4), header_text_outline_thickness (float4), header_text_outline_opacity (int4), header_text_outline_color, chat_text_outline_thickness (float4), chat_text_outline_opacity (int4), chat_text_outline_color, header_alignment, logo_position, avatar_size (int4), avatar_shape, header_gradient_depth (int4), bubble_border_width (float4), texture_intensity (int4), image_effect, image_effect_intensity (int4)
+API Endpoints (12 — Vercel free plan limit reached)
+
+/api/add-message
+/api/cancel-subscription
+/api/check-gap
+/api/claude
+/api/create-conversation
+/api/create-gap
+/api/landing
+/api/scrape
+/api/send-email
+/api/stripe-checkout (handles both new checkout AND plan changes)
+/api/stripe-webhook
+/api/update-gap-email
+
+Plan Limits
+
+Solo: 1 bot, 500 messages/month — $9/mo
+Squadron: 3 bots, 2,000 messages/month — $19/mo
+Fleet: 10 bots, 6,000 messages/month — $39/mo
+
+Key Patterns
+
+PDF upload: unpdf extracts text page by page → Claude cleans in 12k char chunks in parallel
+Fonts: custom dropdown showing each font in its own typeface, loads via Google Fonts
+Chat preview: ActiveChat with previewMode=true — no Supabase writes, shows dummy user message
+Colour system: all colours saved to Supabase, applied via inline styles in ChatView
+Overlays: getOverlayStyle() in both WizardView and ChatView — must stay in sync
+Plan changes: POST /api/stripe-checkout with subscriptionId = update in place
+Widget Supabase writes: server-side via service role key (works in third-party iframes)
+Scraper: Jina AI (https://r.jina.ai/${url})
+
+Git Workflow
+git add .
+git commit -m "description"
+git push origin main
+Warning: Vercel free plan limit
+At 12/12 serverless functions. Any new API endpoints require either:
+
+Merging into existing files
+Upgrading Vercel to Pro ($20/mo)
+
+Rob's Working Style
+
+Complete beginner — needs exact "search for X, replace with Y" instructions
+Never conceptual guidance alone
+Pastes code when search strings don't match
+Needs exact file names and search strings
+Confirm completed work before moving to next task
+Design: use options/multiple choice rather than open-ended questions
+No Chrome browser tool access
