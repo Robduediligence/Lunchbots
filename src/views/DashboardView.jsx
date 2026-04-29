@@ -291,19 +291,17 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
               ))}
             </div>
           </div>
-          <div style={{ position:'relative', borderRadius:8, overflow:'hidden', height:420, background:'#09090e', border:'1px solid rgba(124,58,237,0.15)' }}>
-            {previewMode === 'phone' ? (
-              <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'flex-start', justifyContent:'center' }}>
-                <div style={{ width:220, height:420, borderRadius:10, overflow:'hidden', flexShrink:0, position:'relative' }}>
-                  <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:'scale(0.564)', transformOrigin:'top left' }}>
-                    <ActiveChat bot={bot} previewMode={true} />
-                  </div>
-                </div>
+          <div style={{ position:'relative', borderRadius:8, overflow:'hidden', height:400, background:'#09090e', border:'1px solid rgba(124,58,237,0.15)' }}>
+            {previewMode === 'desktop' ? (
+              <div style={{ position:'absolute', top:0, left:0, width:'1280px', height:'800px', transform:'scale(0.585)', transformOrigin:'top left' }}>
+                <ActiveChat bot={bot} previewMode={true} />
               </div>
             ) : (
-              <div style={{ position:'absolute', inset:0, overflow:'hidden' }}>
-                <div style={{ position:'absolute', top:0, left:0, width:'1280px', height:'800px', transform:'scale(0.5)', transformOrigin:'top left' }}>
-                  <ActiveChat bot={bot} previewMode={true} />
+              <div style={{ position:'absolute', inset:0, display:'flex', justifyContent:'center', alignItems:'flex-start', paddingTop:8 }}>
+                <div style={{ width:185, height:384, borderRadius:28, overflow:'hidden', border:'6px solid #1a1a2a', flexShrink:0, position:'relative', boxShadow:'0 0 0 1px rgba(124,58,237,0.4)' }}>
+                  <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:'scale(0.474)', transformOrigin:'top left' }}>
+                    <ActiveChat bot={bot} previewMode={true} />
+                  </div>
                 </div>
               </div>
             )}
