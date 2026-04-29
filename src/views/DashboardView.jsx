@@ -225,6 +225,8 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
   const inboxCount = stats?.unresolvedGaps ?? 0
   const answeredToday = stats?.conversationsThisWeek ?? 0
   const statusDot = inboxCount === 0 ? '#7F9C8B' : inboxCount <= 2 ? '#C89B5A' : '#C0522A'
+  const sentiment = bot?.feedback_summary?.sentiment
+  const feedbackDot = sentiment === 'positive' ? '#7F9C8B' : sentiment === 'negative' ? '#C0522A' : sentiment === 'mixed' ? '#C89B5A' : null
 
   if (!bot) {
     return (
