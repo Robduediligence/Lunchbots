@@ -291,21 +291,21 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
               ))}
             </div>
           </div>
-          <div style={{ position:'relative', borderRadius:8, overflow:'hidden', height:400, background:'#09090e', border:'1px solid rgba(124,58,237,0.15)' }}>
-            {previewMode === 'desktop' ? (
-              <div style={{ position:'absolute', top:0, left:0, width:'1280px', height:'800px', transform:'scale(0.585)', transformOrigin:'top left' }}>
+          {previewMode === 'desktop' ? (
+            <div style={{ borderRadius:8, overflow:'hidden', background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', position:'relative', height:320 }}>
+              <div style={{ position:'absolute', top:0, left:0, width:'1100px', height:'640px', transform:'scale(0.53)', transformOrigin:'top left' }}>
                 <ActiveChat bot={bot} previewMode={true} />
               </div>
-            ) : (
-              <div style={{ position:'absolute', inset:0, display:'flex', justifyContent:'center', alignItems:'flex-start', paddingTop:8 }}>
-                <div style={{ width:185, height:384, borderRadius:28, overflow:'hidden', border:'6px solid #1a1a2a', flexShrink:0, position:'relative', boxShadow:'0 0 0 1px rgba(124,58,237,0.4)' }}>
-                  <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'844px', transform:'scale(0.474)', transformOrigin:'top left' }}>
-                    <ActiveChat bot={bot} previewMode={true} />
-                  </div>
+            </div>
+          ) : (
+            <div style={{ borderRadius:8, background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', display:'flex', justifyContent:'center', alignItems:'center', padding:'16px 0' }}>
+              <div style={{ width:200, height:390, borderRadius:32, overflow:'hidden', border:'6px solid #1e1e2e', flexShrink:0, position:'relative', boxShadow:'0 0 0 1px rgba(124,58,237,0.4)' }}>
+                <div style={{ position:'absolute', top:0, left:0, width:'390px', height:'760px', transform:'scale(0.513)', transformOrigin:'top left' }}>
+                  <ActiveChat bot={bot} previewMode={true} />
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* KB Panel — placeholder for Step 3 */}
