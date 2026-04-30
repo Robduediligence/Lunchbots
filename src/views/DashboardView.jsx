@@ -273,7 +273,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
       </div>
 
       {/* ── Row 1: Chat Preview + KB ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 300px', gap:16, alignItems:'start' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 280px', gap:16, alignItems:'start' }}>
 
         {/* Chat Preview */}
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
@@ -292,8 +292,8 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
             </div>
           </div>
           {previewMode === 'desktop' ? (
-            <div style={{ borderRadius:8, overflow:'hidden', background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', position:'relative', height:340 }}>
-              <div style={{ position:'absolute', top:0, left:0, width:'1100px', height:'640px', transform:'scale(0.53)', transformOrigin:'top left' }}>
+            <div style={{ borderRadius:8, overflow:'hidden', background:'#09090e', border:'1px solid rgba(124,58,237,0.15)', position:'relative', height:270 }}>
+              <div style={{ position:'absolute', top:0, left:0, width:'1100px', height:'640px', transform:'scale(0.42)', transformOrigin:'top left' }}>
                 <ActiveChat bot={bot} previewMode={true} />
               </div>
             </div>
