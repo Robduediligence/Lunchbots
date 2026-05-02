@@ -272,8 +272,8 @@ const [emailInput, setEmailInput] = useState('')
   }
 
   return (
-    <div style={{
-      display:'flex', flexDirection:'column', height:'100vh',
+<div style={{
+      display:'flex', flexDirection:'column', height: previewMode ? '100%' : '100vh',
       fontFamily:font, fontSize:sz, position:'relative',
       background: bgImage ? `url(${bgImage}) center/cover no-repeat` : bg,
       overflow:'hidden',

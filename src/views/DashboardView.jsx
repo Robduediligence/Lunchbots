@@ -308,12 +308,8 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
           )}
         </div>
 
-        {/* KB Panel — placeholder for Step 3 */}
-        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
-          <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff', marginBottom:4 }}>Knowledge Base</div>
-          <div style={{ fontSize:10, color:'#7878a0', marginBottom:14 }}>Teach your bot new content</div>
-          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>KB panel coming in next step</div>
-        </div>
+        {/* KB Panel */}
+        <KbPanel bot={bot} />
       </div>
 
       {/* ── Row 2: Inbox + Feedback ── */}
@@ -1332,6 +1328,264 @@ if (sub?.stripe_subscription_id) {
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function KbPanel({ bot }) {
+  const [modal, setModal] = useState(null) // null | 'text' | 'scrape' | 'file' | 'dictate'
+  const [kbOpen, setKbOpen] = useState(false)
+  const [form, setForm] = useState({ title:'', content:'' })
+  const [saving, setSaving] = useState(false)
+  const [scrapeUrl, setScrapeUrl] = useState('')
+  const [scrapeLoading, setScrapeLoading] = useState(false)
+  const [scrapeError, setScrapeError] = useState('')
+  const [dictating, setDictating] = useState(false)
+  const [recognitionRef] = useState({ current: null })
+  const fileRef = useRef(null)
+  const kbCount = (bot?.knowledge_entries || []).length
+
+  function showToast(msg) {
+    const t = document.createElement('div')
+    t.textContent = msg
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a2a;color:#f0f0ff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:9999;border:1px solid rgba(124,58,237,0.4);'
+    document.body.appendChild(t)
+    setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.4s'; setTimeout(() => t.remove(), 400) }, 2500)
+  }
+
+  async function saveEntry() {
+    if (!form.content.trim()) return
+    setSaving(true)
+    try {
+      const { supabase } = await import('../lib/supabase.js')
+      const newEntry = {
+        id: Date.now().toString(),
+        title: form.title.trim() || form.content.trim().split('\n')[0].slice(0, 60),
+        type: 'faq', priority: 'primary',
+        content: form.content.trim(),
+        enabled: true, source: 'dashboard',
+        created_at: new Date().toISOString(),
+      }
+      const updated = [...(bot.knowledge_entries || []), newEntry]
+      await supabase.from('bots').update({ knowledge_entries: updated, updated_at: new Date().toISOString() }).eq('id', bot.id)
+      bot.knowledge_entries = updated
+      setForm({ title:'', content:'' })
+      setModal(null)
+      showToast('✓ Added to knowledge base')
+    } catch(e) { console.error(e) }
+    setSaving(false)
+  }
+
+  async function handleScrape() {
+    if (!scrapeUrl.trim()) return
+    setScrapeLoading(true)
+    setScrapeError('')
+    try {
+      const res = await fetch('/api/scrape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: scrapeUrl }),
+      })
+      const data = await res.json()
+      if (!res.ok || !data.content) throw new Error(data.error || 'Failed to import')
+      const { supabase } = await import('../lib/supabase.js')
+      const newEntry = {
+        id: Date.now().toString(),
+        title: data.title || scrapeUrl,
+        type: 'faq', priority: 'primary',
+        content: data.content,
+        enabled: true, source: 'scrape',
+        created_at: new Date().toISOString(),
+      }
+      const updated = [...(bot.knowledge_entries || []), newEntry]
+      await supabase.from('bots').update({ knowledge_entries: updated, updated_at: new Date().toISOString() }).eq('id', bot.id)
+      bot.knowledge_entries = updated
+      setScrapeUrl('')
+      setModal(null)
+      showToast('✓ Website imported to knowledge base')
+    } catch(e) { setScrapeError(e.message || 'Could not import that URL.') }
+    setScrapeLoading(false)
+  }
+
+  async function handleFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setSaving(true)
+    try {
+      const { extractTextFromPDF } = await import('../lib/supabase.js')
+      let content = ''
+      if (file.type === 'application/pdf') {
+        content = await extractTextFromPDF(file)
+      } else {
+        content = await file.text()
+      }
+      const { supabase } = await import('../lib/supabase.js')
+      const newEntry = {
+        id: Date.now().toString(),
+        title: file.name.replace(/\.[^.]+$/, ''),
+        type: 'faq', priority: 'primary',
+        content: content.trim(),
+        enabled: true, source: 'upload',
+        created_at: new Date().toISOString(),
+      }
+      const updated = [...(bot.knowledge_entries || []), newEntry]
+      await supabase.from('bots').update({ knowledge_entries: updated, updated_at: new Date().toISOString() }).eq('id', bot.id)
+      bot.knowledge_entries = updated
+      setModal(null)
+      showToast('✓ File added to knowledge base')
+    } catch(e) { console.error(e) }
+    setSaving(false)
+    e.target.value = ''
+  }
+
+  function startDictate() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      showToast('Speech recognition not supported in this browser.')
+      return
+    }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    const recognition = new SR()
+    recognition.continuous = true
+    recognition.interimResults = false
+    recognition.lang = 'en-US'
+    let lastIdx = 0
+    recognition.onresult = e => {
+      const transcript = Array.from(e.results).slice(lastIdx).map(r => r[0].transcript).join(' ')
+      lastIdx = e.results.length
+      setForm(p => ({ ...p, content: p.content ? p.content + ' ' + transcript : transcript }))
+    }
+    recognition.onend = () => setDictating(false)
+    recognition.start()
+    recognitionRef.current = recognition
+    setDictating(true)
+    setModal('text')
+    setTimeout(() => recognition.stop(), 120000)
+  }
+
+  function stopDictate() {
+    recognitionRef.current?.stop()
+    setDictating(false)
+  }
+
+  const BTN = { background:'#12122a', border:'1px solid rgba(124,58,237,0.25)', borderRadius:8, padding:'10px 12px', cursor:'pointer', display:'flex', alignItems:'center', gap:10, width:'100%', marginBottom:8, transition:'all 0.15s' }
+
+  return (
+    <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+      <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff', marginBottom:2 }}>Knowledge Base</div>
+      <div style={{ fontSize:10, color:'#7878a0', marginBottom:14 }}>Teach your bot new content</div>
+
+      {/* 4 buttons */}
+      {[
+        { key:'scrape',  icon:'🌐', label:'Import from Website', desc:'Scrape a URL' },
+        { key:'file',    icon:'📄', label:'Upload File',         desc:'PDF, DOCX or TXT' },
+        { key:'text',    icon:'✏️', label:'Add Text',            desc:'Write or paste content' },
+        { key:'dictate', icon:'🎤', label:'Dictate',             desc:'Speak to add content' },
+      ].map(b => (
+        <button key={b.key}
+          onClick={() => b.key === 'dictate' ? startDictate() : setModal(b.key)}
+          style={BTN}
+          onMouseEnter={e => e.currentTarget.style.borderColor='rgba(124,58,237,0.5)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor='rgba(124,58,237,0.25)'}>
+          <span style={{ fontSize:16 }}>{b.icon}</span>
+          <div style={{ textAlign:'left' }}>
+            <div style={{ fontSize:12, fontWeight:600, color:'#f0f0ff' }}>{b.label}</div>
+            <div style={{ fontSize:10, color:'#7878a0' }}>{b.desc}</div>
+          </div>
+          <span style={{ marginLeft:'auto', color:'#4a4a6a', fontSize:12 }}>›</span>
+        </button>
+      ))}
+
+      {/* KB count + collapsible */}
+      <div style={{ borderTop:'1px solid rgba(124,58,237,0.15)', marginTop:4, paddingTop:10 }}>
+        <button onClick={() => setKbOpen(p => !p)}
+          style={{ width:'100%', background:'transparent', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between', padding:0 }}>
+          <span style={{ fontSize:11, color:'#7878a0' }}>📋 Knowledge base items</span>
+          <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+            <span style={{ fontSize:14, fontWeight:700, color:'#f59e0b' }}>{kbCount}</span>
+            <span style={{ fontSize:11, color:'#4a4a6a' }}>{kbOpen ? '▲' : '▼'}</span>
+          </div>
+        </button>
+        {kbOpen && (
+          <div style={{ marginTop:10, maxHeight:200, overflowY:'auto' }}>
+            {(bot.knowledge_entries || []).length === 0 ? (
+              <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'12px 0' }}>No entries yet</div>
+            ) : (bot.knowledge_entries || []).map((e, i) => (
+              <div key={i} style={{ padding:'7px 0', borderBottom:'1px solid rgba(124,58,237,0.1)', fontSize:11, color:'#9090b0' }}>
+                {e.title || e.content?.slice(0, 50) || 'Untitled'}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Hidden file input */}
+      <input ref={fileRef} type="file" accept=".pdf,.docx,.txt" style={{ display:'none' }} onChange={handleFile} />
+
+      {/* Modal overlay */}
+      {modal && (
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.8)', zIndex:9999, display:'flex', alignItems:'center', justifyContent:'center' }}
+          onClick={() => { setModal(null); setScrapeUrl(''); setScrapeError('') }}>
+          <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.3)', borderRadius:12, padding:24, width:480, maxWidth:'90vw' }}
+            onClick={e => e.stopPropagation()}>
+
+            {modal === 'scrape' && (
+              <>
+                <div style={{ fontSize:14, fontWeight:600, color:'#f0f0ff', marginBottom:6 }}>🌐 Import from Website</div>
+                <div style={{ fontSize:12, color:'#7878a0', marginBottom:14 }}>Paste a URL and we'll pull the content into your knowledge base.</div>
+                <div style={{ display:'flex', gap:8, marginBottom:10 }}>
+                  <input value={scrapeUrl} onChange={e => setScrapeUrl(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleScrape()}
+                    placeholder="https://yourwebsite.com"
+                    style={{ flex:1, background:'#12122a', border:'1px solid rgba(124,58,237,0.3)', borderRadius:6, padding:'8px 12px', color:'#f0f0ff', fontSize:12, outline:'none', fontFamily:'DM Mono, monospace' }} />
+                  <button onClick={handleScrape} disabled={!scrapeUrl.trim() || scrapeLoading}
+                    style={{ padding:'8px 16px', background:'#7c3aed', border:'none', borderRadius:6, color:'white', fontSize:12, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>
+                    {scrapeLoading ? '⟳ Importing…' : 'Import'}
+                  </button>
+                </div>
+                {scrapeError && <div style={{ fontSize:12, color:'#ef4444', marginBottom:10 }}>{scrapeError}</div>}
+                <button onClick={() => { setModal(null); setScrapeUrl(''); setScrapeError('') }}
+                  style={{ background:'transparent', border:'none', color:'#7878a0', fontSize:12, cursor:'pointer' }}>Cancel</button>
+              </>
+            )}
+
+            {modal === 'file' && (
+              <>
+                <div style={{ fontSize:14, fontWeight:600, color:'#f0f0ff', marginBottom:6 }}>📄 Upload File</div>
+                <div style={{ fontSize:12, color:'#7878a0', marginBottom:14 }}>Upload a PDF, DOCX or TXT file to add to your knowledge base.</div>
+                <button onClick={() => fileRef.current?.click()}
+                  style={{ width:'100%', padding:'20px', background:'#12122a', border:'2px dashed rgba(124,58,237,0.3)', borderRadius:8, color:'#7878a0', fontSize:13, cursor:'pointer', marginBottom:10 }}>
+                  {saving ? '⟳ Processing…' : '+ Click to choose file'}
+                </button>
+                <button onClick={() => setModal(null)}
+                  style={{ background:'transparent', border:'none', color:'#7878a0', fontSize:12, cursor:'pointer' }}>Cancel</button>
+              </>
+            )}
+
+            {modal === 'text' && (
+              <>
+                <div style={{ fontSize:14, fontWeight:600, color:'#f0f0ff', marginBottom:6 }}>
+                  {dictating ? '🎤 Dictating…' : '✏️ Add Text'}
+                </div>
+                {dictating && <div style={{ fontSize:12, color:'#f59e0b', marginBottom:10 }}>Listening — speak now. <button onClick={stopDictate} style={{ background:'transparent', border:'none', color:'#ef4444', cursor:'pointer', fontSize:12 }}>Stop</button></div>}
+                <input value={form.title} onChange={e => setForm(p => ({...p, title:e.target.value}))}
+                  placeholder="Title (optional)"
+                  style={{ width:'100%', background:'#12122a', border:'1px solid rgba(124,58,237,0.3)', borderRadius:6, padding:'8px 12px', color:'#f0f0ff', fontSize:12, outline:'none', marginBottom:8, fontFamily:'DM Mono, monospace', boxSizing:'border-box' }} />
+                <textarea value={form.content} onChange={e => setForm(p => ({...p, content:e.target.value}))}
+                  placeholder="Write or paste your content here…"
+                  style={{ width:'100%', minHeight:140, background:'#12122a', border:'1px solid rgba(124,58,237,0.3)', borderRadius:6, padding:'8px 12px', color:'#f0f0ff', fontSize:12, outline:'none', marginBottom:12, fontFamily:'DM Mono, monospace', resize:'vertical', boxSizing:'border-box' }} />
+                <div style={{ display:'flex', gap:8 }}>
+                  <button onClick={saveEntry} disabled={!form.content.trim() || saving}
+                    style={{ flex:1, padding:'9px', background:'#7c3aed', border:'none', borderRadius:6, color:'white', fontSize:12, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>
+                    {saving ? '⟳ Saving…' : 'Add to Knowledge Base'}
+                  </button>
+                  <button onClick={() => { setModal(null); setForm({ title:'', content:'' }); stopDictate() }}
+                    style={{ padding:'9px 16px', background:'transparent', border:'1px solid rgba(124,58,237,0.3)', borderRadius:6, color:'#7878a0', fontSize:12, cursor:'pointer' }}>Cancel</button>
+                </div>
+              </>
             )}
           </div>
         </div>
