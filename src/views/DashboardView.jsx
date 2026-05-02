@@ -1416,10 +1416,26 @@ function KbPanel({ bot }) {
     if (!file) return
     setSaving(true)
     try {
-      const { extractTextFromPDF } = await import('../lib/supabase.js')
       let content = ''
       if (file.type === 'application/pdf') {
-        content = await extractTextFromPDF(file)
+        try {
+          const { extractText } = await import('unpdf')
+          const arrayBuffer = await file.arrayBuffer()
+          const { text: extractedPages } = await extractText(new Uint8Array(arrayBuffer), { mergePages: false })
+          const extracted = Array.isArray(extractedPages) ? extractedPages.join('\n\n') : extractedPages
+          try {
+            const { callClaude } = await import('../lib/supabase.js')
+            const chunkSize = 12000
+            const chunks = []
+            for (let i = 0; i < extracted.length; i += chunkSize) chunks.push(extracted.slice(i, i + chunkSize))
+            const cleaned = await Promise.all(chunks.map(chunk => callClaude({
+              system: `Clean up raw PDF text. Fix ordering, preserve headings, format lists. Return only cleaned text.`,
+              messages: [],
+              userMessage: `Clean this PDF text:\n\n${chunk}`,
+            }).catch(() => chunk)))
+            content = cleaned.join('\n\n')
+          } catch { content = extracted }
+        } catch(err) { content = await file.text() }
       } else {
         content = await file.text()
       }
@@ -1428,7 +1444,7 @@ function KbPanel({ bot }) {
         id: Date.now().toString(),
         title: file.name.replace(/\.[^.]+$/, ''),
         type: 'faq', priority: 'primary',
-        content: content.trim(),
+        content: content.trim().slice(0, 200000),
         enabled: true, source: 'upload',
         created_at: new Date().toISOString(),
       }
