@@ -273,7 +273,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
       </div>
 
       {/* ── Row 1: Chat Preview + KB ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'stretch' }}>
 
         {/* Chat Preview */}
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
@@ -1504,7 +1504,7 @@ Return ONLY valid JSON.`,
   const BTN = { background:'#12122a', border:'1px solid rgba(124,58,237,0.25)', borderRadius:8, padding:'10px 12px', cursor:'pointer', display:'flex', alignItems:'center', gap:10, width:'100%', marginBottom:8, transition:'all 0.15s' }
 
   return (
-    <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+    <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16, display:'flex', flexDirection:'column' }}>
       <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff', marginBottom:2 }}>Knowledge Base</div>
       <div style={{ fontSize:10, color:'#7878a0', marginBottom:14 }}>Teach your bot new content</div>
 
@@ -1540,7 +1540,7 @@ Return ONLY valid JSON.`,
           </div>
         </button>
         {kbOpen && (
-          <div style={{ marginTop:10, maxHeight:200, overflowY:'auto' }}>
+          <div style={{ marginTop:10, flex:1, overflowY:'auto' }}>
             {(bot.knowledge_entries || []).length === 0 ? (
               <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'12px 0' }}>No entries yet</div>
             ) : (bot.knowledge_entries || []).map((e, i) => (
