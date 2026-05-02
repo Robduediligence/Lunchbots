@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getBotStats, getKnowledgeGaps, getConversations, getBotsByOwner, getFeedback, signOut, getActivityLog, getPlanLimits, renderMarkdown } from '../lib/supabase.js'
 import { I, Spinner } from '../components/UI.jsx'
 import { ActiveChat } from './ChatView.jsx'
