@@ -1388,25 +1388,39 @@ function KbPanel({ bot }) {
       const res = await fetch('/api/scrape', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: scrapeUrl }),
+        body: JSON.stringify({ url: scrapeUrl.trim() }),
       })
       const data = await res.json()
-      if (!res.ok || !data.content) throw new Error(data.error || 'Failed to import')
-      const { supabase } = await import('../lib/supabase.js')
-      const newEntry = {
-        id: Date.now().toString(),
-        title: data.title || scrapeUrl,
-        type: 'faq', priority: 'primary',
-        content: data.content,
-        enabled: true, source: 'scrape',
+      if (!res.ok) throw new Error(data.error || 'Failed to import')
+      if (!data.text || data.text.length < 50) throw new Error('Not enough content found on that page.')
+      const { callClaude, supabase } = await import('../lib/supabase.js')
+      const result = await callClaude({
+        system: `You are extracting knowledge base content from a website.
+Clean the text, remove navigation/footer/cookie notices, and return a JSON array of knowledge entries:
+[{ "title": "concise title", "type": "faq|products|policies|support", "content": "clean content" }]
+Create as many entries as needed to capture all distinct topics on the page.
+Return ONLY valid JSON.`,
+        messages: [],
+        userMessage: `Extract knowledge from this website content:\n\n${data.text.slice(0, 8000)}`,
+      })
+      const cleaned = result.replace(/```json|```/g, '').trim()
+      const entries = JSON.parse(cleaned)
+      const newEntries = entries.map(entry => ({
+        id: Date.now().toString() + Math.random(),
+        title: entry.title,
+        type: entry.type || 'faq',
+        priority: 'primary',
+        content: entry.content,
+        enabled: true,
+        source: 'website',
         created_at: new Date().toISOString(),
-      }
-      const updated = [...(bot.knowledge_entries || []), newEntry]
+      }))
+      const updated = [...(bot.knowledge_entries || []), ...newEntries]
       await supabase.from('bots').update({ knowledge_entries: updated, updated_at: new Date().toISOString() }).eq('id', bot.id)
       bot.knowledge_entries = updated
       setScrapeUrl('')
       setModal(null)
-      showToast('✓ Website imported to knowledge base')
+      showToast(`✓ ${newEntries.length} entries imported from website`)
     } catch(e) { setScrapeError(e.message || 'Could not import that URL.') }
     setScrapeLoading(false)
   }
