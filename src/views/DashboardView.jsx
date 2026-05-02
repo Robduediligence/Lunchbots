@@ -273,7 +273,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
       </div>
 
       {/* ── Row 1: Chat Preview + KB ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'stretch' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
 
         {/* Chat Preview */}
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
@@ -1540,7 +1540,7 @@ Return ONLY valid JSON.`,
           </div>
         </button>
         {kbOpen && (
-          <div style={{ marginTop:10, flex:1, overflowY:'auto' }}>
+          <div style={{ marginTop:10, maxHeight:300, overflowY:'auto' }}>
             {(bot.knowledge_entries || []).length === 0 ? (
               <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'12px 0' }}>No entries yet</div>
             ) : (bot.knowledge_entries || []).map((e, i) => (
