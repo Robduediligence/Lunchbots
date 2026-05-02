@@ -273,7 +273,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
       </div>
 
       {/* ── Row 1: Chat Preview + KB ── */}
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 280px', gap:16, alignItems:'start' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
 
         {/* Chat Preview */}
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
