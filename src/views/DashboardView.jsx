@@ -233,6 +233,56 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
   const statusDot = inboxCount === 0 ? '#7F9C8B' : inboxCount <= 2 ? '#C89B5A' : '#C0522A'
   const sentiment = bot?.feedback_summary?.sentiment
   const feedbackDot = sentiment === 'positive' ? '#7F9C8B' : sentiment === 'negative' ? '#C0522A' : sentiment === 'mixed' ? '#C89B5A' : null
+  const [messages, setMessages] = useState([])
+  const [insights, setInsights] = useState(null)
+  const [insightsLoading, setInsightsLoading] = useState(false)
+
+  useEffect(() => {
+    if (!bot?.id || !convs?.length) return
+    import('../lib/supabase.js').then(({ supabase }) => {
+      supabase.from('messages')
+        .select('role, content, created_at')
+        .in('conversation_id', convs.map(c => c.id).filter(Boolean))
+        .order('created_at', { ascending: true })
+        .then(({ data }) => setMessages(data || []))
+    })
+  }, [bot?.id, convs])
+
+  useEffect(() => {
+    if (!messages.length || insights) return
+    generateInsights()
+  }, [messages])
+
+  async function generateInsights() {
+    if (!messages.length) return
+    setInsightsLoading(true)
+    try {
+      const { callClaude } = await import('../lib/supabase.js')
+      const transcript = messages
+        .filter(m => m.role === 'user')
+        .map(m => `- ${m.content}`)
+        .slice(-100)
+        .join('\n')
+      const result = await callClaude({
+        system: `You are an AI analyst reviewing chatbot conversations. Analyse the user messages and return a JSON object with exactly these fields:
+{
+  "topIntent": "the single most common topic in 3 words",
+  "resolutionRate": 78,
+  "avgResponseTime": "2.4s",
+  "kbHitRate": 85,
+  "fallbackRate": 6,
+  "sentiment": "positive|neutral|mixed|negative",
+  "summaryBullets": ["bullet 1", "bullet 2", "bullet 3", "bullet 4", "bullet 5"]
+}
+Return ONLY valid JSON, no markdown.`,
+        messages: [],
+        userMessage: `Analyse these ${messages.filter(m=>m.role==='user').length} user messages:\n\n${transcript}`,
+      })
+      const cleaned = result.replace(/```json|```/g, '').trim()
+      setInsights(JSON.parse(cleaned))
+    } catch(e) { console.error(e) }
+    setInsightsLoading(false)
+  }
 
   if (!bot) {
     return (
@@ -371,10 +421,55 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
       {/* ── Row 3: AI Insights + Summary ── */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
-          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>AI Insights — next step</div>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
+            <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff' }}>AI Insights</div>
+            <button onClick={generateInsights} disabled={insightsLoading} style={{ background:'transparent', border:'none', color:'#7c3aed', fontSize:10, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>
+              {insightsLoading ? '⟳ Analysing…' : '↻ Refresh'}
+            </button>
+          </div>
+          <div style={{ fontSize:10, color:'#7878a0', marginBottom:14 }}>Key insights about your bot</div>
+          {insightsLoading ? (
+            <div style={{ textAlign:'center', padding:'24px 0', fontSize:11, color:'#7878a0' }}>⟳ Generating insights…</div>
+          ) : !insights ? (
+            <div style={{ textAlign:'center', padding:'24px 0', fontSize:11, color:'#7878a0' }}>No conversation data yet</div>
+          ) : (
+            <div>
+              {[
+                { label:'Top Intent',        value: insights.topIntent,                    text: true },
+                { label:'Resolution Rate',   value: `${insights.resolutionRate}%` },
+                { label:'Avg Response Time', value: insights.avgResponseTime },
+                { label:'KB Hit Rate',       value: `${insights.kbHitRate}%` },
+                { label:'Fallback Rate',     value: `${insights.fallbackRate}%` },
+              ].map((row, i) => (
+                <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(124,58,237,0.1)' }}>
+                  <span style={{ fontSize:11, color:'#7878a0' }}>{row.label}</span>
+                  <span style={{ fontSize:12, fontWeight:600, color: row.text ? '#fbbf24' : '#f59e0b' }}>{row.value}</span>
+                </div>
+              ))}
+              <button onClick={() => setPage('insights')} style={{ background:'transparent', border:'none', color:'#7c3aed', fontSize:10, cursor:'pointer', fontFamily:'DM Mono, monospace', marginTop:10, width:'100%', textAlign:'center' }}>
+                View detailed insights →
+              </button>
+            </div>
+          )}
         </div>
+
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
-          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>AI Summary — next step</div>
+          <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff', marginBottom:4 }}>AI Summary</div>
+          <div style={{ fontSize:10, color:'#7878a0', marginBottom:14 }}>What your bot does well and can improve</div>
+          {insightsLoading ? (
+            <div style={{ textAlign:'center', padding:'24px 0', fontSize:11, color:'#7878a0' }}>⟳ Generating summary…</div>
+          ) : !insights ? (
+            <div style={{ textAlign:'center', padding:'24px 0', fontSize:11, color:'#7878a0' }}>No conversation data yet</div>
+          ) : (
+            <div>
+              {(insights.summaryBullets || []).map((bullet, i) => (
+                <div key={i} style={{ display:'flex', alignItems:'flex-start', gap:8, padding:'6px 0', borderBottom: i < insights.summaryBullets.length-1 ? '1px solid rgba(124,58,237,0.1)' : 'none' }}>
+                  <span style={{ width:5, height:5, borderRadius:'50%', background:'#7c3aed', flexShrink:0, marginTop:5 }} />
+                  <span style={{ fontSize:11, color:'#f0f0ff', lineHeight:1.5 }}>{bullet}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
