@@ -341,7 +341,26 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
           )}
         </div>
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
-          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>Feedback panel — next step</div>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff' }}>Feedback</div>
+              {feedback?.filter(f => !f.resolved).length > 0 && <span style={{ background:'#7c3aed', color:'white', fontSize:9, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>{feedback.filter(f => !f.resolved).length}</span>}
+            </div>
+            <button onClick={() => setPage('feedback')} style={{ background:'transparent', border:'none', color:'#7c3aed', fontSize:11, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>View all →</button>
+          </div>
+          <div style={{ fontSize:10, color:'#7878a0', marginBottom:10 }}>Recent feedback</div>
+          {!feedback?.length ? (
+            <div style={{ textAlign:'center', padding:'24px 0' }}>
+              <div style={{ fontSize:20, marginBottom:6 }}>📝</div>
+              <div style={{ fontSize:12, color:'#7878a0' }}>No feedback yet</div>
+            </div>
+          ) : (
+            <div>
+              {feedback.slice(0, 5).map((fb, i) => (
+                <DashFeedbackRow key={i} fb={fb} isLast={i >= Math.min(feedback.length-1, 4)} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -1353,6 +1372,54 @@ if (sub?.stripe_subscription_id) {
               </div>
             )}
           </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DashFeedbackRow({ fb, isLast }) {
+  const [replyOpen, setReplyOpen] = useState(false)
+  const [reply, setReply] = useState('')
+  const [sending, setSending] = useState(false)
+
+  const emoji = fb.rating === 5 ? '😊' : fb.rating === 4 ? '🙂' : fb.rating === 3 ? '😐' : fb.rating === 2 ? '😕' : fb.rating === 1 ? '😞' : '💬'
+
+  async function sendReply() {
+    if (!reply.trim()) return
+    setSending(true)
+    try {
+      const { addFeedbackReply, supabase } = await import('../lib/supabase.js')
+      await addFeedbackReply(fb.id, 'admin', reply.trim())
+      await supabase.from('feedback').update({ resolved: true }).eq('id', fb.id)
+      setReplyOpen(false)
+      setReply('')
+    } catch(e) { console.error(e) }
+    setSending(false)
+  }
+
+  return (
+    <div style={{ borderBottom: isLast ? 'none' : '1px solid rgba(124,58,237,0.1)' }}>
+      <div style={{ display:'flex', alignItems:'flex-start', gap:8, padding:'8px 0' }}>
+        <span style={{ fontSize:16, flexShrink:0 }}>{emoji}</span>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontSize:11, color:'#f0f0ff', lineHeight:1.4 }}>{fb.content?.slice(0, 80)}{fb.content?.length > 80 ? '…' : ''}</div>
+          <div style={{ fontSize:9, color:'#7878a0', marginTop:2 }}>{fb.is_anon ? 'Anonymous' : fb.user_name || 'User'} · {new Date(fb.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}</div>
+        </div>
+        <button onClick={() => setReplyOpen(p => !p)}
+          style={{ flexShrink:0, background:'transparent', border:'1px solid rgba(124,58,237,0.3)', borderRadius:4, color:'#7c3aed', fontSize:9, padding:'3px 8px', cursor:'pointer', fontFamily:'DM Mono, monospace' }}>
+          {replyOpen ? 'Cancel' : 'Reply'}
+        </button>
+      </div>
+      {replyOpen && (
+        <div style={{ paddingBottom:10 }}>
+          <textarea value={reply} onChange={e => setReply(e.target.value)}
+            placeholder="Write a reply…"
+            style={{ width:'100%', minHeight:60, background:'#12122a', border:'1px solid rgba(124,58,237,0.3)', borderRadius:6, padding:'8px', color:'#f0f0ff', fontSize:11, outline:'none', fontFamily:'DM Mono, monospace', resize:'none', boxSizing:'border-box' }} />
+          <button onClick={sendReply} disabled={!reply.trim() || sending}
+            style={{ marginTop:6, width:'100%', padding:'7px', background:'#7c3aed', border:'none', borderRadius:6, color:'white', fontSize:11, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>
+            {sending ? 'Sending…' : 'Send reply →'}
+          </button>
         </div>
       )}
     </div>
