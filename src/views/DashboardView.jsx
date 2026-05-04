@@ -263,23 +263,25 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
         .map(m => `- ${m.content}`)
         .slice(-100)
         .join('\n')
+      const feedbackText = (feedback || []).map(f => `- ${f.content}`).join('\n')
+      const totalConvs = stats?.totalConversations || 0
+      const fallbackRate = totalConvs > 0 ? Math.round((gaps.length / totalConvs) * 100) : 0
+      const resolvedConvs = totalConvs - gaps.length
+      const resolutionRate = totalConvs > 0 ? Math.round((resolvedConvs / totalConvs) * 100) : 0
       const result = await callClaude({
-        system: `You are an AI analyst reviewing chatbot conversations. Analyse the user messages and return a JSON object with exactly these fields:
+        system: `You are an AI analyst reviewing chatbot conversations. Return a JSON object with exactly these fields:
 {
-  "topIntent": "the single most common topic in 3 words",
-  "resolutionRate": 78,
-  "avgResponseTime": "2.4s",
-  "kbHitRate": 85,
-  "fallbackRate": 6,
+  "topIntent": "the single most common topic in 3-4 words",
   "sentiment": "positive|neutral|mixed|negative",
   "summaryBullets": ["bullet 1", "bullet 2", "bullet 3", "bullet 4", "bullet 5"]
 }
 Return ONLY valid JSON, no markdown.`,
         messages: [],
-        userMessage: `Analyse these ${messages.filter(m=>m.role==='user').length} user messages:\n\n${transcript}`,
+        userMessage: `Analyse these user messages:\n\n${transcript}\n\nFeedback received:\n${feedbackText || 'None yet'}`,
       })
       const cleaned = result.replace(/```json|```/g, '').trim()
-      setInsights(JSON.parse(cleaned))
+      const ai = JSON.parse(cleaned)
+      setInsights({ ...ai, resolutionRate, fallbackRate })
     } catch(e) { console.error(e) }
     setInsightsLoading(false)
   }
@@ -420,7 +422,7 @@ Return ONLY valid JSON, no markdown.`,
 
       {/* ── Row 3: AI Insights + Summary ── */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
-        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16, height:260, boxSizing:'border-box', display:'flex', flexDirection:'column' }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
             <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff' }}>AI Insights</div>
             <button onClick={generateInsights} disabled={insightsLoading} style={{ background:'transparent', border:'none', color:'#7c3aed', fontSize:10, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>
@@ -433,13 +435,13 @@ Return ONLY valid JSON, no markdown.`,
           ) : !insights ? (
             <div style={{ textAlign:'center', padding:'24px 0', fontSize:11, color:'#7878a0' }}>No conversation data yet</div>
           ) : (
-            <div>
+            <div style={{ flex:1 }}>
               {[
-                { label:'Top Intent',        value: insights.topIntent,                    text: true },
-                { label:'Resolution Rate',   value: `${insights.resolutionRate}%` },
-                { label:'Avg Response Time', value: insights.avgResponseTime },
-                { label:'KB Hit Rate',       value: `${insights.kbHitRate}%` },
-                { label:'Fallback Rate',     value: `${insights.fallbackRate}%` },
+                { label:'Top Intent',      value: insights.topIntent,              text: true },
+                { label:'Resolution Rate', value: `${insights.resolutionRate}%` },
+                { label:'Fallback Rate',   value: `${insights.fallbackRate}%` },
+                { label:'Inbox Items',     value: inboxCount },
+                { label:'Sentiment',       value: insights.sentiment,              text: true },
               ].map((row, i) => (
                 <div key={i} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'8px 0', borderBottom:'1px solid rgba(124,58,237,0.1)' }}>
                   <span style={{ fontSize:11, color:'#7878a0' }}>{row.label}</span>
@@ -453,7 +455,7 @@ Return ONLY valid JSON, no markdown.`,
           )}
         </div>
 
-        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
+        <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16, height:260, boxSizing:'border-box', overflowY:'auto' }}>
           <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff', marginBottom:4 }}>AI Summary</div>
           <div style={{ fontSize:10, color:'#7878a0', marginBottom:14 }}>What your bot does well and can improve</div>
           {insightsLoading ? (
