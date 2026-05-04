@@ -206,7 +206,7 @@ useEffect(() => {
       Upgrade plan →
     </button>
   </div>
-) : <DashPage bot={activeBot} sub={sub} allBots={allBots} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} activity={activity} setActivity={setActivity} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} onNewBot={() => onEditBot(null)} />)}
+) : <DashPage bot={activeBot} sub={sub} allBots={allBots} stats={stats} convs={convs} gaps={gaps} setGaps={setGaps} activity={activity} setActivity={setActivity} shareUrl={shareUrl} onEdit={() => onEditBot(activeBot)} onNewBot={() => onEditBot(null)} setPage={setPage} feedback={feedback} />)}
           {page === 'inbox'     && <InboxPage bot={activeBot} gaps={gaps} setGaps={setGaps} />}
           {page === 'feedback'  && <FeedbackAdminPage bot={activeBot} feedback={feedback} setFeedback={setFeedback} />}
           {page === 'insights'  && <InsightsPage bot={activeBot} convs={convs} />}
@@ -222,7 +222,7 @@ useEffect(() => {
 
 
 // ── Dashboard page ────────────────────────────────────────────────────────────
-function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onNewBot, setGaps, activity, setActivity }) {
+function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onNewBot, setGaps, activity, setActivity, setPage, feedback }) {
   const [copied, setCopied] = useState(false)
   const [previewMode, setPreviewMode] = useState('phone')
   const [kbMode, setKbMode] = useState(null)
@@ -315,7 +315,30 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
       {/* ── Row 2: Inbox + Feedback ── */}
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
-          <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>Inbox panel — next step</div>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ fontSize:13, fontWeight:600, color:'#f0f0ff' }}>Inbox</div>
+              {gaps.length > 0 && <span style={{ background:'#f59e0b', color:'#09090e', fontSize:9, fontWeight:700, padding:'2px 7px', borderRadius:10 }}>{gaps.length}</span>}
+            </div>
+            <button onClick={() => setPage('inbox')} style={{ background:'transparent', border:'none', color:'#7c3aed', fontSize:11, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>View all →</button>
+          </div>
+          <div style={{ fontSize:10, color:'#7878a0', marginBottom:10 }}>Unanswered questions</div>
+          {gaps.length === 0 ? (
+            <div style={{ textAlign:'center', padding:'24px 0' }}>
+              <div style={{ fontSize:20, marginBottom:6 }}>✅</div>
+              <div style={{ fontSize:12, color:'#7878a0' }}>All caught up</div>
+            </div>
+          ) : (
+            <div>
+              {gaps.slice(0, 5).map((g, i) => (
+                <AttentionRow key={i} gap={g} bot={bot} isLast={i >= Math.min(gaps.length-1, 4)}
+                  onAnswered={(answeredGap, mode) => {
+                    setGaps(p => p.filter(x => x.id !== answeredGap.id))
+                    setActivity(p => [{ id: Date.now(), type: mode === 'answer' ? 'answered_question' : 'replied_question', description: mode === 'answer' ? `Answered: "${answeredGap.question.slice(0,60)}"` : `Replied to: "${answeredGap.question.slice(0,60)}"`, created_at: new Date().toISOString() }, ...p])
+                  }} />
+              ))}
+            </div>
+          )}
         </div>
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
           <div style={{ fontSize:11, color:'#4a4a6a', textAlign:'center', padding:'20px 0' }}>Feedback panel — next step</div>
