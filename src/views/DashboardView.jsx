@@ -459,37 +459,38 @@ function AttentionRow({ gap, bot, isLast, onAnswered }) {
   }
 
   return (
-    <div style={{ borderBottom: isLast ? 'none' : '1px solid var(--line)' }}>
-      <div style={{ padding:'12px 20px', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
+    <div style={{ borderBottom: isLast ? 'none' : '1px solid rgba(124,58,237,0.1)' }}>
+      <div style={{ padding:'8px 0', display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:12 }}>
         <div style={{ minWidth:0 }}>
-          <div style={{ fontSize:13.5, color:'var(--ink)', lineHeight:1.55, marginBottom:3 }}>
+          <div style={{ fontSize:12, color:'#f0f0ff', lineHeight:1.55, marginBottom:3 }}>
             "{gap.question.slice(0, 80)}{gap.question.length > 80 ? '…' : ''}"
           </div>
-          <div style={{ fontSize:11.5, color:'var(--ink4)' }}>
+          <div style={{ fontSize:10, color:'#7878a0' }}>
             {new Date(gap.created_at).toLocaleDateString('en-NZ', { day:'numeric', month:'short' })}
           </div>
         </div>
         <div style={{ display:'flex', gap:6, flexShrink:0 }}>
           {mode ? (
-            <button className="btn btn-ghost btn-xs" onClick={() => { setMode(null); setText('') }}>Cancel</button>
+            <button onClick={() => { setMode(null); setText('') }} style={{ background:'transparent', border:'1px solid rgba(124,58,237,0.3)', borderRadius:4, color:'#7878a0', fontSize:9, padding:'3px 8px', cursor:'pointer', fontFamily:'DM Mono, monospace' }}>Cancel</button>
           ) : (
             <>
-              <button className="btn btn-primary btn-xs" onClick={() => setMode('answer')}>Answer</button>
-              <button className="btn btn-secondary btn-xs" onClick={() => setMode('reply')}>Reply only</button>
+              <button onClick={() => setMode('answer')} style={{ background:'#f59e0b', border:'none', borderRadius:4, color:'#09090e', fontSize:9, fontWeight:700, padding:'3px 8px', cursor:'pointer', fontFamily:'DM Mono, monospace' }}>Answer</button>
+              <button onClick={() => setMode('reply')} style={{ background:'transparent', border:'1px solid rgba(124,58,237,0.3)', borderRadius:4, color:'#7878a0', fontSize:9, padding:'3px 8px', cursor:'pointer', fontFamily:'DM Mono, monospace' }}>Reply only</button>
             </>
           )}
         </div>
       </div>
       {mode && (
-        <div style={{ padding:'0 20px 14px' }}>
-          <div style={{ fontSize:11.5, color:'var(--ink4)', marginBottom:6 }}>
+        <div style={{ padding:'0 0 10px' }}>
+          <div style={{ fontSize:10, color:'#7878a0', marginBottom:6 }}>
             {mode === 'answer' ? '✓ This reply will be saved to your knowledge base' : '→ This reply will be sent once and not saved'}
           </div>
-          <textarea className="input" style={{ minHeight:80, marginBottom:8 }}
+          <textarea value={text} onChange={e => setText(e.target.value)} autoFocus
             placeholder={mode === 'answer' ? 'Type your answer…' : 'Type a one-off reply…'}
-            value={text} onChange={e => setText(e.target.value)} autoFocus />
-          <button className="btn btn-primary btn-sm w100" onClick={handleAnswer} disabled={!text.trim() || saving}>
-            {saving ? <Spinner size={13} color="white" /> : mode === 'answer' ? 'Save & add to knowledge base' : 'Send reply only'}
+            style={{ width:'100%', minHeight:70, background:'#12122a', border:'1px solid rgba(124,58,237,0.3)', borderRadius:6, padding:'8px', color:'#f0f0ff', fontSize:11, outline:'none', fontFamily:'DM Mono, monospace', resize:'none', boxSizing:'border-box', marginBottom:6 }} />
+          <button onClick={handleAnswer} disabled={!text.trim() || saving}
+            style={{ width:'100%', padding:'7px', background:'#7c3aed', border:'none', borderRadius:6, color:'white', fontSize:11, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>
+            {saving ? '⟳ Saving…' : mode === 'answer' ? 'Save & add to KB' : 'Send reply only'}
           </button>
         </div>
       )}
