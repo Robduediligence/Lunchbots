@@ -323,6 +323,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
             <button onClick={() => setPage('inbox')} style={{ background:'transparent', border:'none', color:'#7c3aed', fontSize:11, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>View all →</button>
           </div>
           <div style={{ fontSize:10, color:'#7878a0', marginBottom:10 }}>Unanswered questions</div>
+          <div style={{ minHeight:260, maxHeight:260, overflowY:'auto' }}>
           {gaps.length === 0 ? (
             <div style={{ textAlign:'center', padding:'24px 0' }}>
               <div style={{ fontSize:20, marginBottom:6 }}>✅</div>
@@ -339,6 +340,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
               ))}
             </div>
           )}
+          </div>
         </div>
         <div style={{ background:'#0f0f1a', border:'1px solid rgba(124,58,237,0.2)', borderRadius:10, padding:16 }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
@@ -348,7 +350,8 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
             </div>
             <button onClick={() => setPage('feedback')} style={{ background:'transparent', border:'none', color:'#7c3aed', fontSize:11, cursor:'pointer', fontFamily:'DM Mono, monospace' }}>View all →</button>
           </div>
-          <div style={{ fontSize:10, color:'#7878a0', marginBottom:10 }}>Recent feedback</div>
+         <div style={{ fontSize:10, color:'#7878a0', marginBottom:10 }}>Recent feedback</div>
+          <div style={{ minHeight:260, maxHeight:260, overflowY:'auto' }}>
           {!feedback?.length ? (
             <div style={{ textAlign:'center', padding:'24px 0' }}>
               <div style={{ fontSize:20, marginBottom:6 }}>📝</div>
@@ -361,6 +364,7 @@ function DashPage({ bot, sub, allBots, stats, convs, gaps, shareUrl, onEdit, onN
               ))}
             </div>
           )}
+          </div>
         </div>
       </div>
 
